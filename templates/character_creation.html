@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建角色 - 修仙模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SimSun', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #ccc;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        input[type="text"]::placeholder {
+            color: #888;
+        }
+        
+        .stats-container {
+            margin: 2rem 0;
+        }
+        
+        .stat-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-name {
+            width: 100px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .stat-value {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .stat-slider {
+            flex: 1;
+            margin: 0 1rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .remaining-points {
+            margin: 1.5rem 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ff9800;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .confirm-btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+        }
+        
+        .back-btn {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+            color: #4caf50;
+        }
+        
+        .error {
+            display: none;
+            margin-top: 1rem;
+            color: #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stat-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stat-name, .stat-value {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .stat-slider {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>创建你的角色</h1>
+        
+        <form id="character-form">
+            <div class="form-group">
+                <label for="player_name">道友名讳：</label>
+                <input type="text" id="player_name" name="player_name" placeholder="请输入你的仙名" required>
+            </div>
+            
+            <div class="stats-container">
+                <h3 style="color: #ffd700; margin-bottom: 1rem; text-align: center;">属性点分配</h3>
+                
+                <div class="stat-group">
+                    <span class="stat-name">体质</span>
+                    <input type="range" class="stat-slider" id="体质" name="体质" min="0" max="10" value="0" oninput="updateStats()">
+                    <span class="stat-value" id="体质-value">0</span>
+                    <span style="color: #ccc; margin-left: 1rem;">影响生命值和恢复速度</span>
+                </div>
+                
+                <div class="stat-group">
+                    <span class="stat-name">灵根</span>
+                    <input type="range" class="stat-slider" id="灵根" name="灵根" min="0" max="10" value="0" oninput="updateStats()">
+                    <span class="stat-value" id="灵根-value">0</span>
+                    <span style="color: #ccc; margin-left: 1rem;">影响灵气吸收效率</span>
+                </div>
+                
+                <div class="stat-group">
+                    <span class="stat-name">悟性</span>
+                    <input type="range" class="stat-slider" id="悟性" name="悟性" min="0" max="10" value="0" oninput="updateStats()">
+                    <span class="stat-value" id="悟性-value">0</span>
+                    <span style="color: #ccc; margin-left: 1rem;">影响学习和领悟速度</span>
+                </div>
+                
+                <div class="stat-group">
+                    <span class="stat-name">机缘</span>
+                    <input type="range" class="stat-slider" id="机缘" name="机缘" min="0" max="10" value="0" oninput="updateStats()">
+                    <span class="stat-value" id="机缘-value">0</span>
+                    <span style="color: #ccc; margin-left: 1rem;">影响奇遇概率</span>
+                </div>
+                
+                <div class="remaining-points" id="remaining-points">
+                    剩余点数：20
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button type="button" class="back-btn" onclick="location.href='/'">← 返回</button>
+                <button type="submit" class="confirm-btn">✓ 确认创建</button>
+            </div>
+        </form>
+        
+        <div id="loading" class="loading">创建中...</div>
+        <div id="error" class="error">错误信息</div>
+    </div>
+    
+    <script>
+        const totalPoints = 20;
+        
+        function updateStats() {
+            const 体质 = parseInt(document.getElementById('体质').value);
+            const 灵根 = parseInt(document.getElementById('灵根').value);
+            const 悟性 = parseInt(document.getElementById('悟性').value);
+            const 机缘 = parseInt(document.getElementById('机缘').value);
+            
+            const usedPoints = 体质 + 灵根 + 悟性 + 机缘;
+            const remaining = totalPoints - usedPoints;
+            
+            document.getElementById('体质-value').textContent = 体质;
+            document.getElementById('灵根-value').textContent = 灵根;
+            document.getElementById('悟性-value').textContent = 悟性;
+            document.getElementById('机缘-value').textContent = 机缘;
+            
+            const remainingElement = document.getElementById('remaining-points');
+            remainingElement.textContent = `剩余点数：${remaining}`;
+            
+            if (remaining < 0) {
+                remainingElement.style.color = '#f44336';
+            } else {
+                remainingElement.style.color = '#ff9800';
+            }
+        }
+        
+        document.getElementById('character-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const playerName = document.getElementById('player_name').value;
+            const 体质 = parseInt(document.getElementById('体质').value);
+            const 灵根 = parseInt(document.getElementById('灵根').value);
+            const 悟性 = parseInt(document.getElementById('悟性').value);
+            const 机缘 = parseInt(document.getElementById('机缘').value);
+            
+            const usedPoints = 体质 + 灵根 + 悟性 + 机缘;
+            
+            if (!playerName) {
+                showError('请输入角色名称！');
+                return;
+            }
+            
+            if (usedPoints !== totalPoints) {
+                showError(`请分配完所有属性点 (已用${usedPoints}/${totalPoints})`);
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            hideError();
+            
+            try {
+                const formData = new FormData();
+                formData.append('player_name', playerName);
+                formData.append('体质', 体质);
+                formData.append('灵根', 灵根);
+                formData.append('悟性', 悟性);
+                formData.append('机缘', 机缘);
+                
+                const response = await fetch('/start', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    location.href = '/game';
+                } else {
+                    showError(result.error || '创建角色失败');
+                }
+            } catch (error) {
+                showError('创建角色失败，请重试');
+                console.error('创建角色失败:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        // 初始化更新
+        updateStats();
+    </script>
+</body>
+</html>

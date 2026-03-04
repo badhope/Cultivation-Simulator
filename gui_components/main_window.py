@@ -8,10 +8,11 @@ import customtkinter as ctk
 from tkinter import messagebox
 import random
 from typing import Dict, Callable
-from game_core.game_engine import GameEngine
+from core.game_engine import GameEngine
 from gui_components.theme_manager import ThemeManager
 from gui_components.animation_system import AnimationSystem
 from gui_components.sound_manager import SoundManager
+from utils.performance_optimizer import timing
 
 class MainWindow(ctk.CTkFrame):
     """主游戏窗口"""
@@ -63,12 +64,14 @@ class MainWindow(ctk.CTkFrame):
         avatar_frame = ctk.CTkFrame(left_frame, fg_color=self.theme_manager.panel_bg)
         avatar_frame.pack(fill="x", padx=10, pady=10)
         
-        avatar_label = ctk.CTkLabel(
+        # 头像动画
+        self.avatar_label = ctk.CTkLabel(
             avatar_frame,
             text="🧙‍♂️",
             font=ctk.CTkFont(size=48)
         )
-        avatar_label.pack(pady=10)
+        self.avatar_label.pack(pady=10)
+        self.animation_system.animate_avatar(self.avatar_label)
         
         # 玩家基本信息
         self.name_label = ctk.CTkLabel(
@@ -184,7 +187,12 @@ class MainWindow(ctk.CTkFrame):
             ("社交", "social"),
             ("背包", "inventory"),
             ("任务", "quest"),
-            ("功法", "technique")
+            ("功法", "technique"),
+            ("门派", "sect"),
+            ("炼丹", "alchemy"),
+            ("玩法", "gameplay"),
+            ("宠物", "pet"),
+            ("阵法", "formation")
         ]
         
         self.tab_buttons = {}
@@ -485,7 +493,7 @@ class MainWindow(ctk.CTkFrame):
         quests_frame = ctk.CTkScrollableFrame(self.content_frame)
         quests_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
-        available_quests = self.game_engine.story_quest_system.get_available_quests(self.player)
+        available_quests = self.game_engine.quest_system.get_available_quests(self.player)
         
         if available_quests:
             for quest in available_quests:
@@ -533,12 +541,171 @@ class MainWindow(ctk.CTkFrame):
         )
         title.pack(pady=20)
         
-        techniques_label = ctk.CTkLabel(
+        # 已学功法
+        learned_techniques = self.game_engine.skill_system.get_learned_techniques()
+        if learned_techniques:
+            for name, technique in learned_techniques.items():
+                tech_frame = ctk.CTkFrame(self.content_frame)
+                tech_frame.pack(fill="x", pady=10, padx=20)
+                
+                tech_name = ctk.CTkLabel(
+                    tech_frame,
+                    text=f"{name}",
+                    font=ctk.CTkFont(size=16, weight="bold")
+                )
+                tech_name.pack(side="left", padx=10, pady=10)
+                
+                mastery_label = ctk.CTkLabel(
+                    tech_frame,
+                    text=f"掌握度: {technique['mastery']:.1f}%",
+                    font=ctk.CTkFont(size=14)
+                )
+                mastery_label.pack(side="right", padx=10, pady=10)
+        else:
+            no_tech_label = ctk.CTkLabel(
+                self.content_frame,
+                text="暂无已学功法\n通过探索或门派获得功法吧！",
+                font=ctk.CTkFont(size=16)
+            )
+            no_tech_label.pack(pady=50)
+            
+    def create_sect_tab(self):
+        """创建门派标签页"""
+        self.clear_content_frame()
+        
+        title = ctk.CTkLabel(
             self.content_frame,
-            text="功法系统开发中...\n当前已学功法将显示在这里",
+            text="🏯 门派",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        title.pack(pady=20)
+        
+        # 门派信息
+        if hasattr(self.player, 'sect') and self.player.sect:
+            sect_frame = ctk.CTkFrame(self.content_frame)
+            sect_frame.pack(fill="x", pady=20, padx=20)
+            
+            sect_name = ctk.CTkLabel(
+                sect_frame,
+                text=f"当前门派：{self.player.sect.name}",
+                font=ctk.CTkFont(size=20, weight="bold")
+            )
+            sect_name.pack(pady=10)
+            
+            sect_type = ctk.CTkLabel(
+                sect_frame,
+                text=f"门派类型：{self.player.sect.type}",
+                font=ctk.CTkFont(size=14)
+            )
+            sect_type.pack(pady=5)
+            
+            contribution = self.player.resources.get('贡献点', 0)
+            contribution_label = ctk.CTkLabel(
+                sect_frame,
+                text=f"贡献点：{contribution}",
+                font=ctk.CTkFont(size=14)
+            )
+            contribution_label.pack(pady=5)
+            
+            # 门派功能按钮
+            sect_buttons = ctk.CTkFrame(self.content_frame)
+            sect_buttons.pack(pady=20)
+            
+            task_btn = ctk.CTkButton(
+                sect_buttons,
+                text="门派任务",
+                width=150,
+                command=self.do_sect_task
+            )
+            task_btn.pack(side="left", padx=10, pady=10)
+            
+            exchange_btn = ctk.CTkButton(
+                sect_buttons,
+                text="门派兑换",
+                width=150,
+                command=self.do_sect_exchange
+            )
+            exchange_btn.pack(side="left", padx=10, pady=10)
+        else:
+            # 可加入门派列表
+            available_sects = self.game_engine.sect_system.get_available_sects(self.player)
+            if available_sects:
+                for sect in available_sects:
+                    sect_frame = ctk.CTkFrame(self.content_frame)
+                    sect_frame.pack(fill="x", pady=10, padx=20)
+                    
+                    sect_name = ctk.CTkLabel(
+                        sect_frame,
+                        text=f"{sect.name} [{sect.type}]",
+                        font=ctk.CTkFont(size=16, weight="bold")
+                    )
+                    sect_name.pack(side="left", padx=10, pady=10)
+                    
+                    join_btn = ctk.CTkButton(
+                        sect_frame,
+                        text="加入",
+                        width=100,
+                        command=lambda s=sect: self.join_sect(s)
+                    )
+                    join_btn.pack(side="right", padx=10, pady=10)
+            else:
+                no_sect_label = ctk.CTkLabel(
+                    self.content_frame,
+                    text="暂无可加入的门派\n提升境界后再来看看吧！",
+                    font=ctk.CTkFont(size=16)
+                )
+                no_sect_label.pack(pady=50)
+                
+    def create_alchemy_tab(self):
+        """创建炼丹标签页"""
+        self.clear_content_frame()
+        
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text="⚗️ 炼丹",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        title.pack(pady=20)
+        
+        # 炼丹操作
+        alchemy_frame = ctk.CTkFrame(self.content_frame)
+        alchemy_frame.pack(pady=20, padx=20)
+        
+        lingyao_count = self.player.resources.get('灵药', 0)
+        lingyao_label = ctk.CTkLabel(
+            alchemy_frame,
+            text=f"当前灵药：{lingyao_count}",
             font=ctk.CTkFont(size=16)
         )
-        techniques_label.pack(pady=50)
+        lingyao_label.pack(pady=10)
+        
+        refine_btn = ctk.CTkButton(
+            alchemy_frame,
+            text="开始炼丹",
+            font=ctk.CTkFont(size=18),
+            width=200,
+            height=50,
+            command=self.do_alchemy
+        )
+        refine_btn.pack(pady=20)
+        
+        # 炼丹说明
+        desc_text = """
+        炼丹需要消耗灵药，成功后可获得丹药。
+        丹药可以提升修为或增加属性。
+        悟性越高，炼丹成功率越大。
+        """
+        
+        desc_label = ctk.CTkLabel(
+            self.content_frame,
+            text=desc_text.strip(),
+            font=ctk.CTkFont(size=14),
+            wraplength=400,
+            justify="center"
+        )
+        desc_label.pack(pady=20)
         
     def clear_content_frame(self):
         """清空内容区域"""
@@ -563,7 +730,12 @@ class MainWindow(ctk.CTkFrame):
             "social": self.create_social_tab,
             "inventory": self.create_inventory_tab,
             "quest": self.create_quest_tab,
-            "technique": self.create_technique_tab
+            "technique": self.create_technique_tab,
+            "sect": self.create_sect_tab,
+            "alchemy": self.create_alchemy_tab,
+            "gameplay": self.create_gameplay_tab,
+            "pet": self.create_pet_tab,
+            "formation": self.create_formation_tab
         }
         
         if tab_id in tab_creators:
@@ -636,15 +808,488 @@ class MainWindow(ctk.CTkFrame):
         
     def accept_quest(self, quest):
         """接受任务"""
-        quest.start_quest()
-        self.game_engine.story_quest_system.active_quests.append(quest)
+        if self.game_engine.quest_system.accept_quest(quest.quest_id):
+            self.sound_manager.play_sound_effect("quest_accept")
+            messagebox.showinfo("任务接受", f"已接受任务：{quest.title}")
+            
+            # 切换到任务标签页
+            self.switch_tab("quest")
+        else:
+            messagebox.showwarning("任务接受失败", "无法接受此任务")
         
-        self.sound_manager.play_sound_effect("quest_accept")
-        messagebox.showinfo("任务接受", f"已接受任务：{quest.title}")
+    def do_sect_task(self):
+        """执行门派任务"""
+        if hasattr(self.player, 'sect') and self.player.sect:
+            result = self.player.sect.sect_task(self.player)
+            messagebox.showinfo("门派任务", result)
+            self.update_resources()
         
-        # 切换到任务标签页
-        self.switch_tab("quest")
+    def do_sect_exchange(self):
+        """门派兑换"""
+        if hasattr(self.player, 'sect') and self.player.sect:
+            exchange_window = ctk.CTkToplevel(self)
+            exchange_window.title("门派兑换")
+            exchange_window.geometry("400x300")
+            
+            exchange_frame = ctk.CTkFrame(exchange_window)
+            exchange_frame.pack(fill="both", expand=True, padx=20, pady=20)
+            
+            title = ctk.CTkLabel(
+                exchange_frame,
+                text="门派兑换",
+                font=ctk.CTkFont(size=20, weight="bold")
+            )
+            title.pack(pady=10)
+            
+            # 兑换物品
+            items = [
+                {"name": "丹药", "cost": 50},
+                {"name": "法器", "cost": 100},
+                {"name": "秘籍", "cost": 200}
+            ]
+            
+            for item in items:
+                item_frame = ctk.CTkFrame(exchange_frame)
+                item_frame.pack(fill="x", pady=10)
+                
+                item_label = ctk.CTkLabel(
+                    item_frame,
+                    text=f"{item['name']} (需要{item['cost']}贡献点)",
+                    font=ctk.CTkFont(size=14)
+                )
+                item_label.pack(side="left", padx=10)
+                
+                exchange_btn = ctk.CTkButton(
+                    item_frame,
+                    text="兑换",
+                    width=100,
+                    command=lambda i=item: self.exchange_item(i)
+                )
+                exchange_btn.pack(side="right", padx=10)
         
+    def exchange_item(self, item):
+        """兑换物品"""
+        contribution = self.player.resources.get('贡献点', 0)
+        if contribution >= item['cost']:
+            self.player.resources['贡献点'] -= item['cost']
+            if item['name'] in self.player.resources:
+                self.player.resources[item['name']] += 1
+            else:
+                self.player.resources[item['name']] = 1
+            messagebox.showinfo("兑换成功", f"已兑换 {item['name']}！")
+            self.update_resources()
+        else:
+            messagebox.showwarning("兑换失败", "贡献点不足！")
+        
+    def join_sect(self, sect):
+        """加入门派"""
+        sect.join_sect(self.player)
+        messagebox.showinfo("加入门派", f"成功加入 {sect.name}！")
+        self.switch_tab("sect")
+        
+    def do_alchemy(self):
+        """执行炼丹"""
+        if self.player.resources.get('灵药', 0) > 0:
+            result = self.game_engine.alchemy_system.alchemy_interface(self.player.name, self.player.stats)
+            messagebox.showinfo("炼丹结果", result)
+            self.update_resources()
+        else:
+            messagebox.showwarning("炼丹失败", "没有足够的灵药！")
+    
+    def create_gameplay_tab(self):
+        """创建游戏玩法模式标签页"""
+        self.clear_content_frame()
+        
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text="🎮 游戏玩法模式",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        title.pack(pady=20)
+        
+        # 游戏玩法模式列表
+        gameplay_frame = ctk.CTkFrame(self.content_frame)
+        gameplay_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # 获取当前模式状态
+        current_mode = self.game_engine.gameplay_system.current_mode
+        if current_mode:
+            mode_status = self.game_engine.gameplay_system.get_mode_status()
+            status_frame = ctk.CTkFrame(gameplay_frame, border_width=2, border_color=self.theme_manager.highlight_color)
+            status_frame.pack(fill="x", pady=10, padx=10)
+            
+            status_label = ctk.CTkLabel(
+                status_frame,
+                text=mode_status,
+                font=ctk.CTkFont(size=14),
+                wraplength=400
+            )
+            status_label.pack(pady=10, padx=10)
+            
+            end_btn = ctk.CTkButton(
+                gameplay_frame,
+                text="结束当前模式",
+                font=ctk.CTkFont(size=16),
+                width=200,
+                height=40,
+                command=self.end_gameplay_mode
+            )
+            end_btn.pack(pady=10)
+        else:
+            # 显示可选择的游戏模式
+            modes = self.game_engine.gameplay_system.get_available_modes()
+            for mode_key, mode_name in modes.items():
+                mode_frame = ctk.CTkFrame(gameplay_frame)
+                mode_frame.pack(fill="x", pady=10, padx=10)
+                
+                mode_label = ctk.CTkLabel(
+                    mode_frame,
+                    text=mode_name,
+                    font=ctk.CTkFont(size=16, weight="bold")
+                )
+                mode_label.pack(side="left", padx=10, pady=10)
+                
+                start_btn = ctk.CTkButton(
+                    mode_frame,
+                    text="开始",
+                    width=100,
+                    command=lambda m=mode_key: self.start_gameplay_mode(m)
+                )
+                start_btn.pack(side="right", padx=10, pady=10)
+    
+    def start_gameplay_mode(self, mode_name: str):
+        """开始游戏玩法模式"""
+        # 显示难度选择
+        difficulty_window = ctk.CTkToplevel(self)
+        difficulty_window.title("选择难度")
+        difficulty_window.geometry("400x300")
+        
+        difficulty_frame = ctk.CTkFrame(difficulty_window)
+        difficulty_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title = ctk.CTkLabel(
+            difficulty_frame,
+            text="选择难度",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title.pack(pady=20)
+        
+        difficulty_var = ctk.IntVar(value=1)
+        
+        for i in range(1, 6):
+            radiobutton = ctk.CTkRadioButton(
+                difficulty_frame,
+                text=f"难度 {i}",
+                variable=difficulty_var,
+                value=i
+            )
+            radiobutton.pack(pady=5)
+        
+        start_btn = ctk.CTkButton(
+            difficulty_frame,
+            text="开始",
+            font=ctk.CTkFont(size=16),
+            command=lambda: self.confirm_start_gameplay(mode_name, difficulty_var.get(), difficulty_window)
+        )
+        start_btn.pack(pady=20)
+    
+    def confirm_start_gameplay(self, mode_name: str, difficulty: int, window):
+        """确认开始游戏玩法模式"""
+        self.game_engine.gameplay_system.start_mode(mode_name, self.player, difficulty)
+        window.destroy()
+        # 刷新界面
+        self.switch_tab("gameplay")
+    
+    def end_gameplay_mode(self):
+        """结束游戏玩法模式"""
+        self.game_engine.gameplay_system.end_mode()
+        # 刷新界面
+        self.switch_tab("gameplay")
+    
+    def create_pet_tab(self):
+        """创建宠物系统标签页"""
+        self.clear_content_frame()
+        
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text="🐾 宠物系统",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        title.pack(pady=20)
+        
+        # 宠物系统功能区
+        pet_frame = ctk.CTkFrame(self.content_frame)
+        pet_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # 宠物列表
+        pets = self.game_engine.pet_system.get_pets()
+        if pets:
+            pets_frame = ctk.CTkFrame(pet_frame)
+            pets_frame.pack(fill="x", pady=10, padx=10)
+            
+            pets_label = ctk.CTkLabel(
+                pets_frame,
+                text="宠物列表",
+                font=ctk.CTkFont(size=18, weight="bold")
+            )
+            pets_label.pack(pady=10)
+            
+            for i, pet in enumerate(pets, 1):
+                pet_status = pet.get_status()
+                pet_info_frame = ctk.CTkFrame(pets_frame, border_width=1, border_color=self.theme_manager.border_color)
+                pet_info_frame.pack(fill="x", pady=5, padx=10)
+                
+                pet_name_label = ctk.CTkLabel(
+                    pet_info_frame,
+                    text=f"{i}. {pet_status['name']} (等级: {pet_status['level']}, 类型: {pet_status['type']})",
+                    font=ctk.CTkFont(size=14, weight="bold")
+                )
+                pet_name_label.pack(anchor="w", padx=10, pady=5)
+                
+                pet_details_label = ctk.CTkLabel(
+                    pet_info_frame,
+                    text=f"技能: {pet_status['skill']}, 亲密度: {pet_status['friendship']}/100, 攻击: {pet_status['stats']['攻击']}, 防御: {pet_status['stats']['防御']}, 速度: {pet_status['stats']['速度']}, 生命值: {pet_status['stats']['生命值']}",
+                    font=ctk.CTkFont(size=12)
+                )
+                pet_details_label.pack(anchor="w", padx=10, pady=5)
+                
+                # 宠物操作按钮
+                pet_buttons_frame = ctk.CTkFrame(pet_info_frame)
+                pet_buttons_frame.pack(fill="x", pady=5, padx=10)
+                
+                feed_btn = ctk.CTkButton(
+                    pet_buttons_frame,
+                    text="喂食",
+                    width=80,
+                    command=lambda p=pet: self.feed_pet(p)
+                )
+                feed_btn.pack(side="left", padx=5)
+                
+                train_btn = ctk.CTkButton(
+                    pet_buttons_frame,
+                    text="训练",
+                    width=80,
+                    command=lambda p=pet: self.train_pet(p)
+                )
+                train_btn.pack(side="left", padx=5)
+                
+                battle_btn = ctk.CTkButton(
+                    pet_buttons_frame,
+                    text="战斗",
+                    width=80,
+                    command=lambda p=pet: self.pet_battle(p)
+                )
+                battle_btn.pack(side="left", padx=5)
+        else:
+            no_pets_label = ctk.CTkLabel(
+                pet_frame,
+                text="还没有宠物！\n去探索地点捕捉宠物吧！",
+                font=ctk.CTkFont(size=16)
+            )
+            no_pets_label.pack(pady=50)
+        
+        # 捕捉宠物按钮
+        capture_btn = ctk.CTkButton(
+            pet_frame,
+            text="捕捉宠物",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.capture_pet
+        )
+        capture_btn.pack(pady=20)
+    
+    def capture_pet(self):
+        """捕捉宠物"""
+        # 显示地点选择
+        location_window = ctk.CTkToplevel(self)
+        location_window.title("选择地点")
+        location_window.geometry("400x300")
+        
+        location_frame = ctk.CTkFrame(location_window)
+        location_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title = ctk.CTkLabel(
+            location_frame,
+            text="选择捕捉地点",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title.pack(pady=20)
+        
+        locations = ["青云山脉", "紫霄宫", "幽冥谷", "天机城", "血魔窟"]
+        
+        for location in locations:
+            location_btn = ctk.CTkButton(
+                location_frame,
+                text=location,
+                font=ctk.CTkFont(size=14),
+                command=lambda l=location: self.choose_location(l, location_window)
+            )
+            location_btn.pack(fill="x", pady=5)
+    
+    def choose_location(self, location: str, window):
+        """选择捕捉地点"""
+        window.destroy()
+        
+        # 获取该地点可捕捉的宠物
+        available_pets = self.game_engine.pet_system.get_available_pets(location)
+        
+        if available_pets:
+            pet_window = ctk.CTkToplevel(self)
+            pet_window.title(f"{location}的宠物")
+            pet_window.geometry("500x400")
+            
+            pet_frame = ctk.CTkFrame(pet_window)
+            pet_frame.pack(fill="both", expand=True, padx=20, pady=20)
+            
+            title = ctk.CTkLabel(
+                pet_frame,
+                text=f"{location}可捕捉的宠物",
+                font=ctk.CTkFont(size=20, weight="bold")
+            )
+            title.pack(pady=20)
+            
+            for pet in available_pets:
+                pet_info_frame = ctk.CTkFrame(pet_frame, border_width=1, border_color=self.theme_manager.border_color)
+                pet_info_frame.pack(fill="x", pady=10, padx=10)
+                
+                pet_name_label = ctk.CTkLabel(
+                    pet_info_frame,
+                    text=f"{pet['name']} (等级: {pet['level']}, 类型: {pet['type']})",
+                    font=ctk.CTkFont(size=14, weight="bold")
+                )
+                pet_name_label.pack(anchor="w", padx=10, pady=5)
+                
+                pet_desc_label = ctk.CTkLabel(
+                    pet_info_frame,
+                    text=f"描述: {pet['description']}, 捕捉率: {pet['capture_rate'] * 100:.1f}%",
+                    font=ctk.CTkFont(size=12)
+                )
+                pet_desc_label.pack(anchor="w", padx=10, pady=5)
+                
+                capture_btn = ctk.CTkButton(
+                    pet_info_frame,
+                    text="捕捉",
+                    width=80,
+                    command=lambda p=pet: self.attempt_capture(p, pet_window)
+                )
+                capture_btn.pack(side="right", padx=10, pady=10)
+        else:
+            messagebox.showinfo("无宠物", f"{location}没有可捕捉的宠物！")
+    
+    def attempt_capture(self, pet_info: Dict, window):
+        """尝试捕捉宠物"""
+        pet = self.game_engine.pet_system.capture_pet(pet_info, self.player)
+        window.destroy()
+        
+        if pet:
+            messagebox.showinfo("捕捉成功", f"成功捕捉到{pet.name}！")
+        else:
+            messagebox.showinfo("捕捉失败", f"捕捉{pet_info['name']}失败了！")
+        
+        # 刷新界面
+        self.switch_tab("pet")
+    
+    def feed_pet(self, pet):
+        """喂食宠物"""
+        # 显示食物选择
+        food_window = ctk.CTkToplevel(self)
+        food_window.title("选择食物")
+        food_window.geometry("400x300")
+        
+        food_frame = ctk.CTkFrame(food_window)
+        food_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title = ctk.CTkLabel(
+            food_frame,
+            text=f"选择食物喂食{pet.name}",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title.pack(pady=20)
+        
+        foods = ["灵草", "丹药", "妖兽肉"]
+        
+        for food in foods:
+            food_btn = ctk.CTkButton(
+                food_frame,
+                text=food,
+                font=ctk.CTkFont(size=14),
+                command=lambda f=food: self.confirm_feed(pet, f, food_window)
+            )
+            food_btn.pack(fill="x", pady=5)
+    
+    def confirm_feed(self, pet, food: str, window):
+        """确认喂食宠物"""
+        self.game_engine.pet_system.feed_pet(pet, food)
+        window.destroy()
+        # 刷新界面
+        self.switch_tab("pet")
+    
+    def train_pet(self, pet):
+        """训练宠物"""
+        # 显示训练时长选择
+        train_window = ctk.CTkToplevel(self)
+        train_window.title("训练宠物")
+        train_window.geometry("400x300")
+        
+        train_frame = ctk.CTkFrame(train_window)
+        train_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title = ctk.CTkLabel(
+            train_frame,
+            text=f"选择训练{pet.name}的时长",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title.pack(pady=20)
+        
+        hours_var = ctk.IntVar(value=1)
+        
+        for i in range(1, 6):
+            radiobutton = ctk.CTkRadioButton(
+                train_frame,
+                text=f"{i}小时",
+                variable=hours_var,
+                value=i
+            )
+            radiobutton.pack(pady=5)
+        
+        start_btn = ctk.CTkButton(
+            train_frame,
+            text="开始训练",
+            font=ctk.CTkFont(size=16),
+            command=lambda: self.confirm_train(pet, hours_var.get(), train_window)
+        )
+        start_btn.pack(pady=20)
+    
+    def confirm_train(self, pet, hours: int, window):
+        """确认训练宠物"""
+        self.game_engine.pet_system.train_pet(pet, hours)
+        window.destroy()
+        # 刷新界面
+        self.switch_tab("pet")
+    
+    def pet_battle(self, pet):
+        """宠物战斗"""
+        # 模拟敌人
+        enemy = {
+            "name": "妖兽",
+            "hp": 50,
+            "attack": 10
+        }
+        
+        victory = self.game_engine.pet_system.pet_battle(pet, enemy)
+        
+        if victory:
+            messagebox.showinfo("战斗胜利", f"{pet.name}胜利了！获得了经验值！")
+        else:
+            messagebox.showinfo("战斗失败", f"{pet.name}失败了...")
+        
+        # 刷新界面
+        self.switch_tab("pet")
+        
+    @timing
     def update_player_info(self):
         """更新玩家信息显示"""
         self.name_label.configure(text=self.player.name)
@@ -666,12 +1311,21 @@ class MainWindow(ctk.CTkFrame):
         # 更新寿元
         self.lifetime_label.configure(text=f"{self.player.lifetime}年")
         
+    @timing
     def update_world_info(self):
         """更新世界信息"""
-        self.season_label.configure(text=f"季节：{self.world_sim.world_state['season']}")
-        self.weather_label.configure(text=f"天气：{self.world_sim.world_state['weather']}")
+        # 模拟季节和天气
+        seasons = ["春季", "夏季", "秋季", "冬季"]
+        weathers = ["晴朗", "多云", "下雨", "下雪"]
         
-        spirit = self.world_sim.get_spirit_concentration()
+        season = seasons[self.world_sim.world_time % 4]
+        weather = weathers[random.randint(0, 3)]
+        
+        self.season_label.configure(text=f"季节：{season}")
+        self.weather_label.configure(text=f"天气：{weather}")
+        
+        # 模拟灵气浓度
+        spirit = random.randint(30, 80)
         self.spirit_label.configure(text=f"灵气：{spirit}%")
         
         if spirit > 70:
@@ -681,6 +1335,7 @@ class MainWindow(ctk.CTkFrame):
         else:
             self.spirit_label.configure(text_color=self.theme_manager.text_primary)
             
+    @timing
     def update_resources(self):
         """更新资源显示"""
         for resource, label in self.resource_labels.items():
@@ -707,3 +1362,398 @@ class MainWindow(ctk.CTkFrame):
         if messagebox.askyesno("确认退出", "确定要退出游戏吗？\n游戏会自动保存进度。"):
             self.game_engine.save_game()
             self.exit_callback()
+    
+    def create_formation_tab(self):
+        """创建阵法系统标签页"""
+        self.clear_content_frame()
+        
+        title = ctk.CTkLabel(
+            self.content_frame,
+            text="🔮 阵法系统",
+            font=ctk.CTkFont(size=28, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        title.pack(pady=20)
+        
+        # 阵法系统功能区
+        formation_frame = ctk.CTkFrame(self.content_frame)
+        formation_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # 功能按钮
+        button_frame = ctk.CTkFrame(formation_frame)
+        button_frame.pack(pady=20)
+        
+        show_btn = ctk.CTkButton(
+            button_frame,
+            text="查看已学习的阵法",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.show_formations
+        )
+        show_btn.pack(side="left", padx=10, pady=10)
+        
+        learn_btn = ctk.CTkButton(
+            button_frame,
+            text="学习新阵法",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.learn_formation
+        )
+        learn_btn.pack(side="left", padx=10, pady=10)
+        
+        place_btn = ctk.CTkButton(
+            button_frame,
+            text="布置阵法",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.place_formation
+        )
+        place_btn.pack(side="left", padx=10, pady=10)
+        
+        manage_btn = ctk.CTkButton(
+            button_frame,
+            text="管理已布置的阵法",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.manage_placed_formations
+        )
+        manage_btn.pack(side="left", padx=10, pady=10)
+        
+        upgrade_btn = ctk.CTkButton(
+            button_frame,
+            text="升级阵法",
+            font=ctk.CTkFont(size=16),
+            width=200,
+            height=40,
+            command=self.upgrade_formation
+        )
+        upgrade_btn.pack(side="left", padx=10, pady=10)
+        
+        # 已学习的阵法列表
+        formations = self.game_engine.formation_system.get_formations()
+        if formations:
+            formations_frame = ctk.CTkFrame(formation_frame)
+            formations_frame.pack(fill="x", pady=10, padx=10)
+            
+            formations_label = ctk.CTkLabel(
+                formations_frame,
+                text="已学习的阵法",
+                font=ctk.CTkFont(size=18, weight="bold")
+            )
+            formations_label.pack(pady=10)
+            
+            for i, formation in enumerate(formations, 1):
+                status = formation.get_status()
+                formation_info_frame = ctk.CTkFrame(formations_frame, border_width=1, border_color=self.theme_manager.border_color)
+                formation_info_frame.pack(fill="x", pady=5, padx=10)
+                
+                formation_name_label = ctk.CTkLabel(
+                    formation_info_frame,
+                    text=f"{i}. {status['name']} (等级: {status['level']})",
+                    font=ctk.CTkFont(size=14, weight="bold")
+                )
+                formation_name_label.pack(anchor="w", padx=10, pady=5)
+                
+                formation_details_label = ctk.CTkLabel(
+                    formation_info_frame,
+                    text=f"效果: {status['effects']}, 能量消耗: {status['energy_cost']}, 持续时间: {status['duration']}, 状态: {'已布置' if status['placed'] else '未布置'}",
+                    font=ctk.CTkFont(size=12)
+                )
+                formation_details_label.pack(anchor="w", padx=10, pady=5)
+        else:
+            no_formations_label = ctk.CTkLabel(
+                formation_frame,
+                text="还没有学习任何阵法！\n通过学习新阵法来增强你的实力吧！",
+                font=ctk.CTkFont(size=16)
+            )
+            no_formations_label.pack(pady=50)
+    
+    def show_formations(self):
+        """显示已学习的阵法"""
+        formations = self.game_engine.formation_system.get_formations()
+        if not formations:
+            messagebox.showinfo("无阵法", "还没有学习任何阵法")
+            return
+        
+        # 显示阵法详情
+        formations_window = ctk.CTkToplevel(self)
+        formations_window.title("已学习的阵法")
+        formations_window.geometry("600x400")
+        
+        formations_frame = ctk.CTkFrame(formations_window)
+        formations_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        for i, formation in enumerate(formations, 1):
+            status = formation.get_status()
+            formation_frame = ctk.CTkFrame(formations_frame, border_width=1, border_color=self.theme_manager.border_color)
+            formation_frame.pack(fill="x", pady=10, padx=10)
+            
+            formation_name = ctk.CTkLabel(
+                formation_frame,
+                text=f"{i}. {status['name']} (等级: {status['level']})",
+                font=ctk.CTkFont(size=14, weight="bold")
+            )
+            formation_name.pack(anchor="w", padx=10, pady=5)
+            
+            formation_effects = ctk.CTkLabel(
+                formation_frame,
+                text=f"效果: {status['effects']}",
+                font=ctk.CTkFont(size=12)
+            )
+            formation_effects.pack(anchor="w", padx=10, pady=5)
+            
+            formation_details = ctk.CTkLabel(
+                formation_frame,
+                text=f"能量消耗: {status['energy_cost']}, 持续时间: {status['duration']}, 状态: {'已布置' if status['placed'] else '未布置'}",
+                font=ctk.CTkFont(size=12)
+            )
+            formation_details.pack(anchor="w", padx=10, pady=5)
+    
+    def learn_formation(self):
+        """学习新阵法"""
+        available = self.game_engine.formation_system.get_available_formations(1)  # 假设玩家等级为1
+        learned = [f.name for f in self.game_engine.formation_system.get_formations()]
+        new_formations = [f for f in available if f not in learned]
+        
+        if not new_formations:
+            messagebox.showinfo("无新阵法", "没有可学习的新阵法")
+            return
+        
+        # 显示可学习的阵法
+        learn_window = ctk.CTkToplevel(self)
+        learn_window.title("学习新阵法")
+        learn_window.geometry("600x400")
+        
+        learn_frame = ctk.CTkFrame(learn_window)
+        learn_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        for i, formation_name in enumerate(new_formations, 1):
+            blueprint = self.game_engine.formation_system.formation_blueprints[formation_name]
+            formation_frame = ctk.CTkFrame(learn_frame, border_width=1, border_color=self.theme_manager.border_color)
+            formation_frame.pack(fill="x", pady=10, padx=10)
+            
+            formation_name_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"{i}. {formation_name} (需求等级: {blueprint['required_level']})",
+                font=ctk.CTkFont(size=14, weight="bold")
+            )
+            formation_name_label.pack(anchor="w", padx=10, pady=5)
+            
+            formation_effects_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"效果: {blueprint['effects']}",
+                font=ctk.CTkFont(size=12)
+            )
+            formation_effects_label.pack(anchor="w", padx=10, pady=5)
+            
+            learn_btn = ctk.CTkButton(
+                formation_frame,
+                text="学习",
+                width=100,
+                command=lambda f=formation_name: self.confirm_learn_formation(f, learn_window)
+            )
+            learn_btn.pack(side="right", padx=10, pady=10)
+    
+    def confirm_learn_formation(self, formation_name: str, window):
+        """确认学习阵法"""
+        formation = self.game_engine.formation_system.create_formation(formation_name, 1)  # 假设玩家等级为1
+        if formation:
+            messagebox.showinfo("学习成功", f"成功学习{formation_name}！")
+        else:
+            messagebox.showinfo("学习失败", "学习阵法失败")
+        window.destroy()
+        self.switch_tab("formation")
+    
+    def place_formation(self):
+        """布置阵法"""
+        available_formations = [f for f in self.game_engine.formation_system.get_formations() if not f.placed]
+        if not available_formations:
+            messagebox.showinfo("无可用阵法", "没有可用的阵法")
+            return
+        
+        # 显示可布置的阵法
+        place_window = ctk.CTkToplevel(self)
+        place_window.title("布置阵法")
+        place_window.geometry("600x400")
+        
+        place_frame = ctk.CTkFrame(place_window)
+        place_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        for i, formation in enumerate(available_formations, 1):
+            status = formation.get_status()
+            formation_frame = ctk.CTkFrame(place_frame, border_width=1, border_color=self.theme_manager.border_color)
+            formation_frame.pack(fill="x", pady=10, padx=10)
+            
+            formation_name_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"{i}. {status['name']} (等级: {status['level']})",
+                font=ctk.CTkFont(size=14, weight="bold")
+            )
+            formation_name_label.pack(anchor="w", padx=10, pady=5)
+            
+            formation_cost_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"能量消耗: {status['energy_cost']}",
+                font=ctk.CTkFont(size=12)
+            )
+            formation_cost_label.pack(anchor="w", padx=10, pady=5)
+            
+            place_btn = ctk.CTkButton(
+                formation_frame,
+                text="布置",
+                width=100,
+                command=lambda f=formation: self.confirm_place_formation(f, place_window)
+            )
+            place_btn.pack(side="right", padx=10, pady=10)
+    
+    def confirm_place_formation(self, formation, window):
+        """确认布置阵法"""
+        # 显示位置输入
+        location_window = ctk.CTkToplevel(self)
+        location_window.title("输入布置位置")
+        location_window.geometry("400x200")
+        
+        location_frame = ctk.CTkFrame(location_window)
+        location_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        location_label = ctk.CTkLabel(
+            location_frame,
+            text="输入布置位置:",
+            font=ctk.CTkFont(size=16)
+        )
+        location_label.pack(pady=10)
+        
+        location_entry = ctk.CTkEntry(
+            location_frame,
+            font=ctk.CTkFont(size=14),
+            placeholder_text="例如: 洞府"
+        )
+        location_entry.pack(fill="x", pady=10)
+        
+        def place():
+            location = location_entry.get().strip()
+            if location:
+                success = self.game_engine.formation_system.place_formation(formation, location, self.player)
+                if success:
+                    messagebox.showinfo("布置成功", f"成功布置{formation.name}！")
+                else:
+                    messagebox.showinfo("布置失败", "能量不足，无法布置阵法")
+                location_window.destroy()
+                window.destroy()
+                self.switch_tab("formation")
+            else:
+                messagebox.showwarning("输入错误", "请输入布置位置")
+        
+        place_btn = ctk.CTkButton(
+            location_frame,
+            text="确认布置",
+            font=ctk.CTkFont(size=14),
+            command=place
+        )
+        place_btn.pack(pady=10)
+    
+    def manage_placed_formations(self):
+        """管理已布置的阵法"""
+        placed_formations = self.game_engine.formation_system.get_placed_formations()
+        if not placed_formations:
+            messagebox.showinfo("无已布置阵法", "没有已布置的阵法")
+            return
+        
+        # 显示已布置的阵法
+        manage_window = ctk.CTkToplevel(self)
+        manage_window.title("已布置的阵法")
+        manage_window.geometry("600x400")
+        
+        manage_frame = ctk.CTkFrame(manage_window)
+        manage_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        for i, placed in enumerate(placed_formations, 1):
+            formation = placed['formation']
+            formation_frame = ctk.CTkFrame(manage_frame, border_width=1, border_color=self.theme_manager.border_color)
+            formation_frame.pack(fill="x", pady=10, padx=10)
+            
+            formation_name_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"{i}. {formation.name} (位置: {placed['location']})",
+                font=ctk.CTkFont(size=14, weight="bold")
+            )
+            formation_name_label.pack(anchor="w", padx=10, pady=5)
+            
+            formation_time_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"剩余时间: {placed['remaining_time']}",
+                font=ctk.CTkFont(size=12)
+            )
+            formation_time_label.pack(anchor="w", padx=10, pady=5)
+            
+            remove_btn = ctk.CTkButton(
+                formation_frame,
+                text="移除",
+                width=100,
+                command=lambda f=formation: self.confirm_remove_formation(f, manage_window)
+            )
+            remove_btn.pack(side="right", padx=10, pady=10)
+    
+    def confirm_remove_formation(self, formation, window):
+        """确认移除阵法"""
+        self.game_engine.formation_system.remove_formation(formation)
+        messagebox.showinfo("移除成功", f"成功移除{formation.name}！")
+        window.destroy()
+        self.switch_tab("formation")
+    
+    def upgrade_formation(self):
+        """升级阵法"""
+        formations = self.game_engine.formation_system.get_formations()
+        if not formations:
+            messagebox.showinfo("无阵法", "还没有学习任何阵法")
+            return
+        
+        # 显示可升级的阵法
+        upgrade_window = ctk.CTkToplevel(self)
+        upgrade_window.title("升级阵法")
+        upgrade_window.geometry("600x400")
+        
+        upgrade_frame = ctk.CTkFrame(upgrade_window)
+        upgrade_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        for i, formation in enumerate(formations, 1):
+            status = formation.get_status()
+            upgrade_cost = status['level'] * 20
+            formation_frame = ctk.CTkFrame(upgrade_frame, border_width=1, border_color=self.theme_manager.border_color)
+            formation_frame.pack(fill="x", pady=10, padx=10)
+            
+            formation_name_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"{i}. {status['name']} (等级: {status['level']})",
+                font=ctk.CTkFont(size=14, weight="bold")
+            )
+            formation_name_label.pack(anchor="w", padx=10, pady=5)
+            
+            upgrade_cost_label = ctk.CTkLabel(
+                formation_frame,
+                text=f"升级消耗: {upgrade_cost}",
+                font=ctk.CTkFont(size=12)
+            )
+            upgrade_cost_label.pack(anchor="w", padx=10, pady=5)
+            
+            upgrade_btn = ctk.CTkButton(
+                formation_frame,
+                text="升级",
+                width=100,
+                command=lambda f=formation: self.confirm_upgrade_formation(f, upgrade_window)
+            )
+            upgrade_btn.pack(side="right", padx=10, pady=10)
+    
+    def confirm_upgrade_formation(self, formation, window):
+        """确认升级阵法"""
+        success = self.game_engine.formation_system.upgrade_formation(formation, self.player)
+        if success:
+            messagebox.showinfo("升级成功", f"成功升级{formation.name}！")
+        else:
+            messagebox.showinfo("升级失败", "修为不足，无法升级")
+        window.destroy()
+        self.switch_tab("formation")

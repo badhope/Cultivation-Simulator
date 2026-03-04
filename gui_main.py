@@ -7,23 +7,42 @@
 
 import customtkinter as ctk
 from tkinter import messagebox
-import pygame
 import random
 from typing import Dict, Callable
-from game_core.game_engine import GameEngine
-from game_core.player import Player
-from game_core.world_simulator import WorldSimulator
+from core.game_engine import GameEngine
+from core.player import Player
+from core.world import World
 from gui_components.main_window import MainWindow
 from gui_components.theme_manager import ThemeManager
 from gui_components.animation_system import AnimationSystem
-from gui_components.sound_manager import SoundManager
+
+# 尝试导入pygame，如果失败则使用假的SoundManager
+pygame_available = False
+try:
+    import pygame
+    from gui_components.sound_manager import SoundManager
+    pygame_available = True
+except ImportError:
+    # 创建一个假的SoundManager类
+    class SoundManager:
+        def __init__(self):
+            pass
+        def play_background_music(self, music_type):
+            pass
+        def play_sound_effect(self, effect_type):
+            pass
+        def play_breakthrough_sequence(self):
+            pass
+        def set_volume(self, volume):
+            pass
 
 class CultivationGUI:
     """修仙游戏 GUI 主类"""
     
     def __init__(self):
-        # 初始化 pygame 用于音效
-        pygame.mixer.init()
+        # 初始化 pygame 用于音效（如果可用）
+        if pygame_available:
+            pygame.mixer.init()
         
         # 创建主窗口
         self.root = ctk.CTk()
@@ -77,7 +96,7 @@ class CultivationGUI:
         subtitle_label = ctk.CTkLabel(
             startup_frame,
             text="飞升之路",
-            font=ctk.CTkFont(size=36, style="italic"),
+            font=ctk.CTkFont(size=36),
             text_color=self.theme_manager.spirit_green
         )
         subtitle_label.pack(pady=(0, 50))
@@ -161,7 +180,7 @@ class CultivationGUI:
         # 初始化游戏
         self.player = Player(player_name)
         self.player.stats.update(stats)
-        self.world_sim = WorldSimulator()
+        self.world_sim = World()
         self.game_engine = GameEngine()
         
         # 进入游戏主界面
@@ -257,7 +276,8 @@ class CultivationGUI:
         if self.game_engine and self.player:
             self.game_engine.save_game()
             
-        pygame.mixer.quit()
+        if pygame_available:
+            pygame.mixer.quit()
         self.root.quit()
         self.root.destroy()
         

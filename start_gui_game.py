@@ -18,10 +18,12 @@ def check_dependencies():
     except ImportError:
         missing_packages.append("customtkinter")
         
+    # 检查pygame，但不是必需的
     try:
         import pygame
+        print("pygame 已安装，将启用音效功能")
     except ImportError:
-        missing_packages.append("pygame")
+        print("pygame 未安装，将禁用音效功能")
         
     if missing_packages:
         print("=" * 60)
