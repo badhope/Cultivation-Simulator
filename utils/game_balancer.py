@@ -86,11 +86,11 @@ class GameBalancer:
         """计算任务奖励"""
         return base_reward * self.balance_settings["quest_reward_rate"]
     
-    def calculate_pet_capture_rate(self, base_rate: float) -> float:
+    def calculate_pet_capture_rate(self, base_rate: float, player_stats: Dict = None) -> float:
         """计算宠物捕捉率"""
         rate = base_rate * self.balance_settings["pet_capture_rate"]
         # 机缘属性影响
-        luck = self.player_stats.get("机缘", 5) if hasattr(self, 'player_stats') else 5
+        luck = player_stats.get("福缘", 5) if player_stats else 5
         rate *= (1 + (luck - 5) * 0.05)
         return rate
     

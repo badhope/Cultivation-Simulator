@@ -20,28 +20,41 @@ class Player:
             "悟性": 5,
             "体质": 5,
             "根骨": 5,
-            "福缘": 5
+            "福缘": 5,
+            "心境": 5,
+            "魅力": 5,
+            "声望": 0
         }
         self.resources = {
             "灵石": 100,
             "灵药": 0,
             "法器": 0,
-            "贡献点": 0
+            "贡献点": 0,
+            "声望值": 0,
+            "道心": 0
         }
         self.sect = None  # 门派
         self.skills = []  # 技能
         self.achievements = []  # 成就
         self.quests = []  # 任务
         self.inventory = []  # 背包
+        self.companions = []  # 伙伴
+        self.mounts = []  # 坐骑
+        self.title = "初入修仙"  # 称号
+        self.cultivation_path = "正道"  # 修炼路径
+        self.special_abilities = []  # 特殊能力
     
     def cultivate(self):
         """玩家修炼"""
+        from utils.game_balancer import game_balancer
+        
         # 基础修炼效率
         base_gain = 2
-        # 悟性影响修炼效率
-        comprehension_bonus = self.stats.get("悟性", 5) // 2
-        # 总修为增长
-        cultivation_gain = base_gain + comprehension_bonus
+        # 使用游戏平衡器计算实际修炼增益
+        cultivation_gain = game_balancer.calculate_cultivation_gain(base_gain, self.stats)
+        
+        # 确保增益至少为1
+        cultivation_gain = max(1, int(cultivation_gain))
         
         self.cultivation += cultivation_gain
         print(f"{self.name}修炼中，获得{cultivation_gain}点修为")
@@ -99,6 +112,50 @@ class Player:
         else:
             print(f"{self.name}还没有加入任何门派")
     
+    def change_cultivation_path(self, path: str):
+        """切换修炼路径"""
+        valid_paths = ["正道", "魔道", "妖道", "佛道", "鬼道"]
+        if path in valid_paths:
+            self.cultivation_path = path
+            print(f"{self.name}改修{path}")
+        else:
+            print("无效的修炼路径")
+    
+    def learn_special_ability(self, ability: str):
+        """学习特殊能力"""
+        if ability not in self.special_abilities:
+            self.special_abilities.append(ability)
+            print(f"{self.name}学会了特殊能力：{ability}")
+        else:
+            print(f"{self.name}已经学会了该特殊能力")
+    
+    def recruit_companion(self, companion: dict):
+        """招募伙伴"""
+        self.companions.append(companion)
+        print(f"{self.name}招募了伙伴：{companion['name']}")
+    
+    def acquire_mount(self, mount: dict):
+        """获得坐骑"""
+        self.mounts.append(mount)
+        print(f"{self.name}获得了坐骑：{mount['name']}")
+    
+    def gain_title(self, title: str):
+        """获得称号"""
+        self.title = title
+        print(f"{self.name}获得了新称号：{title}")
+    
+    def improve_state_of_mind(self, amount: int):
+        """提升心境"""
+        self.stats["心境"] += amount
+        self.resources["道心"] += amount
+        print(f"{self.name}心境提升了{amount}点")
+    
+    def gain_reputation(self, amount: int):
+        """获得声望"""
+        self.stats["声望"] += amount
+        self.resources["声望值"] += amount
+        print(f"{self.name}声望提升了{amount}点")
+    
     def get_status(self) -> Dict:
         """获取玩家状态"""
         return {
@@ -111,7 +168,12 @@ class Player:
             "sect": self.sect.name if self.sect else None,
             "skills": self.skills,
             "achievements": self.achievements,
-            "quests": self.quests
+            "quests": self.quests,
+            "companions": self.companions,
+            "mounts": self.mounts,
+            "title": self.title,
+            "cultivation_path": self.cultivation_path,
+            "special_abilities": self.special_abilities
         }
     
     def to_dict(self) -> Dict:
@@ -125,7 +187,12 @@ class Player:
             'resources': self.resources,
             'skills': self.skills,
             'achievements': self.achievements,
-            'quests': self.quests
+            'quests': self.quests,
+            'companions': self.companions,
+            'mounts': self.mounts,
+            'title': self.title,
+            'cultivation_path': self.cultivation_path,
+            'special_abilities': self.special_abilities
         }
     
     @classmethod
@@ -140,6 +207,11 @@ class Player:
         player.skills = data['skills']
         player.achievements = data['achievements']
         player.quests = data['quests']
+        player.companions = data.get('companions', [])
+        player.mounts = data.get('mounts', [])
+        player.title = data.get('title', '初入修仙')
+        player.cultivation_path = data.get('cultivation_path', '正道')
+        player.special_abilities = data.get('special_abilities', [])
         return player
     
     @classmethod

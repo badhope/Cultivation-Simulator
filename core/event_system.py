@@ -68,8 +68,9 @@ class EventSystem:
         """生成随机事件"""
         event_chance = random.random()
         
-        if event_chance < 0.15:  # 15%概率
-            events = [
+        if event_chance < 0.2:  # 20%概率
+            # 根据玩家境界和修炼路径生成不同类型的事件
+            base_events = [
                 "发现灵草",
                 "遇到同门师兄弟",
                 "天降机缘",
@@ -79,8 +80,43 @@ class EventSystem:
                 "古遗迹现世",
                 "天地异象"
             ]
-            event_type = random.choice(events)
-            self.trigger_event(event_type, {"player": player, "world": world})
+            
+            # 根据修炼路径添加特定事件
+            path_specific_events = {
+                "正道": ["除魔卫道", "获得仙缘", "正道同门求助"],
+                "魔道": ["吸收煞气", "魔功突破", "魔道盟友召唤"],
+                "妖道": ["妖兽契约", "化形机缘", "妖族聚会"],
+                "佛道": ["佛法感悟", "普渡众生", "佛缘显现"],
+                "鬼道": ["阴魂附体", "黄泉历练", "鬼界通道"]
+            }
+            
+            # 根据境界添加高级事件
+            realm_events = {
+                "凡人": [],
+                "练气期": ["初次遇敌", "修炼瓶颈"],
+                "筑基期": ["洞府争夺", "门派任务"],
+                "金丹期": ["法宝认主", "秘境探索"],
+                "元婴期": ["飞升考验", "仙缘显现"],
+                "化神期": ["空间穿越", "法则领悟"],
+                "合体期": ["大道之争", "天地异象"],
+                "渡劫期": ["劫云显现", "仙魔大战"]
+            }
+            
+            # 合并所有可能的事件
+            all_events = base_events
+            if player.cultivation_path in path_specific_events:
+                all_events.extend(path_specific_events[player.cultivation_path])
+            if player.realm in realm_events:
+                all_events.extend(realm_events[player.realm])
+            
+            event_type = random.choice(all_events)
+            event_data = {
+                "player": player,
+                "world": world,
+                "event_type": event_type,
+                "timestamp": len(self.event_history)
+            }
+            self.trigger_event(event_type, event_data)
     
     def get_event_history(self, limit: int = 10) -> List:
         """获取事件历史"""

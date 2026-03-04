@@ -152,7 +152,11 @@ class PetSystem:
     
     def capture_pet(self, pet_info: Dict, player) -> Optional[Pet]:
         """捕捉宠物"""
-        capture_rate = pet_info['capture_rate']
+        from utils.game_balancer import game_balancer
+        
+        base_capture_rate = pet_info['capture_rate']
+        # 计算实际捕捉率，考虑玩家属性和游戏平衡设置
+        capture_rate = game_balancer.calculate_pet_capture_rate(base_capture_rate, player.stats)
         
         if random.random() <= capture_rate:
             # 捕捉成功

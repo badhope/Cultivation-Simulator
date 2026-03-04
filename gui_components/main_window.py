@@ -103,7 +103,7 @@ class MainWindow(ctk.CTkFrame):
         
         # 属性列表
         self.stat_labels = {}
-        stats_list = ["体质", "灵根", "悟性", "机缘"]
+        stats_list = ["体质", "根骨", "悟性", "福缘", "心境", "魅力", "声望"]
         
         for stat in stats_list:
             stat_frame = ctk.CTkFrame(stats_frame, fg_color="transparent")
@@ -171,6 +171,44 @@ class MainWindow(ctk.CTkFrame):
             text_color=self.theme_manager.gold_color
         )
         self.lifetime_label.pack(side="right", padx=10)
+        
+        # 修炼路径显示
+        path_frame = ctk.CTkFrame(left_frame)
+        path_frame.pack(fill="x", padx=10, pady=10)
+        
+        path_label = ctk.CTkLabel(
+            path_frame,
+            text="🧭 修炼路径:",
+            font=ctk.CTkFont(size=14)
+        )
+        path_label.pack(side="left", padx=10)
+        
+        self.path_label = ctk.CTkLabel(
+            path_frame,
+            text="正道",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=self.theme_manager.purple_color
+        )
+        self.path_label.pack(side="right", padx=10)
+        
+        # 称号显示
+        title_frame = ctk.CTkFrame(left_frame)
+        title_frame.pack(fill="x", padx=10, pady=10)
+        
+        title_label = ctk.CTkLabel(
+            title_frame,
+            text="🏆 称号:",
+            font=ctk.CTkFont(size=14)
+        )
+        title_label.pack(side="left", padx=10)
+        
+        self.title_label = ctk.CTkLabel(
+            title_frame,
+            text="初入修仙",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color=self.theme_manager.gold_color
+        )
+        self.title_label.pack(side="right", padx=10)
         
     def create_center_panel(self):
         """创建中央操作面板"""
@@ -264,7 +302,7 @@ class MainWindow(ctk.CTkFrame):
         resources_title.pack(pady=5)
         
         self.resource_labels = {}
-        resources_list = ["灵石", "灵药", "法器", "丹药"]
+        resources_list = ["灵石", "灵药", "法器", "丹药", "贡献点", "声望值", "道心"]
         
         for resource in resources_list:
             res_frame = ctk.CTkFrame(resources_frame, fg_color="transparent")
@@ -1310,6 +1348,14 @@ class MainWindow(ctk.CTkFrame):
         
         # 更新寿元
         self.lifetime_label.configure(text=f"{self.player.lifetime}年")
+        
+        # 更新修炼路径
+        if hasattr(self.player, 'cultivation_path'):
+            self.path_label.configure(text=self.player.cultivation_path)
+        
+        # 更新称号
+        if hasattr(self.player, 'title'):
+            self.title_label.configure(text=self.player.title)
         
     @timing
     def update_world_info(self):

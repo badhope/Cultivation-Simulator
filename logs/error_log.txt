@@ -25,3 +25,30 @@ Traceback (most recent call last):
 ValueError: 测试错误
 
 ================================================================================
+
+================================================================================
+时间: 2026-03-04T23:54:38.911184
+错误类型: ZeroDivisionError
+错误信息: division by zero
+堆栈跟踪:
+Traceback (most recent call last):
+  File "C:\Users\X1882\Desktop\trae projecr\Cultivation-Simulator\test_offline_core.py", line 42, in test_error_detector
+    1 / 0
+    ~~^~~
+ZeroDivisionError: division by zero
+
+================================================================================
+
+================================================================================
+时间: 2026-03-04T23:54:38.913957
+错误类型: ValueError
+错误信息: 测试错误
+堆栈跟踪:
+Traceback (most recent call last):
+  File "C:\Users\X1882\Desktop\trae projecr\Cultivation-Simulator\core_offline\error_detector.py", line 168, in run_with_error_handling
+    return func(*args, **kwargs)
+  File "C:\Users\X1882\Desktop\trae projecr\Cultivation-Simulator\test_offline_core.py", line 71, in test_func
+    raise ValueError("测试错误")
+ValueError: 测试错误
+
+================================================================================

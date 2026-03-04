@@ -18,7 +18,12 @@ class GameplaySystem:
             "exploration": "探索模式",
             "competition": "竞技模式",
             "sect_construction": "门派建设模式",
-            "alchemy_competition": "炼丹大赛"
+            "alchemy_competition": "炼丹大赛",
+            "immortal_journey": "修仙之路",
+            "treasure_hunt": "寻宝模式",
+            "partner_system": "道侣系统",
+            "cross_server": "跨服竞技",
+            "heavenly_tribulation": "天劫挑战"
         }
         self.current_mode = None
         self.mode_settings = {}
@@ -62,6 +67,16 @@ class GameplaySystem:
             self._init_sect_construction_mode(player)
         elif mode_name == "alchemy_competition":
             self._init_alchemy_competition_mode(player)
+        elif mode_name == "immortal_journey":
+            self._init_immortal_journey_mode(player)
+        elif mode_name == "treasure_hunt":
+            self._init_treasure_hunt_mode(player)
+        elif mode_name == "partner_system":
+            self._init_partner_system_mode(player)
+        elif mode_name == "cross_server":
+            self._init_cross_server_mode(player)
+        elif mode_name == "heavenly_tribulation":
+            self._init_heavenly_tribulation_mode(player)
     
     def _init_challenge_mode(self, player):
         """初始化挑战模式"""
@@ -130,6 +145,102 @@ class GameplaySystem:
         print("炼丹大赛：展示你的炼丹技巧")
         print("目标：在规定时间内炼制尽可能多的高品质丹药")
     
+    def _init_immortal_journey_mode(self, player):
+        """初始化修仙之路模式"""
+        stages = [
+            {"name": "初入仙道", "description": "成为练气期修士", "reward": {"灵石": 500, "声望值": 100}},
+            {"name": "筑基有成", "description": "突破到筑基期", "reward": {"灵石": 1000, "声望值": 200}},
+            {"name": "金丹大道", "description": "突破到金丹期", "reward": {"灵石": 2000, "声望值": 500}},
+            {"name": "元婴真君", "description": "突破到元婴期", "reward": {"灵石": 5000, "声望值": 1000}},
+            {"name": "化神大能", "description": "突破到化神期", "reward": {"灵石": 10000, "声望值": 2000}},
+            {"name": "合体天尊", "description": "突破到合体期", "reward": {"灵石": 20000, "声望值": 5000}},
+            {"name": "渡劫成仙", "description": "突破到渡劫期", "reward": {"灵石": 50000, "声望值": 10000}},
+        ]
+        
+        self.mode_progress["immortal_journey"]["stages"] = stages
+        self.mode_progress["immortal_journey"]["current_stage"] = 0
+        
+        print("修仙之路：踏上成仙之路，不断突破境界")
+        print(f"当前阶段：{stages[0]['name']}")
+        print(f"目标：{stages[0]['description']}")
+        print(f"奖励：{stages[0]['reward']}")
+    
+    def _init_treasure_hunt_mode(self, player):
+        """初始化寻宝模式"""
+        treasures = [
+            {"name": "上古灵草", "description": "寻找传说中的上古灵草", "location": "青云山脉"},
+            {"name": "先天灵宝", "description": "寻找先天灵宝", "location": "不周山"},
+            {"name": "龙鳞", "description": "获取东海龙宫的龙鳞", "location": "东海龙宫"},
+            {"name": "佛骨舍利", "description": "寻找佛门圣地的佛骨舍利", "location": "灵山"}
+        ]
+        
+        treasure = random.choice(treasures)
+        self.mode_progress["treasure_hunt"]["target"] = treasure
+        self.mode_progress["treasure_hunt"]["clues"] = []
+        
+        print("寻宝模式：寻找传说中的宝藏")
+        print(f"目标宝藏：{treasure['name']}")
+        print(f"描述：{treasure['description']}")
+        print(f"可能位置：{treasure['location']}")
+    
+    def _init_partner_system_mode(self, player):
+        """初始化道侣系统模式"""
+        potential_partners = [
+            {"name": "仙子灵儿", "realm": "练气期", "personality": "温柔善良", "requirement": {"声望值": 100}},
+            {"name": "剑修萧晨", "realm": "筑基期", "personality": "孤傲冷峻", "requirement": {"声望值": 200}},
+            {"name": "丹修林小婉", "realm": "练气期", "personality": "活泼开朗", "requirement": {"声望值": 150}},
+            {"name": "妖修狐仙", "realm": "筑基期", "personality": "妩媚动人", "requirement": {"声望值": 250}}
+        ]
+        
+        self.mode_progress["partner_system"]["potential_partners"] = potential_partners
+        self.mode_progress["partner_system"]["current_partner"] = None
+        
+        print("道侣系统：寻找你的修仙伴侣")
+        print("目标：与心仪的修士结为道侣，共同修炼")
+        print("可追求的对象：")
+        for partner in potential_partners:
+            print(f"  {partner['name']} ({partner['realm']}) - {partner['personality']}")
+    
+    def _init_cross_server_mode(self, player):
+        """初始化跨服竞技模式"""
+        self.mode_progress["cross_server"]["rank"] = 1000
+        self.mode_progress["cross_server"]["wins"] = 0
+        self.mode_progress["cross_server"]["losses"] = 0
+        self.mode_progress["cross_server"]["season_points"] = 0
+        
+        print("跨服竞技：与来自其他服务器的修士一决高下")
+        print("目标：提升排名，获得丰厚奖励")
+        print(f"当前排名：{self.mode_progress['cross_server']['rank']}")
+    
+    def _init_heavenly_tribulation_mode(self, player):
+        """初始化天劫挑战模式"""
+        tribulations = [
+            {"name": "练气天劫", "realm": "练气期", "difficulty": 1, "reward": {"灵石": 1000, "道心": 50}},
+            {"name": "筑基天劫", "realm": "筑基期", "difficulty": 2, "reward": {"灵石": 2000, "道心": 100}},
+            {"name": "金丹天劫", "realm": "金丹期", "difficulty": 3, "reward": {"灵石": 5000, "道心": 200}},
+            {"name": "元婴天劫", "realm": "元婴期", "difficulty": 4, "reward": {"灵石": 10000, "道心": 500}},
+            {"name": "化神天劫", "realm": "化神期", "difficulty": 5, "reward": {"灵石": 20000, "道心": 1000}},
+            {"name": "合体天劫", "realm": "合体期", "difficulty": 6, "reward": {"灵石": 50000, "道心": 2000}},
+            {"name": "渡劫天劫", "realm": "渡劫期", "difficulty": 7, "reward": {"灵石": 100000, "道心": 5000}},
+        ]
+        
+        # 根据玩家当前境界选择合适的天劫
+        current_realm = player.realm
+        available_tribulations = [t for t in tribulations if t['realm'] == current_realm]
+        
+        if available_tribulations:
+            tribulation = available_tribulations[0]
+        else:
+            tribulation = tribulations[0]  # 默认选择练气天劫
+        
+        self.mode_progress["heavenly_tribulation"]["current_tribulation"] = tribulation
+        self.mode_progress["heavenly_tribulation"]["attempts"] = 0
+        
+        print("天劫挑战：面对天地考验，突破极限")
+        print(f"当前挑战：{tribulation['name']}")
+        print(f"难度：{tribulation['difficulty']}/7")
+        print(f"奖励：{tribulation['reward']}")
+    
     def update_mode(self, player):
         """更新游戏模式状态"""
         if not self.current_mode:
@@ -146,6 +257,16 @@ class GameplaySystem:
             self._update_sect_construction_mode(player)
         elif mode_name == "alchemy_competition":
             self._update_alchemy_competition_mode(player)
+        elif mode_name == "immortal_journey":
+            self._update_immortal_journey_mode(player)
+        elif mode_name == "treasure_hunt":
+            self._update_treasure_hunt_mode(player)
+        elif mode_name == "partner_system":
+            self._update_partner_system_mode(player)
+        elif mode_name == "cross_server":
+            self._update_cross_server_mode(player)
+        elif mode_name == "heavenly_tribulation":
+            self._update_heavenly_tribulation_mode(player)
     
     def _update_challenge_mode(self, player):
         """更新挑战模式"""
@@ -204,6 +325,59 @@ class GameplaySystem:
         # 这里可以添加炼丹大赛模式的更新逻辑
         pass
     
+    def _update_immortal_journey_mode(self, player):
+        """更新修仙之路模式"""
+        stages = self.mode_progress["immortal_journey"]["stages"]
+        current_stage = self.mode_progress["immortal_journey"]["current_stage"]
+        
+        if current_stage < len(stages):
+            stage = stages[current_stage]
+            
+            # 检查是否完成当前阶段
+            if player.realm == stage['description'].split('突破到')[1] or \
+               (stage['name'] == "初入仙道" and player.realm == "练气期"):
+                print(f"恭喜完成阶段：{stage['name']}！")
+                print(f"获得奖励：{stage['reward']}")
+                
+                # 发放奖励
+                for item, amount in stage['reward'].items():
+                    if item in player.resources:
+                        player.resources[item] += amount
+                    else:
+                        player.resources[item] = amount
+                
+                # 进入下一阶段
+                self.mode_progress["immortal_journey"]["current_stage"] += 1
+                
+                if current_stage + 1 < len(stages):
+                    next_stage = stages[current_stage + 1]
+                    print(f"下一阶段：{next_stage['name']}")
+                    print(f"目标：{next_stage['description']}")
+                    print(f"奖励：{next_stage['reward']}")
+                else:
+                    print("恭喜完成所有修仙之路阶段！")
+                    self.current_mode = None
+    
+    def _update_treasure_hunt_mode(self, player):
+        """更新寻宝模式"""
+        # 这里可以添加寻宝模式的更新逻辑
+        pass
+    
+    def _update_partner_system_mode(self, player):
+        """更新道侣系统模式"""
+        # 这里可以添加道侣系统模式的更新逻辑
+        pass
+    
+    def _update_cross_server_mode(self, player):
+        """更新跨服竞技模式"""
+        # 这里可以添加跨服竞技模式的更新逻辑
+        pass
+    
+    def _update_heavenly_tribulation_mode(self, player):
+        """更新天劫挑战模式"""
+        # 这里可以添加天劫挑战模式的更新逻辑
+        pass
+    
     def get_mode_status(self):
         """获取当前游戏模式状态"""
         if not self.current_mode:
@@ -236,6 +410,46 @@ class GameplaySystem:
             score = self.mode_progress["alchemy_competition"]["score"]
             status += f"完成丹方：{completed}\n"
             status += f"得分：{score}\n"
+        elif mode_name == "immortal_journey":
+            stages = self.mode_progress["immortal_journey"]["stages"]
+            current_stage = self.mode_progress["immortal_journey"]["current_stage"]
+            if current_stage < len(stages):
+                stage = stages[current_stage]
+                status += f"当前阶段：{stage['name']}\n"
+                status += f"目标：{stage['description']}\n"
+                status += f"奖励：{stage['reward']}\n"
+            else:
+                status += "已完成所有阶段！\n"
+        elif mode_name == "treasure_hunt":
+            treasure = self.mode_progress["treasure_hunt"]["target"]
+            clues = len(self.mode_progress["treasure_hunt"]["clues"])
+            status += f"目标宝藏：{treasure['name']}\n"
+            status += f"可能位置：{treasure['location']}\n"
+            status += f"已获得线索：{clues}\n"
+        elif mode_name == "partner_system":
+            current_partner = self.mode_progress["partner_system"]["current_partner"]
+            if current_partner:
+                status += f"当前道侣：{current_partner['name']}\n"
+            else:
+                status += "尚未找到道侣\n"
+            status += "可追求对象：\n"
+            for partner in self.mode_progress["partner_system"]["potential_partners"]:
+                status += f"  {partner['name']} ({partner['realm']})\n"
+        elif mode_name == "cross_server":
+            rank = self.mode_progress["cross_server"]["rank"]
+            wins = self.mode_progress["cross_server"]["wins"]
+            losses = self.mode_progress["cross_server"]["losses"]
+            points = self.mode_progress["cross_server"]["season_points"]
+            status += f"当前排名：{rank}\n"
+            status += f"战绩：{wins}胜 {losses}负\n"
+            status += f"赛季积分：{points}\n"
+        elif mode_name == "heavenly_tribulation":
+            tribulation = self.mode_progress["heavenly_tribulation"]["current_tribulation"]
+            attempts = self.mode_progress["heavenly_tribulation"]["attempts"]
+            status += f"当前天劫：{tribulation['name']}\n"
+            status += f"难度：{tribulation['difficulty']}/7\n"
+            status += f"尝试次数：{attempts}\n"
+            status += f"奖励：{tribulation['reward']}\n"
         
         return status
     
