@@ -43,6 +43,27 @@ class Player:
         self.title = "初入修仙"  # 称号
         self.cultivation_path = "正道"  # 修炼路径
         self.special_abilities = []  # 特殊能力
+        
+        # 修炼路径系统
+        self.paths = {
+            "正道": {"description": "以仁义为本，追求天道", "bonus": {"悟性": 2, "心境": 2}},
+            "魔道": {"description": "以力量为本，追求极致", "bonus": {"体质": 2, "根骨": 2}},
+            "妖道": {"description": "与自然融合，追求自由", "bonus": {"福缘": 2, "魅力": 2}},
+            "鬼道": {"description": "与阴魂为伍，追求永生", "bonus": {"心境": 2, "声望": 2}},
+            "佛道": {"description": "以慈悲为怀，追求涅槃", "bonus": {"悟性": 2, "福缘": 2}},
+            "儒道": {"description": "以智慧为本，追求治国", "bonus": {"魅力": 2, "声望": 2}}
+        }
+        
+        # 应用初始修炼路径的属性加成
+        self.apply_path_bonus()
+    
+    def apply_path_bonus(self):
+        """应用修炼路径的属性加成"""
+        if hasattr(self, 'paths') and self.cultivation_path in self.paths:
+            bonus = self.paths[self.cultivation_path]["bonus"]
+            for stat, value in bonus.items():
+                if stat in self.stats:
+                    self.stats[stat] += value
     
     def cultivate(self):
         """玩家修炼"""
@@ -114,9 +135,22 @@ class Player:
     
     def change_cultivation_path(self, path: str):
         """切换修炼路径"""
-        valid_paths = ["正道", "魔道", "妖道", "佛道", "鬼道"]
-        if path in valid_paths:
+        if path in self.paths:
+            # 移除旧路径的加成
+            old_bonus = self.paths[self.cultivation_path]["bonus"]
+            for stat, value in old_bonus.items():
+                if stat in self.stats:
+                    self.stats[stat] -= value
+            
+            # 设置新路径
             self.cultivation_path = path
+            
+            # 应用新路径的加成
+            new_bonus = self.paths[path]["bonus"]
+            for stat, value in new_bonus.items():
+                if stat in self.stats:
+                    self.stats[stat] += value
+            
             print(f"{self.name}改修{path}")
         else:
             print("无效的修炼路径")

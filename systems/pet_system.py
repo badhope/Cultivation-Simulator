@@ -104,6 +104,7 @@ class PetSystem:
     def _initialize_available_pets(self) -> List[Dict]:
         """初始化可捕捉的宠物"""
         return [
+            # 青云山脉
             {
                 "name": "小狐狸",
                 "type": "灵宠",
@@ -113,6 +114,40 @@ class PetSystem:
                 "location": "青云山脉"
             },
             {
+                "name": "灵鹿",
+                "type": "灵宠",
+                "level": 2,
+                "description": "温顺的灵鹿，能够感知危险",
+                "capture_rate": 0.6,
+                "location": "青云山脉"
+            },
+            {
+                "name": "猛虎",
+                "type": "妖兽",
+                "level": 3,
+                "description": "凶猛的猛虎，攻击力强大",
+                "capture_rate": 0.4,
+                "location": "青云山脉"
+            },
+            {
+                "name": "野兔",
+                "type": "灵宠",
+                "level": 1,
+                "description": "敏捷的野兔，速度很快",
+                "capture_rate": 0.9,
+                "location": "青云山脉"
+            },
+            {
+                "name": "松鼠",
+                "type": "灵宠",
+                "level": 1,
+                "description": "活泼的松鼠，善于采集",
+                "capture_rate": 0.85,
+                "location": "青云山脉"
+            },
+            
+            # 紫霄宫
+            {
                 "name": "青鸾",
                 "type": "飞行",
                 "level": 5,
@@ -120,6 +155,32 @@ class PetSystem:
                 "capture_rate": 0.3,
                 "location": "紫霄宫"
             },
+            {
+                "name": "仙鹤",
+                "type": "飞行",
+                "level": 4,
+                "description": "优雅的仙鹤，具有治疗能力",
+                "capture_rate": 0.4,
+                "location": "紫霄宫"
+            },
+            {
+                "name": "凤凰",
+                "type": "神兽",
+                "level": 8,
+                "description": "涅槃重生的凤凰，拥有强大的火焰力量",
+                "capture_rate": 0.15,
+                "location": "紫霄宫"
+            },
+            {
+                "name": "金雕",
+                "type": "飞行",
+                "level": 6,
+                "description": "锐利的金雕，视力极佳",
+                "capture_rate": 0.25,
+                "location": "紫霄宫"
+            },
+            
+            # 幽冥谷
             {
                 "name": "玄武龟",
                 "type": "陆生",
@@ -129,6 +190,32 @@ class PetSystem:
                 "location": "幽冥谷"
             },
             {
+                "name": "毒蝎",
+                "type": "妖兽",
+                "level": 4,
+                "description": "剧毒的蝎子，攻击带有毒性",
+                "capture_rate": 0.5,
+                "location": "幽冥谷"
+            },
+            {
+                "name": "骷髅兵",
+                "type": "妖兽",
+                "level": 5,
+                "description": "不死的骷髅兵，不知疲倦",
+                "capture_rate": 0.4,
+                "location": "幽冥谷"
+            },
+            {
+                "name": "幽灵",
+                "type": "灵宠",
+                "level": 6,
+                "description": "漂浮的幽灵，能够穿透物体",
+                "capture_rate": 0.3,
+                "location": "幽冥谷"
+            },
+            
+            # 天机城
+            {
                 "name": "水麒麟",
                 "type": "水生",
                 "level": 7,
@@ -137,12 +224,130 @@ class PetSystem:
                 "location": "天机城"
             },
             {
+                "name": "机关兽",
+                "type": "灵宠",
+                "level": 6,
+                "description": "天机城制造的机关兽，忠心耿耿",
+                "capture_rate": 0.3,
+                "location": "天机城"
+            },
+            {
+                "name": "机械鸟",
+                "type": "飞行",
+                "level": 4,
+                "description": "小型机械鸟，善于侦查",
+                "capture_rate": 0.5,
+                "location": "天机城"
+            },
+            {
+                "name": "机关蛇",
+                "type": "妖兽",
+                "level": 5,
+                "description": "灵活的机关蛇，攻击迅速",
+                "capture_rate": 0.4,
+                "location": "天机城"
+            },
+            
+            # 血魔窟
+            {
                 "name": "白虎",
                 "type": "神兽",
                 "level": 10,
                 "description": "四大神兽之一，攻击力强大",
                 "capture_rate": 0.1,
                 "location": "血魔窟"
+            },
+            {
+                "name": "血蝙蝠",
+                "type": "飞行",
+                "level": 8,
+                "description": "嗜血的蝙蝠，能够吸取生命力",
+                "capture_rate": 0.2,
+                "location": "血魔窟"
+            },
+            {
+                "name": "魔狼",
+                "type": "妖兽",
+                "level": 7,
+                "description": "凶残的魔狼，速度极快",
+                "capture_rate": 0.25,
+                "location": "血魔窟"
+            },
+            {
+                "name": "血蟒",
+                "type": "妖兽",
+                "level": 9,
+                "description": "巨大的血蟒，能够缠绕敌人",
+                "capture_rate": 0.15,
+                "location": "血魔窟"
+            },
+            
+            # 东海龙宫
+            {
+                "name": "龙王",
+                "type": "神兽",
+                "level": 15,
+                "description": "东海的统治者，拥有强大的水属性力量",
+                "capture_rate": 0.05,
+                "location": "东海龙宫"
+            },
+            {
+                "name": "龙女",
+                "type": "神兽",
+                "level": 12,
+                "description": "龙王的女儿，具有治疗能力",
+                "capture_rate": 0.1,
+                "location": "东海龙宫"
+            },
+            {
+                "name": "海龟",
+                "type": "水生",
+                "level": 5,
+                "description": "长寿的海龟，防御力强大",
+                "capture_rate": 0.5,
+                "location": "东海龙宫"
+            },
+            {
+                "name": "海豚",
+                "type": "水生",
+                "level": 4,
+                "description": "聪明的海豚，速度很快",
+                "capture_rate": 0.6,
+                "location": "东海龙宫"
+            },
+            
+            # 不周山
+            {
+                "name": "巨灵神",
+                "type": "神兽",
+                "level": 20,
+                "description": "力大无穷的巨灵神，攻击力和防御力都很强",
+                "capture_rate": 0.01,
+                "location": "不周山"
+            },
+            {
+                "name": "山神",
+                "type": "神兽",
+                "level": 18,
+                "description": "守护山脉的神灵，具有自然之力",
+                "capture_rate": 0.03,
+                "location": "不周山"
+            },
+            {
+                "name": "石怪",
+                "type": "妖兽",
+                "level": 8,
+                "description": "由石头形成的怪物，防御力强大",
+                "capture_rate": 0.3,
+                "location": "不周山"
+            },
+            {
+                "name": "风灵",
+                "type": "灵宠",
+                "level": 10,
+                "description": "由风元素形成的精灵，速度极快",
+                "capture_rate": 0.2,
+                "location": "不周山"
             }
         ]
     
