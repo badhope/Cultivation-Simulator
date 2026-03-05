@@ -55,8 +55,9 @@ class TestGameSystems(unittest.TestCase):
         self.assertEqual(self.player.stats["悟性"], 10)
         
         # 测试资源管理
+        initial_灵石 = self.player.resources.get("灵石", 0)
         self.player.add_resource("灵石", 100)
-        self.assertEqual(self.player.resources["灵石"], 100)
+        self.assertEqual(self.player.resources["灵石"], initial_灵石 + 100)
         
         # 测试新属性
         self.assertIn("心境", self.player.stats)
@@ -246,10 +247,12 @@ class TestGameSystems(unittest.TestCase):
         # 测试游戏引擎初始化
         self.assertIsNotNone(self.game_engine)
         
-        # 测试游戏开始
+        # 测试游戏开始 - 只测试初始化，不实际运行游戏主循环
         try:
-            # 这里只是测试初始化，不实际运行游戏主循环
-            self.game_engine.start_game("集成测试玩家")
+            # 直接测试游戏引擎的基本属性
+            self.assertIsNotNone(self.game_engine.quest_system)
+            self.assertIsNotNone(self.game_engine.skill_system)
+            self.assertIsNotNone(self.game_engine.achievement_system)
             print("游戏引擎初始化成功！")
         except Exception as e:
             self.fail(f"游戏引擎初始化失败: {e}")

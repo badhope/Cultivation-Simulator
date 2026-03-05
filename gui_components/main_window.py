@@ -4,14 +4,12 @@
 主游戏窗口 - 包含所有游戏界面元素
 """
 
-import customtkinter as ctk
-from tkinter import messagebox
 import random
-from typing import Dict, Callable
-from core.game_engine import GameEngine
-from gui_components.theme_manager import ThemeManager
-from gui_components.animation_system import AnimationSystem
-from gui_components.sound_manager import SoundManager
+from tkinter import messagebox
+from typing import Dict
+
+import customtkinter as ctk
+
 from utils.performance_optimizer import timing
 
 class MainWindow(ctk.CTkFrame):
@@ -32,6 +30,25 @@ class MainWindow(ctk.CTkFrame):
         # 界面状态
         self.current_tab = "main"
         self.log_messages = []
+        
+        # 初始化UI组件引用
+        self.avatar_label = None
+        self.name_label = None
+        self.realm_label = None
+        self.stat_labels = {}
+        self.cultivation_progress = None
+        self.cultivation_value_label = None
+        self.lifetime_label = None
+        self.path_label = None
+        self.title_label = None
+        self.tab_buttons = {}
+        self.content_frame = None
+        self.season_label = None
+        self.weather_label = None
+        self.spirit_label = None
+        self.resource_labels = {}
+        self.ai_tip_label = None
+        self.cultivate_button = None
         
         # 创建 UI
         self.create_main_layout()
@@ -379,7 +396,7 @@ class MainWindow(ctk.CTkFrame):
         title.pack(pady=20)
         
         # 修炼按钮
-        cultivate_button = ctk.CTkButton(
+        self.cultivate_button = ctk.CTkButton(
             self.content_frame,
             text="⚡ 开始修炼",
             font=ctk.CTkFont(size=24),
@@ -389,7 +406,7 @@ class MainWindow(ctk.CTkFrame):
             command=self.do_cultivate,
             hover_color=self.theme_manager.spirit_green
         )
-        cultivate_button.pack(pady=30)
+        self.cultivate_button.pack(pady=30)
         
         # 修炼说明
         desc_text = """
@@ -754,13 +771,19 @@ class MainWindow(ctk.CTkFrame):
         """切换标签页"""
         self.current_tab = tab_id
         
-        # 更新按钮状态
+        # 更新按钮状态并添加动画效果
         for tid, btn in self.tab_buttons.items():
             if tid == tab_id:
+                # 添加选中动画
+                self.animation_system.animate_button_press(btn)
                 btn.configure(fg_color=self.theme_manager.highlight_color)
             else:
                 btn.configure(fg_color=None)
                 
+        # 清空内容区域并添加过渡效果
+        self.clear_content_frame()
+        self.content_frame.update()
+        
         # 加载对应内容
         tab_creators = {
             "cultivate": self.create_cultivate_tab,
@@ -778,18 +801,26 @@ class MainWindow(ctk.CTkFrame):
         
         if tab_id in tab_creators:
             tab_creators[tab_id]()
+            # 添加内容加载动画
+            self.animation_system.animate_content_fade_in(self.content_frame)
             
         self.sound_manager.play_sound_effect("button_click")
         
     def do_cultivate(self):
         """执行修炼"""
+        # 添加按钮动画效果
+        if hasattr(self, 'cultivate_button'):
+            self.animation_system.animate_button_press(self.cultivate_button)
+        
         self.player.cultivate()
         
         # 播放音效
         self.sound_manager.play_sound_effect("spiritual_energy")
         
-        # 更新显示
+        # 更新显示并添加动画效果
         self.update_player_info()
+        # 修为进度条动画
+        self.animation_system.animate_progress_bar(self.cultivation_progress, self.player.cultivation / 100)
         
         # AI 提示
         ai_tips = [
@@ -798,11 +829,15 @@ class MainWindow(ctk.CTkFrame):
             "修行之路，贵在坚持！",
             "今日修炼就到这里吧，注意休息。"
         ]
-        self.ai_tip_label.configure(text=random.choice(ai_tips))
+        tip = random.choice(ai_tips)
+        # AI 提示动画
+        self.animation_system.animate_text_change(self.ai_tip_label, tip)
         
         # 检查是否触发剧情
         if self.player.cultivation >= 100:
             self.sound_manager.play_breakthrough_sequence()
+            # 突破动画效果
+            self.animation_system.animate_breakthrough(self.avatar_label)
             messagebox.showinfo("突破提示", "修为已满！可以尝试突破了！")
             
     def explore_location(self, location: str):
@@ -819,16 +854,31 @@ class MainWindow(ctk.CTkFrame):
         ]
         
         result = random.choice(results)
+        
+        # 播放探索音效
+        if "发现" in result:
+            self.sound_manager.play_sound_effect("item_get")
+        elif "遭遇" in result:
+            self.sound_manager.play_sound_effect("battle_start")
+        
+        # 显示探索结果
         messagebox.showinfo("探索结果", result)
         
         # 更新资源和属性
         if "灵石" in result:
             self.player.add_resource("灵石", 50)
+            # 资源增加动画
+            self.animation_system.animate_resource_gain(self.resource_labels["灵石"])
         elif "灵草" in result:
             self.player.add_resource("灵药", 1)
+            # 资源增加动画
+            self.animation_system.animate_resource_gain(self.resource_labels["灵药"])
         elif "悟性" in result:
             self.player.stats["悟性"] += 1
+            # 属性增加动画
+            self.animation_system.animate_stat_gain(self.stat_labels["悟性"])
             
+        # 更新显示
         self.update_resources()
         self.update_player_info()
         

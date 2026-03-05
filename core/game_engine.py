@@ -130,7 +130,7 @@ class GameEngine:
     def game_loop(self):
         """游戏主循环"""
         # 自动平衡检查 - 减少频率以提高性能
-        if self.game_time % 50 == 0:  # 每50个回合检查一次
+        if self.game_time % 100 == 0:  # 每100个回合检查一次，进一步减少频率
             game_balancer.auto_balance(self.player)
         
         # 更新世界状态
@@ -140,17 +140,16 @@ class GameEngine:
         self.display_status()
         
         # 检查成就 - 减少频率以提高性能
-        if self.game_time % 5 == 0:  # 每5个回合检查一次
+        if self.game_time % 10 == 0:  # 每10个回合检查一次，进一步减少频率
             self.check_achievements()
         
         # 检查剧情触发
-        self.check_story_triggers()
+        if self.game_time % 5 == 0:  # 每5个回合检查一次
+            self.check_story_triggers()
+            self.story_system.check_story_triggers(self.player)
         
         # 更新游戏玩法模式
         self.gameplay_system.update_mode(self.player)
-        
-        # 检查剧情触发
-        self.story_system.check_story_triggers(self.player)
         
         # 处理玩家行动
         action = self.get_player_action()
@@ -162,20 +161,22 @@ class GameEngine:
         self.advance_time()
         
         # 更新阵法系统
-        self.formation_system.update_formations()
+        if self.game_time % 3 == 0:  # 每3个回合更新一次，减少频率
+            self.formation_system.update_formations()
         
-        # 生成随机事件
-        self.generate_events()
+        # 生成随机事件 - 减少频率以提高性能
+        if random.random() < 0.1:  # 10%的概率生成事件，进一步减少频率
+            self.generate_events()
         
-        # 触发随机事件系统
-        if random.random() < 0.15:  # 15%的概率触发随机事件，减少频率以提高性能
+        # 触发随机事件系统 - 减少频率以提高性能
+        if random.random() < 0.1:  # 10%的概率触发随机事件，进一步减少频率
             self.random_event_system.trigger_random_event(self.player)
         
         # 处理事件队列
         self.process_events()
         
         # 自动保存 - 减少频率以提高性能
-        if self.game_time % 50 == 0:  # 每50个回合自动保存
+        if self.game_time % 100 == 0:  # 每100个回合自动保存，进一步减少频率
             self.save_game()
         
         # 检查游戏结束条件
@@ -572,181 +573,254 @@ class GameEngine:
         event_type = event['type']
         print(f"\n【事件】{event_type}")
         
-        if event_type == "发现灵草":
-            reward = random.randint(10, 50)
-            self.player.add_resource('灵石', reward)
-            print(f"获得灵石 {reward} 枚")
-            
-        elif event_type == "遇到同门师兄弟":
-            print("与同门交流心得，悟性+1")
-            self.player.stats['悟性'] += 1
-            
-        elif event_type == "天降机缘":
-            print("机缘巧合，修为大增！")
-            self.player.cultivation += random.randint(5, 15)
-            
-        elif event_type == "遭遇妖兽":
-            print("遇到强大的妖兽！")
-            # 触发战斗
-            enemy = {
-                'name': '三眼狼妖',
-                'realm': '练气期'
-            }
-            victory = self.battle_system.start_battle(self.player, enemy)
-            if victory:
-                print("战胜妖兽，获得丰厚奖励！")
-            else:
-                print("败给妖兽，需要休养恢复...")
-                
-        elif event_type == "心境波动":
-            print("心境不稳，修炼效率下降...")
-            # 可以添加临时debuff
-            
-        elif event_type == "神秘商人出现":
-            print("神秘商人出现，可购买稀有物品")
-            # 可以添加商店功能
-            
-        elif event_type == "古遗迹现世":
-            print("发现古老遗迹，内藏珍宝")
-            # 可以添加探索功能
-            
-        elif event_type == "天地异象":
-            print("天地异象显现，灵气大增")
-            self.player.cultivation += 10
-            
-        # 新增事件处理
-        elif event_type == "除魔卫道":
-            print("发现妖魔作祟，需要除魔卫道！")
-            enemy = {'name': '作恶妖魔', 'realm': '练气期'}
-            victory = self.battle_system.start_battle(self.player, enemy)
-            if victory:
-                print("成功除魔，获得声望和功德！")
-                self.player.gain_reputation(20)
-                self.player.improve_state_of_mind(5)
+        # 根据事件类型调用相应的处理方法
+        event_handlers = {
+            "发现灵草": self._handle_find_herb,
+            "遇到同门师兄弟": self._handle_meet_fellow,
+            "天降机缘": self._handle_heavenly_chance,
+            "遭遇妖兽": self._handle_encounter_beast,
+            "心境波动": self._handle_mind_fluctuation,
+            "神秘商人出现": self._handle_mysterious_merchant,
+            "古遗迹现世": self._handle_ancient_ruins,
+            "天地异象": self._handle_heavenly_omen,
+            "除魔卫道": self._handle_demon_hunting,
+            "获得仙缘": self._handle_immortal_chance,
+            "正道同门求助": self._handle_fellow_help,
+            "吸收煞气": self._handle_absorb_evil,
+            "魔功突破": self._handle_demon_breakthrough,
+            "魔道盟友召唤": self._handle_demon_ally,
+            "妖兽契约": self._handle_beast_contract,
+            "化形机缘": self._handle_transformation_chance,
+            "妖族聚会": self._handle_demon_gathering,
+            "佛法感悟": self._handle_buddha_insight,
+            "普渡众生": self._handle_save_creatures,
+            "佛缘显现": self._handle_buddha_chance,
+            "阴魂附体": self._handle_ghost_possession,
+            "黄泉历练": self._handle_underworld_trial,
+            "鬼界通道": self._handle_ghost_realm_passage,
+            "初次遇敌": self._handle_first_enemy,
+            "修炼瓶颈": self._handle_cultivation_bottleneck,
+            "洞府争夺": self._handle_cave_competition,
+            "门派任务": self._handle_sect_task,
+            "法宝认主": self._handle_artifact_recognition,
+            "秘境探索": self._handle_mystic_realm_exploration,
+            "飞升考验": self._handle_ascension_trial,
+            "空间穿越": self._handle_space_travel,
+            "法则领悟": self._handle_law_comprehension,
+            "大道之争": self._handle_great_path_competition,
+            "劫云显现": self._handle_tribulation_clouds,
+            "仙魔大战": self._handle_immortal_demon_war
+        }
         
-        elif event_type == "获得仙缘":
-            print("获得仙缘，修为和心境大幅提升！")
-            self.player.cultivation += 20
-            self.player.improve_state_of_mind(10)
-        
-        elif event_type == "正道同门求助":
-            print("正道同门请求帮助，伸出援手！")
-            self.player.gain_reputation(10)
-            self.player.add_resource('灵石', 50)
-        
-        elif event_type == "吸收煞气":
-            print("吸收周围煞气，魔功修为提升！")
-            self.player.cultivation += 15
-            self.player.stats['心境'] -= 2  # 心境下降
-        
-        elif event_type == "魔功突破":
-            print("魔功突破，实力大增！")
-            self.player.cultivation += 25
-        
-        elif event_type == "魔道盟友召唤":
-            print("魔道盟友召唤，获得支援！")
-            self.player.add_resource('灵石', 100)
-        
-        elif event_type == "妖兽契约":
-            print("与妖兽签订契约，获得伙伴！")
-            companion = {'name': '契约妖兽', 'type': '妖', 'strength': 100}
-            self.player.recruit_companion(companion)
-        
-        elif event_type == "化形机缘":
-            print("获得化形机缘，妖力提升！")
-            self.player.cultivation += 20
+        if event_type in event_handlers:
+            event_handlers[event_type]()
+        else:
+            print(f"未知事件类型：{event_type}")
+    
+    def _handle_find_herb(self):
+        """处理发现灵草事件"""
+        reward = random.randint(10, 50)
+        self.player.add_resource('灵石', reward)
+        print(f"获得灵石 {reward} 枚")
+    
+    def _handle_meet_fellow(self):
+        """处理遇到同门师兄弟事件"""
+        print("与同门交流心得，悟性+1")
+        self.player.stats['悟性'] += 1
+    
+    def _handle_heavenly_chance(self):
+        """处理天降机缘事件"""
+        print("机缘巧合，修为大增！")
+        self.player.cultivation += random.randint(5, 15)
+    
+    def _handle_encounter_beast(self):
+        """处理遭遇妖兽事件"""
+        print("遇到强大的妖兽！")
+        enemy = {'name': '三眼狼妖', 'realm': '练气期'}
+        victory = self.battle_system.start_battle(self.player, enemy)
+        if victory:
+            print("战胜妖兽，获得丰厚奖励！")
+        else:
+            print("败给妖兽，需要休养恢复...")
+    
+    def _handle_mind_fluctuation(self):
+        """处理心境波动事件"""
+        print("心境不稳，修炼效率下降...")
+        # 可以添加临时debuff
+    
+    def _handle_mysterious_merchant(self):
+        """处理神秘商人出现事件"""
+        print("神秘商人出现，可购买稀有物品")
+        # 可以添加商店功能
+    
+    def _handle_ancient_ruins(self):
+        """处理古遗迹现世事件"""
+        print("发现古老遗迹，内藏珍宝")
+        # 可以添加探索功能
+    
+    def _handle_heavenly_omen(self):
+        """处理天地异象事件"""
+        print("天地异象显现，灵气大增")
+        self.player.cultivation += 10
+    
+    def _handle_demon_hunting(self):
+        """处理除魔卫道事件"""
+        print("发现妖魔作祟，需要除魔卫道！")
+        enemy = {'name': '作恶妖魔', 'realm': '练气期'}
+        victory = self.battle_system.start_battle(self.player, enemy)
+        if victory:
+            print("成功除魔，获得声望和功德！")
+            self.player.gain_reputation(20)
             self.player.improve_state_of_mind(5)
-        
-        elif event_type == "妖族聚会":
-            print("参加妖族聚会，获得妖丹和修炼心得！")
-            self.player.add_resource('灵石', 80)
-            self.player.stats['悟性'] += 1
-        
-        elif event_type == "佛法感悟":
-            print("佛法感悟，心境和悟性提升！")
-            self.player.improve_state_of_mind(15)
-            self.player.stats['悟性'] += 2
-        
-        elif event_type == "普渡众生":
-            print("普渡众生，获得功德和声望！")
-            self.player.gain_reputation(25)
-            self.player.improve_state_of_mind(10)
-        
-        elif event_type == "佛缘显现":
-            print("佛缘显现，获得佛法传承！")
-            self.player.learn_special_ability("佛法护体")
-        
-        elif event_type == "阴魂附体":
-            print("阴魂附体，获得鬼力但心境受损！")
-            self.player.cultivation += 15
-            self.player.stats['心境'] -= 3
-        
-        elif event_type == "黄泉历练":
-            print("黄泉历练，获得鬼气和修炼经验！")
-            self.player.cultivation += 20
-            self.player.add_resource('声望值', 50)
-        
-        elif event_type == "鬼界通道":
-            print("发现鬼界通道，获得进入鬼界的机会！")
-            self.player.learn_special_ability("鬼界穿梭")
-        
-        # 境界相关事件
-        elif event_type == "初次遇敌":
-            print("初次遇到敌人，战斗经验提升！")
-            enemy = {'name': '山贼', 'realm': '凡人'}
-            victory = self.battle_system.start_battle(self.player, enemy)
-            if victory:
-                print("战胜敌人，获得战斗经验！")
-        
-        elif event_type == "修炼瓶颈":
-            print("遇到修炼瓶颈，需要突破！")
-            # 可以添加突破瓶颈的机制
-        
-        elif event_type == "洞府争夺":
-            print("洞府争夺，获得修炼场所！")
-            self.player.add_resource('灵石', 150)
-            self.player.gain_title("洞府之主")
-        
-        elif event_type == "门派任务":
-            print("门派任务，获得贡献和奖励！")
-            self.player.add_resource('贡献点', 50)
-            self.player.add_resource('灵石', 100)
-        
-        elif event_type == "法宝认主":
-            print("法宝认主，获得强大法器！")
-            self.player.add_resource('法器', 1)
-            self.player.learn_special_ability("法宝精通")
-        
-        elif event_type == "秘境探索":
-            print("秘境探索，获得珍稀资源和传承！")
-            self.player.add_resource('灵石', 200)
-            self.player.cultivation += 30
-        
-        elif event_type == "飞升考验":
-            print("飞升考验，通过则可飞升仙界！")
-            # 可以添加飞升考验的机制
-        
-        elif event_type == "空间穿越":
-            print("空间穿越，到达未知领域！")
-            self.player.learn_special_ability("空间掌控")
-        
-        elif event_type == "法则领悟":
-            print("法则领悟，实力大幅提升！")
-            self.player.cultivation += 50
-            self.player.improve_state_of_mind(20)
-        
-        elif event_type == "大道之争":
-            print("大道之争，与其他修士争夺大道！")
-            # 可以添加大道之争的机制
-        
-        elif event_type == "劫云显现":
-            print("劫云显现，即将面临天劫！")
-            # 可以添加天劫的机制
-        
-        elif event_type == "仙魔大战":
-            print("仙魔大战，参与其中获得巨大机缘！")
-            self.player.gain_reputation(50)
-            self.player.cultivation += 40
+    
+    def _handle_immortal_chance(self):
+        """处理获得仙缘事件"""
+        print("获得仙缘，修为和心境大幅提升！")
+        self.player.cultivation += 20
+        self.player.improve_state_of_mind(10)
+    
+    def _handle_fellow_help(self):
+        """处理正道同门求助事件"""
+        print("正道同门请求帮助，伸出援手！")
+        self.player.gain_reputation(10)
+        self.player.add_resource('灵石', 50)
+    
+    def _handle_absorb_evil(self):
+        """处理吸收煞气事件"""
+        print("吸收周围煞气，魔功修为提升！")
+        self.player.cultivation += 15
+        self.player.stats['心境'] -= 2  # 心境下降
+    
+    def _handle_demon_breakthrough(self):
+        """处理魔功突破事件"""
+        print("魔功突破，实力大增！")
+        self.player.cultivation += 25
+    
+    def _handle_demon_ally(self):
+        """处理魔道盟友召唤事件"""
+        print("魔道盟友召唤，获得支援！")
+        self.player.add_resource('灵石', 100)
+    
+    def _handle_beast_contract(self):
+        """处理妖兽契约事件"""
+        print("与妖兽签订契约，获得伙伴！")
+        companion = {'name': '契约妖兽', 'type': '妖', 'strength': 100}
+        self.player.recruit_companion(companion)
+    
+    def _handle_transformation_chance(self):
+        """处理化形机缘事件"""
+        print("获得化形机缘，妖力提升！")
+        self.player.cultivation += 20
+        self.player.improve_state_of_mind(5)
+    
+    def _handle_demon_gathering(self):
+        """处理妖族聚会事件"""
+        print("参加妖族聚会，获得妖丹和修炼心得！")
+        self.player.add_resource('灵石', 80)
+        self.player.stats['悟性'] += 1
+    
+    def _handle_buddha_insight(self):
+        """处理佛法感悟事件"""
+        print("佛法感悟，心境和悟性提升！")
+        self.player.improve_state_of_mind(15)
+        self.player.stats['悟性'] += 2
+    
+    def _handle_save_creatures(self):
+        """处理普渡众生事件"""
+        print("普渡众生，获得功德和声望！")
+        self.player.gain_reputation(25)
+        self.player.improve_state_of_mind(10)
+    
+    def _handle_buddha_chance(self):
+        """处理佛缘显现事件"""
+        print("佛缘显现，获得佛法传承！")
+        self.player.learn_special_ability("佛法护体")
+    
+    def _handle_ghost_possession(self):
+        """处理阴魂附体事件"""
+        print("阴魂附体，获得鬼力但心境受损！")
+        self.player.cultivation += 15
+        self.player.stats['心境'] -= 3
+    
+    def _handle_underworld_trial(self):
+        """处理黄泉历练事件"""
+        print("黄泉历练，获得鬼气和修炼经验！")
+        self.player.cultivation += 20
+        self.player.add_resource('声望值', 50)
+    
+    def _handle_ghost_realm_passage(self):
+        """处理鬼界通道事件"""
+        print("发现鬼界通道，获得进入鬼界的机会！")
+        self.player.learn_special_ability("鬼界穿梭")
+    
+    def _handle_first_enemy(self):
+        """处理初次遇敌事件"""
+        print("初次遇到敌人，战斗经验提升！")
+        enemy = {'name': '山贼', 'realm': '凡人'}
+        victory = self.battle_system.start_battle(self.player, enemy)
+        if victory:
+            print("战胜敌人，获得战斗经验！")
+    
+    def _handle_cultivation_bottleneck(self):
+        """处理修炼瓶颈事件"""
+        print("遇到修炼瓶颈，需要突破！")
+        # 可以添加突破瓶颈的机制
+    
+    def _handle_cave_competition(self):
+        """处理洞府争夺事件"""
+        print("洞府争夺，获得修炼场所！")
+        self.player.add_resource('灵石', 150)
+        self.player.gain_title("洞府之主")
+    
+    def _handle_sect_task(self):
+        """处理门派任务事件"""
+        print("门派任务，获得贡献和奖励！")
+        self.player.add_resource('贡献点', 50)
+        self.player.add_resource('灵石', 100)
+    
+    def _handle_artifact_recognition(self):
+        """处理法宝认主事件"""
+        print("法宝认主，获得强大法器！")
+        self.player.add_resource('法器', 1)
+        self.player.learn_special_ability("法宝精通")
+    
+    def _handle_mystic_realm_exploration(self):
+        """处理秘境探索事件"""
+        print("秘境探索，获得珍稀资源和传承！")
+        self.player.add_resource('灵石', 200)
+        self.player.cultivation += 30
+    
+    def _handle_ascension_trial(self):
+        """处理飞升考验事件"""
+        print("飞升考验，通过则可飞升仙界！")
+        # 可以添加飞升考验的机制
+    
+    def _handle_space_travel(self):
+        """处理空间穿越事件"""
+        print("空间穿越，到达未知领域！")
+        self.player.learn_special_ability("空间掌控")
+    
+    def _handle_law_comprehension(self):
+        """处理法则领悟事件"""
+        print("法则领悟，实力大幅提升！")
+        self.player.cultivation += 50
+        self.player.improve_state_of_mind(20)
+    
+    def _handle_great_path_competition(self):
+        """处理大道之争事件"""
+        print("大道之争，与其他修士争夺大道！")
+        # 可以添加大道之争的机制
+    
+    def _handle_tribulation_clouds(self):
+        """处理劫云显现事件"""
+        print("劫云显现，即将面临天劫！")
+        # 可以添加天劫的机制
+    
+    def _handle_immortal_demon_war(self):
+        """处理仙魔大战事件"""
+        print("仙魔大战，参与其中获得巨大机缘！")
+        self.player.gain_reputation(50)
+        self.player.cultivation += 40
             
     @timing
     def explore_world(self):
@@ -756,10 +830,8 @@ class GameEngine:
         
         # 获取可前往的地点
         locations = self.world.get_available_locations()
-        print("可探索地点：")
-        for i, location in enumerate(locations, 1):
-            print(f"{i}. {location}")
-            
+        self._display_locations(locations)
+        
         try:
             choice = int(input("选择探索地点: ")) - 1
             if 0 <= choice < len(locations):
@@ -767,55 +839,67 @@ class GameEngine:
                 print(f"前往 {location} 探索...")
                 
                 # 不同地点有不同的发现概率
-                discoveries = {
-                    "青云山脉": ["灵草", "矿石", "古洞府", "野生妖兽"],
-                    "幽冥谷": ["阴属性材料", "鬼物", "禁制", "古老墓穴"],
-                    "天机城": ["功法秘籍", "法宝", "情报", "神秘商人"],
-                    "万宝阁": ["珍稀材料", "古董", "拍卖会", "特殊任务"],
-                    "紫霄宫": ["仙缘", "高深功法", "仙器", "长老指点"],
-                    "血魔宗": ["魔道功法", "邪器", "危险机遇", "黑暗交易"]
-                }
-                
-                possible_discoveries = discoveries.get(location, ["普通材料", "灵石", "小妖"])
-                discovery = random.choice(possible_discoveries)
-                
+                discovery = self._get_location_discovery(location)
                 print(f"在{location}发现了{discovery}")
                 
                 # 根据发现给予奖励和触发事件
-                if "灵石" in discovery:
-                    reward = random.randint(20, 100)
-                    self.player.add_resource('灵石', reward)
-                    print(f"获得灵石 {reward} 枚")
-                    
-                elif "灵草" in discovery or "材料" in discovery:
-                    self.player.add_resource('灵药', 1)
-                    # 更新任务进度
-                    self.quest_system.update_quest_progress("collect_herbs")
-                    
-                elif "功法" in discovery:
-                    print("获得了珍贵的修炼心得")
-                    self.player.stats['悟性'] += 1
-                    
-                elif "法宝" in discovery or "法器" in discovery:
-                    self.player.add_resource('法器', 1)
-                    
-                elif "野生妖兽" in discovery or "小妖" in discovery:
-                    print("遭遇了妖兽！")
-                    enemy = {'name': '山中妖兽', 'realm': '练气期'}
-                    victory = self.battle_system.start_battle(self.player, enemy)
-                    if victory:
-                        print("战胜妖兽，获得战利品！")
-                        self.player.add_resource('灵石', random.randint(30, 80))
-                        self.quest_system.update_quest_progress("defeat_wolf")
-                    else:
-                        print("败给妖兽，需要休养恢复...")
-                        
-                elif "特殊任务" in discovery:
-                    print("触发了特殊任务！")
-                    # 可以在这里添加特殊任务逻辑
-                    
+                self._handle_discovery(discovery)
+                
         except ValueError:
             print("输入无效")
+    
+    def _display_locations(self, locations):
+        """显示可探索地点"""
+        print("可探索地点：")
+        for i, location in enumerate(locations, 1):
+            print(f"{i}. {location}")
+    
+    def _get_location_discovery(self, location):
+        """根据地点获取可能的发现"""
+        discoveries = {
+            "青云山脉": ["灵草", "矿石", "古洞府", "野生妖兽"],
+            "幽冥谷": ["阴属性材料", "鬼物", "禁制", "古老墓穴"],
+            "天机城": ["功法秘籍", "法宝", "情报", "神秘商人"],
+            "万宝阁": ["珍稀材料", "古董", "拍卖会", "特殊任务"],
+            "紫霄宫": ["仙缘", "高深功法", "仙器", "长老指点"],
+            "血魔宗": ["魔道功法", "邪器", "危险机遇", "黑暗交易"]
+        }
+        possible_discoveries = discoveries.get(location, ["普通材料", "灵石", "小妖"])
+        return random.choice(possible_discoveries)
+    
+    def _handle_discovery(self, discovery):
+        """处理探索发现"""
+        if "灵石" in discovery:
+            reward = random.randint(20, 100)
+            self.player.add_resource('灵石', reward)
+            print(f"获得灵石 {reward} 枚")
+            
+        elif "灵草" in discovery or "材料" in discovery:
+            self.player.add_resource('灵药', 1)
+            # 更新任务进度
+            self.quest_system.update_quest_progress("collect_herbs")
+            
+        elif "功法" in discovery:
+            print("获得了珍贵的修炼心得")
+            self.player.stats['悟性'] += 1
+            
+        elif "法宝" in discovery or "法器" in discovery:
+            self.player.add_resource('法器', 1)
+            
+        elif "野生妖兽" in discovery or "小妖" in discovery:
+            print("遭遇了妖兽！")
+            enemy = {'name': '山中妖兽', 'realm': '练气期'}
+            victory = self.battle_system.start_battle(self.player, enemy)
+            if victory:
+                print("战胜妖兽，获得战利品！")
+                self.player.add_resource('灵石', random.randint(30, 80))
+                self.quest_system.update_quest_progress("defeat_wolf")
+            else:
+                print("败给妖兽，需要休养恢复...")
+                
+        elif "特殊任务" in discovery:
+            print("触发了特殊任务！")
+            # 可以在这里添加特殊任务逻辑
             
     def check_story_triggers(self):
         """检查剧情触发条件"""

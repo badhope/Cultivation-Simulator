@@ -307,23 +307,218 @@ class GameplaySystem:
     
     def _update_exploration_mode(self, player):
         """更新探索模式"""
-        # 这里可以添加探索模式的更新逻辑
-        pass
+        target_location = self.mode_progress["exploration"]["target_location"]
+        visited_locations = self.mode_progress["exploration"]["visited_locations"]
+        
+        # 随机生成探索事件
+        events = [
+            {"type": "发现线索", "description": "你发现了指向目标地点的线索"},
+            {"type": "遇到妖兽", "description": "你遇到了一只妖兽，需要战斗"},
+            {"type": "发现宝藏", "description": "你发现了一个宝藏，获得了一些资源"},
+            {"type": "遇到修士", "description": "你遇到了一位修士，他给了你一些建议"},
+            {"type": "迷路", "description": "你在探索中迷路了，浪费了一些时间"}
+        ]
+        
+        event = random.choice(events)
+        print(f"探索事件：{event['description']}")
+        
+        if event["type"] == "发现线索":
+            # 增加找到目标地点的概率
+            if random.random() > 0.7:
+                print(f"恭喜你找到了{target_location}！")
+                print("探索模式完成！")
+                self.current_mode = None
+        elif event["type"] == "发现宝藏":
+            # 获得随机资源
+            resources = {"灵石": random.randint(50, 200), "灵药": random.randint(1, 5)}
+            print(f"获得宝藏：{resources}")
+            for item, amount in resources.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+        elif event["type"] == "遇到修士":
+            # 获得一些修为
+            cultivation_gain = random.randint(5, 15)
+            player.cultivation += cultivation_gain
+            print(f"修士传授了你一些修炼心得，获得{cultivation_gain}点修为")
     
     def _update_competition_mode(self, player):
         """更新竞技模式"""
-        # 这里可以添加竞技模式的更新逻辑
-        pass
+        opponents = self.mode_progress["competition"]["opponents"]
+        wins = self.mode_progress["competition"]["wins"]
+        losses = self.mode_progress["competition"]["losses"]
+        
+        # 如果还有对手，进行对战
+        if opponents:
+            opponent = opponents.pop(0)
+            print(f"对战对手：{opponent['name']} ({opponent['realm']})")
+            
+            # 计算战斗结果
+            player_strength = sum(player.stats.values()) + player.cultivation // 10
+            opponent_strength = opponent['strength']
+            
+            # 添加一些随机性
+            player_strength *= (0.8 + random.random() * 0.4)
+            
+            if player_strength > opponent_strength:
+                print(f"你击败了{opponent['name']}！")
+                self.mode_progress["competition"]["wins"] += 1
+                # 获得奖励
+                reward = {"灵石": random.randint(100, 300), "经验": random.randint(50, 150)}
+                print(f"获得奖励：{reward}")
+                for item, amount in reward.items():
+                    if item in player.resources:
+                        player.resources[item] += amount
+                    else:
+                        player.resources[item] = amount
+            else:
+                print(f"你输给了{opponent['name']}...")
+                self.mode_progress["competition"]["losses"] += 1
+        else:
+            # 所有对手都已对战完毕
+            total_wins = self.mode_progress["competition"]["wins"]
+            total_losses = self.mode_progress["competition"]["losses"]
+            print(f"竞技模式结束！")
+            print(f"战绩：{total_wins}胜 {total_losses}负")
+            
+            # 根据战绩发放奖励
+            if total_wins >= 3:
+                reward = {"灵石": 1000, "声望值": 200}
+                print(f"获得优秀奖励：{reward}")
+            elif total_wins >= 1:
+                reward = {"灵石": 500, "声望值": 100}
+                print(f"获得良好奖励：{reward}")
+            else:
+                reward = {"灵石": 200, "声望值": 50}
+                print(f"获得参与奖励：{reward}")
+            
+            for item, amount in reward.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            
+            self.current_mode = None
     
     def _update_sect_construction_mode(self, player):
         """更新门派建设模式"""
-        # 这里可以添加门派建设模式的更新逻辑
-        pass
+        buildings = self.mode_progress["sect_construction"]["buildings"]
+        resources = self.mode_progress["sect_construction"]["resources"]
+        population = self.mode_progress["sect_construction"]["population"]
+        
+        # 自动收集资源
+        resources["木材"] += random.randint(10, 30)
+        resources["石料"] += random.randint(5, 20)
+        resources["灵石"] += random.randint(50, 150)
+        
+        print(f"门派资源：木材 {resources['木材']}, 石料 {resources['石料']}, 灵石 {resources['灵石']}")
+        
+        # 随机事件
+        events = [
+            {"type": "招募弟子", "description": "有新的修士想要加入你的门派"},
+            {"type": "建筑升级", "description": "门派建筑可以升级了"},
+            {"type": "资源发现", "description": "门派附近发现了新的资源点"},
+            {"type": "门派任务", "description": "有门派任务需要完成"},
+            {"type": "外敌入侵", "description": "有外敌想要入侵你的门派"}
+        ]
+        
+        event = random.choice(events)
+        print(f"门派事件：{event['description']}")
+        
+        if event["type"] == "招募弟子":
+            # 增加门派人口
+            new_disciples = random.randint(1, 3)
+            self.mode_progress["sect_construction"]["population"] += new_disciples
+            print(f"有{new_disciples}名新弟子加入了门派！")
+        elif event["type"] == "建筑升级":
+            # 尝试升级建筑
+            if resources["木材"] >= 100 and resources["石料"] >= 50 and resources["灵石"] >= 200:
+                resources["木材"] -= 100
+                resources["石料"] -= 50
+                resources["灵石"] -= 200
+                buildings.append(f"建筑{len(buildings) + 1}")
+                print("门派建筑升级成功！")
+            else:
+                print("资源不足，无法升级建筑")
+        elif event["type"] == "资源发现":
+            # 获得额外资源
+            bonus_resources = {"木材": random.randint(50, 100), "石料": random.randint(30, 60), "灵石": random.randint(100, 200)}
+            print(f"发现资源点，获得额外资源：{bonus_resources}")
+            for resource, amount in bonus_resources.items():
+                resources[resource] += amount
+        
+        # 检查门派发展状态
+        if len(buildings) >= 5 and population >= 10:
+            print("恭喜！你的门派已经发展成为一个中型门派！")
+            print("门派建设模式完成！")
+            # 发放奖励
+            reward = {"灵石": 2000, "声望值": 500, "贡献点": 200}
+            print(f"获得奖励：{reward}")
+            for item, amount in reward.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            self.current_mode = None
     
     def _update_alchemy_competition_mode(self, player):
         """更新炼丹大赛模式"""
-        # 这里可以添加炼丹大赛模式的更新逻辑
-        pass
+        recipes = self.mode_progress["alchemy_competition"]["recipes"]
+        completed_recipes = self.mode_progress["alchemy_competition"]["completed_recipes"]
+        score = self.mode_progress["alchemy_competition"]["score"]
+        
+        # 随机选择一个丹方进行炼制
+        if recipes:
+            recipe = recipes.pop(0)
+            print(f"尝试炼制：{recipe}")
+            
+            # 计算炼丹成功率
+            base_success_rate = 0.6
+            # 考虑玩家悟性属性
+            player_wisdom = player.stats.get("悟性", 5)
+            success_rate = base_success_rate + (player_wisdom - 5) * 0.05
+            success_rate = min(0.95, max(0.2, success_rate))
+            
+            if random.random() < success_rate:
+                # 炼丹成功
+                quality = random.randint(1, 3)  # 1-3级品质
+                quality_names = {1: "普通", 2: "优秀", 3: "极品"}
+                print(f"炼丹成功！获得{quality_names[quality]}品质的{recipe}")
+                
+                # 计算得分
+                recipe_score = quality * 100
+                self.mode_progress["alchemy_competition"]["score"] += recipe_score
+                completed_recipes.append(f"{quality_names[quality]}{recipe}")
+                print(f"获得{recipe_score}分，当前总分：{self.mode_progress['alchemy_competition']['score']}")
+            else:
+                # 炼丹失败
+                print("炼丹失败了...")
+        else:
+            # 所有丹方都已尝试完毕
+            final_score = self.mode_progress["alchemy_competition"]["score"]
+            print(f"炼丹大赛结束！")
+            print(f"最终得分：{final_score}")
+            print(f"完成丹方：{len(completed_recipes)}")
+            
+            # 根据得分发放奖励
+            if final_score >= 1000:
+                reward = {"灵石": 1500, "灵药": 20, "声望值": 300}
+                print(f"获得大师奖励：{reward}")
+            elif final_score >= 500:
+                reward = {"灵石": 1000, "灵药": 10, "声望值": 200}
+                print(f"获得优秀奖励：{reward}")
+            else:
+                reward = {"灵石": 500, "灵药": 5, "声望值": 100}
+                print(f"获得参与奖励：{reward}")
+            
+            for item, amount in reward.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            
+            self.current_mode = None
     
     def _update_immortal_journey_mode(self, player):
         """更新修仙之路模式"""
@@ -360,23 +555,259 @@ class GameplaySystem:
     
     def _update_treasure_hunt_mode(self, player):
         """更新寻宝模式"""
-        # 这里可以添加寻宝模式的更新逻辑
-        pass
+        treasure = self.mode_progress["treasure_hunt"]["target"]
+        clues = self.mode_progress["treasure_hunt"]["clues"]
+        
+        # 随机生成寻宝事件
+        events = [
+            {"type": "发现线索", "description": "你发现了关于宝藏位置的线索"},
+            {"type": "遇到陷阱", "description": "你触发了一个陷阱，受到了一些伤害"},
+            {"type": "遇到守护者", "description": "你遇到了宝藏的守护者，需要战斗"},
+            {"type": "获得道具", "description": "你获得了一个有助于寻宝的道具"},
+            {"type": "接近目标", "description": "你感觉离宝藏越来越近了"}
+        ]
+        
+        event = random.choice(events)
+        print(f"寻宝事件：{event['description']}")
+        
+        if event["type"] == "发现线索":
+            # 获得线索
+            clue = f"线索{len(clues) + 1}: 宝藏可能在{treasure['location']}的{['山洞', '山顶', '谷底', '湖边', '森林'][random.randint(0, 4)]}"
+            clues.append(clue)
+            print(f"获得线索：{clue}")
+            
+            # 增加找到宝藏的概率
+            if len(clues) >= 3 and random.random() > 0.5:
+                print(f"恭喜你找到了{treasure['name']}！")
+                print("寻宝模式完成！")
+                # 发放奖励
+                reward = {"灵石": random.randint(1000, 3000), "声望值": random.randint(200, 500), "道心": random.randint(50, 150)}
+                print(f"获得宝藏奖励：{reward}")
+                for item, amount in reward.items():
+                    if item in player.resources:
+                        player.resources[item] += amount
+                    else:
+                        player.resources[item] = amount
+                self.current_mode = None
+        elif event["type"] == "获得道具":
+            # 获得道具，增加寻宝成功率
+            print("你获得了寻宝罗盘，它将帮助你更快找到宝藏！")
+        elif event["type"] == "接近目标":
+            # 接近目标，增加找到宝藏的概率
+            print("你感觉离宝藏越来越近了，继续前进！")
+            if random.random() > 0.7:
+                print(f"恭喜你找到了{treasure['name']}！")
+                print("寻宝模式完成！")
+                # 发放奖励
+                reward = {"灵石": random.randint(1000, 3000), "声望值": random.randint(200, 500), "道心": random.randint(50, 150)}
+                print(f"获得宝藏奖励：{reward}")
+                for item, amount in reward.items():
+                    if item in player.resources:
+                        player.resources[item] += amount
+                    else:
+                        player.resources[item] = amount
+                self.current_mode = None
     
     def _update_partner_system_mode(self, player):
         """更新道侣系统模式"""
-        # 这里可以添加道侣系统模式的更新逻辑
-        pass
+        potential_partners = self.mode_progress["partner_system"]["potential_partners"]
+        current_partner = self.mode_progress["partner_system"]["current_partner"]
+        
+        if current_partner:
+            # 已经有了道侣，显示当前状态
+            print(f"你已经有了道侣：{current_partner['name']}")
+            print("道侣系统模式完成！")
+            # 发放奖励
+            reward = {"灵石": 1500, "声望值": 300, "道心": 100}
+            print(f"获得道侣奖励：{reward}")
+            for item, amount in reward.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            self.current_mode = None
+        else:
+            # 还没有道侣，尝试追求
+            print("可追求的对象：")
+            for i, partner in enumerate(potential_partners):
+                print(f"{i+1}. {partner['name']} ({partner['realm']}) - {partner['personality']}")
+                print(f"  要求：{partner['requirement']}")
+            
+            # 检查是否有符合要求的对象
+            eligible_partners = []
+            for partner in potential_partners:
+                eligible = True
+                for req, value in partner['requirement'].items():
+                    if player.resources.get(req, 0) < value:
+                        eligible = False
+                        break
+                if eligible:
+                    eligible_partners.append(partner)
+            
+            if eligible_partners:
+                # 随机选择一个符合要求的对象
+                chosen_partner = random.choice(eligible_partners)
+                print(f"你决定追求{chosen_partner['name']}")
+                
+                # 计算追求成功率
+                base_success_rate = 0.7
+                # 考虑玩家魅力属性
+                player_charm = player.stats.get("魅力", 5)
+                success_rate = base_success_rate + (player_charm - 5) * 0.05
+                success_rate = min(0.95, max(0.3, success_rate))
+                
+                if random.random() < success_rate:
+                    # 追求成功
+                    print(f"恭喜！{chosen_partner['name']}答应成为你的道侣！")
+                    self.mode_progress["partner_system"]["current_partner"] = chosen_partner
+                    # 发放奖励
+                    reward = {"灵石": 1000, "声望值": 200, "道心": 50}
+                    print(f"获得道侣奖励：{reward}")
+                    for item, amount in reward.items():
+                        if item in player.resources:
+                            player.resources[item] += amount
+                        else:
+                            player.resources[item] = amount
+                else:
+                    # 追求失败
+                    print(f"很遗憾，{chosen_partner['name']}拒绝了你的追求...")
+                    # 减少一些声望值
+                    if player.resources.get("声望值", 0) > 50:
+                        player.resources["声望值"] -= 50
+                        print("你的声望值减少了50点")
+            else:
+                print("没有符合要求的道侣对象，继续努力提升自己吧！")
     
     def _update_cross_server_mode(self, player):
         """更新跨服竞技模式"""
-        # 这里可以添加跨服竞技模式的更新逻辑
-        pass
+        rank = self.mode_progress["cross_server"]["rank"]
+        wins = self.mode_progress["cross_server"]["wins"]
+        losses = self.mode_progress["cross_server"]["losses"]
+        season_points = self.mode_progress["cross_server"]["season_points"]
+        
+        # 模拟跨服对战
+        print(f"当前排名：{rank}")
+        print(f"战绩：{wins}胜 {losses}负")
+        print(f"赛季积分：{season_points}")
+        
+        # 随机生成对手
+        opponent_rank = max(1, rank + random.randint(-50, 50))
+        print(f"对战对手排名：{opponent_rank}")
+        
+        # 计算战斗结果
+        player_strength = sum(player.stats.values()) + player.cultivation // 10
+        # 对手强度与排名相关
+        opponent_strength = 1000 + (1000 - opponent_rank) * 0.5
+        
+        # 添加一些随机性
+        player_strength *= (0.8 + random.random() * 0.4)
+        
+        if player_strength > opponent_strength:
+            # 胜利
+            print("你赢得了这场对战！")
+            self.mode_progress["cross_server"]["wins"] += 1
+            self.mode_progress["cross_server"]["season_points"] += 20
+            # 提升排名
+            new_rank = max(1, rank - random.randint(10, 30))
+            self.mode_progress["cross_server"]["rank"] = new_rank
+            print(f"排名提升到：{new_rank}")
+        else:
+            # 失败
+            print("你输掉了这场对战...")
+            self.mode_progress["cross_server"]["losses"] += 1
+            self.mode_progress["cross_server"]["season_points"] += 5
+            # 降低排名
+            new_rank = rank + random.randint(5, 20)
+            self.mode_progress["cross_server"]["rank"] = new_rank
+            print(f"排名下降到：{new_rank}")
+        
+        # 检查是否达到结束条件
+        if wins + losses >= 10:
+            print("跨服竞技赛季结束！")
+            print(f"最终排名：{self.mode_progress['cross_server']['rank']}")
+            print(f"最终战绩：{wins}胜 {losses}负")
+            print(f"最终积分：{self.mode_progress['cross_server']['season_points']}")
+            
+            # 根据排名发放奖励
+            final_rank = self.mode_progress["cross_server"]["rank"]
+            if final_rank <= 100:
+                reward = {"灵石": 5000, "声望值": 1000, "道心": 500}
+                print(f"获得传说奖励：{reward}")
+            elif final_rank <= 500:
+                reward = {"灵石": 3000, "声望值": 500, "道心": 300}
+                print(f"获得稀有奖励：{reward}")
+            else:
+                reward = {"灵石": 1000, "声望值": 200, "道心": 100}
+                print(f"获得普通奖励：{reward}")
+            
+            for item, amount in reward.items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            
+            self.current_mode = None
     
     def _update_heavenly_tribulation_mode(self, player):
         """更新天劫挑战模式"""
-        # 这里可以添加天劫挑战模式的更新逻辑
-        pass
+        tribulation = self.mode_progress["heavenly_tribulation"]["current_tribulation"]
+        attempts = self.mode_progress["heavenly_tribulation"]["attempts"]
+        
+        print(f"当前天劫：{tribulation['name']}")
+        print(f"难度：{tribulation['difficulty']}/7")
+        print(f"尝试次数：{attempts}")
+        
+        # 计算渡劫成功率
+        base_success_rate = 0.5
+        # 考虑玩家心境属性
+        player_mind = player.stats.get("心境", 5)
+        success_rate = base_success_rate + (player_mind - 5) * 0.05
+        # 考虑道心值
+        player_tao = player.resources.get("道心", 0)
+        success_rate += player_tao * 0.001
+        # 难度惩罚
+        success_rate -= (tribulation['difficulty'] - 1) * 0.1
+        success_rate = min(0.9, max(0.1, success_rate))
+        
+        print(f"渡劫成功率：{success_rate:.2f}")
+        
+        # 增加尝试次数
+        self.mode_progress["heavenly_tribulation"]["attempts"] += 1
+        
+        if random.random() < success_rate:
+            # 渡劫成功
+            print(f"恭喜！你成功度过了{tribulation['name']}！")
+            print("天劫挑战模式完成！")
+            # 发放奖励
+            print(f"获得奖励：{tribulation['reward']}")
+            for item, amount in tribulation['reward'].items():
+                if item in player.resources:
+                    player.resources[item] += amount
+                else:
+                    player.resources[item] = amount
+            # 提升境界
+            realms = ["凡人", "练气期", "筑基期", "金丹期", "元婴期", "化神期", "合体期", "渡劫期"]
+            current_realm_index = realms.index(player.realm)
+            if current_realm_index < len(realms) - 1:
+                player.realm = realms[current_realm_index + 1]
+                print(f"你的境界提升到了{player.realm}！")
+            self.current_mode = None
+        else:
+            # 渡劫失败
+            print(f"很遗憾，你没能度过{tribulation['name']}...")
+            # 损失一些修为和道心
+            cultivation_loss = player.cultivation // 10
+            player.cultivation = max(0, player.cultivation - cultivation_loss)
+            print(f"你损失了{cultivation_loss}点修为")
+            
+            if player.resources.get("道心", 0) > 20:
+                player.resources["道心"] -= 20
+                print("你损失了20点道心")
+            
+            # 检查是否达到最大尝试次数
+            if self.mode_progress["heavenly_tribulation"]["attempts"] >= 3:
+                print("你已经尝试了3次，天劫挑战模式结束")
+                self.current_mode = None
     
     def get_mode_status(self):
         """获取当前游戏模式状态"""

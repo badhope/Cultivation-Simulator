@@ -1,6 +1,6 @@
 # 修仙模拟器 (Cultivation Simulator)
 
-一个基于文本的修仙主题桌面游戏，融合了传统的修仙元素和现代的游戏机制。
+一个基于Python的修仙主题桌面游戏，融合了传统的修仙元素和现代的游戏机制，支持文本和图形界面。
 
 ## 🎮 游戏特色
 
@@ -8,30 +8,45 @@
 - **AI世界模拟**：动态生成的世界事件和NPC行为
 - **丰富的修炼体系**：多种修炼方式和技能系统
 - **策略性资源管理**：合理分配属性点和管理资源
+- **图形用户界面**：现代化的GUI界面，提供更好的用户体验
+- **多样化的游戏模式**：包括挑战、探索、寻宝等多种玩法
+- **宠物系统**：捕捉和培养灵宠，与你一起修仙
+- **阵法系统**：学习和布置各种阵法，增强实力
 
 ## 🚀 快速开始
 
 ### 运行游戏
 ```bash
-# 方法1：直接运行Python文件
+# 方法1：运行文本界面版本
 python cultivation_game.py
 
-# 方法2：使用启动脚本（Windows）
+# 方法2：运行图形界面版本
+python start_gui_game.py
+
+# 方法3：使用启动脚本（Windows）
 start_game.bat
 ```
 
 ### 系统要求
 - Python 3.8+
-- 基础的命令行操作能力
+- customtkinter (GUI版本需要)
+
+### 安装依赖
+```bash
+pip install -r requirements.txt
+```
 
 ## 🎯 游戏玩法
 
 ### 核心机制
 1. **属性系统**：
    - 体质：影响生命值和恢复速度
-   - 灵根：影响灵气吸收效率
+   - 根骨：影响修炼速度和境界突破
    - 悟性：影响学习和领悟速度
-   - 机缘：影响奇遇概率
+   - 福缘：影响奇遇概率和宝藏发现
+   - 心境：影响修炼稳定性和突破成功率
+   - 魅力：影响社交和门派关系
+   - 声望：影响NPC态度和任务获取
 
 2. **境界系统**：
    凡人 → 练气期 → 筑基期 → 金丹期 → 元婴期 → 化神期 → 合体期 → 大乘期 → 渡劫期
@@ -41,6 +56,9 @@ start_game.bat
    - 灵药：炼丹材料
    - 法器：装备道具
    - 丹药：消耗品
+   - 贡献点：门派贡献
+   - 声望值：社会地位
+   - 道心：修炼心境
 
 ### 主要功能
 - 🔥 **修炼**：提升修为，突破境界
@@ -48,23 +66,43 @@ start_game.bat
 - 💊 **炼丹**：制作增强属性的丹药
 - ⚔️ **战斗**：与其他修士切磋
 - 🤝 **社交**：与NPC互动建立关系
+- 🏯 **门派**：加入门派，完成任务，获取资源
+- 🐾 **宠物**：捕捉和培养灵宠
+- 🔮 **阵法**：学习和布置各种阵法
+- 🎮 **游戏模式**：挑战、探索、寻宝、跨服竞技等
 
 ## 📁 项目结构
 
 ```
-ai-desktop-companion/
-├── cultivation_game.py      # 游戏主入口
-├── game_core/               # 核心游戏逻辑
+Cultivation-Simulator/
+├── core/                    # 核心游戏逻辑
 │   ├── __init__.py
 │   ├── game_engine.py      # 游戏引擎
 │   ├── player.py           # 玩家角色
-│   └── world_simulator.py  # 世界模拟器
-├── game_modules/            # 功能模块
+│   └── world.py            # 世界系统
+├── systems/                 # 功能系统
 │   ├── __init__.py
-│   ├── battle_system.py    # 战斗系统
-│   └── save_system.py      # 存档系统
+│   ├── achievement_system.py  # 成就系统
+│   ├── alchemy_system.py      # 炼丹系统
+│   ├── battle_system.py        # 战斗系统
+│   ├── formation_system.py     # 阵法系统
+│   ├── gameplay_system.py      # 游戏玩法系统
+│   ├── pet_system.py           # 宠物系统
+│   ├── quest_system.py         # 任务系统
+│   └── sect_system.py          # 门派系统
+├── gui_components/          # GUI组件
+│   ├── __init__.py
+│   ├── animation_system.py    # 动画系统
+│   ├── main_window.py         # 主窗口
+│   ├── sound_manager.py       # 音效管理
+│   └── theme_manager.py       # 主题管理
+├── utils/                   # 工具模块
+│   ├── __init__.py
+│   ├── game_balancer.py      # 游戏平衡器
+│   └── performance_optimizer.py # 性能优化器
 ├── saves/                   # 存档文件目录
-├── assets/                  # 游戏资源
+├── data/                    # 游戏数据
+│   └── logs/                # 日志文件
 ├── requirements.txt         # 依赖包
 └── README.md               # 说明文档
 ```
@@ -75,15 +113,20 @@ ai-desktop-companion/
 - [x] 基础修炼系统
 - [x] 属性分配机制
 - [x] 世界模拟器
-- [x] 简单战斗系统
+- [x] 战斗系统
 - [x] 存档读取功能
+- [x] 图形用户界面
+- [x] 门派系统
+- [x] 宠物系统
+- [x] 阵法系统
+- [x] 成就系统
+- [x] 多样化游戏模式
 
 ### 待开发功能
-- [ ] 图形用户界面
 - [ ] 更丰富的技能系统
-- [ ] 门派系统
 - [ ] 装备强化系统
 - [ ] 多人在线模式
+- [ ] 更多剧情和任务
 
 ## 🤝 贡献指南
 
