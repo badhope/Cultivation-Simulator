@@ -1,0 +1,50 @@
+# 游戏配置
+
+game:
+  name: "修仙模拟器"
+  version: "2.0.0"
+  debug: false
+  
+# 游戏平衡性配置
+balance:
+  cultivation:
+    base_gain: 2
+    realm_multipliers:
+      凡人：1.0
+      练气期：1.5
+      筑基期：2.0
+      金丹期：3.0
+      元婴期：5.0
+      化神期：8.0
+      合体期：12.0
+      大乘期：20.0
+      渡劫期：30.0
+  
+  random_events:
+    base_probability: 0.1
+    max_per_hour: 10
+  
+  achievements:
+    check_interval: 10
+  
+  auto_balance:
+    enabled: true
+    interval: 100
+
+# 时间配置
+time:
+  tick_rate: 60  # 每秒 tick 数
+  day_length: 24000  # 游戏内一天的 tick 数
+  
+# 存档配置
+save:
+  auto_save: true
+  auto_save_interval: 300  # 秒
+  max_save_slots: 10
+  
+# 日志配置
+logging:
+  level: "INFO"
+  file: "logs/game.log"
+  max_size: 10485760  # 10MB
+  backup_count: 5

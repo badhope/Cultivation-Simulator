@@ -1,0 +1,52 @@
+# GUI 配置
+
+gui:
+  title: "修仙模拟器"
+  width: 1280
+  height: 720
+  resizable: true
+  fullscreen: false
+  
+# 主题配置
+theme:
+  default: "dark"
+  available:
+    - "dark"
+    - "light"
+    - "cultivation"
+  
+# 字体配置
+fonts:
+  default:
+    family: "Microsoft YaHei"
+    size: 14
+  title:
+    family: "Microsoft YaHei"
+    size: 24
+    weight: "bold"
+  button:
+    family: "Microsoft YaHei"
+    size: 16
+  
+# 颜色配置（修仙主题）
+colors:
+  primary: "#D4AF37"  # 金色
+  secondary: "#2E8B57"  # 灵气绿
+  accent: "#9932CC"  # 紫色
+  background: "#1a1a1a"  # 深色背景
+  text: "#ffffff"  # 白色文字
+  gold: "#FFD700"
+  jade: "#00A86B"
+  spirit: "#9370DB"
+  
+# 动画配置
+animation:
+  enabled: true
+  fps: 60
+  transition_duration: 0.3
+  
+# 音效配置
+sound:
+  enabled: true
+  volume: 0.5
+  music_volume: 0.3
