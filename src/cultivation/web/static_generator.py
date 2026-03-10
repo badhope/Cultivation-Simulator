@@ -45,7 +45,22 @@ class StaticWebGenerator:
     <title>修仙模拟器</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body onload="autoStartGame()">
+    <script>
+    function autoStartGame() {
+        const saved = localStorage.getItem('cultivation_save');
+        if (saved) {
+            try {
+                gameState = JSON.parse(saved);
+                window.location.href = 'game.html';
+            } catch (e) {
+                autoCreateCharacter();
+            }
+        } else {
+            autoCreateCharacter();
+        }
+    }
+    </script>
     <div class="container">
         <div class="title-section">
             <h1>修仙模拟器</h1>
@@ -1514,9 +1529,56 @@ function init() {
     loadGameFromStorage();
 }
 
+function autoCreateCharacter() {
+    const names = ["李云", "张凡", "王雪", "陈风", "林雨", "赵山", "周灵", "吴霞"];
+    const surnames = ["李", "张", "王", "陈", "刘", "杨", "黄", "赵", "周", "吴"];
+    const surnames2 = ["云", "凡", "雪", "风", "雨", "山", "灵", "霞", "明", "清"];
+    
+    const name = surnames[Math.floor(Math.random() * surnames.length)] + surnames2[Math.floor(Math.random() * surnames2.length)];
+    const gender = Math.random() > 0.5 ? "男" : "女";
+    const path = ["道", "佛", "魔", "儒"][Math.floor(Math.random() * 4)];
+    
+    const stats = {
+        "悟性": 5 + Math.floor(Math.random() * 6),
+        "体质": 5 + Math.floor(Math.random() * 6),
+        "根骨": 5 + Math.floor(Math.random() * 6),
+        "福缘": 5 + Math.floor(Math.random() * 6),
+        "魅力": 5 + Math.floor(Math.random() * 6),
+        "心智": 5 + Math.floor(Math.random() * 6)
+    };
+    
+    gameState.player = {
+        name: name,
+        gender: gender,
+        age: 0,
+        year: 1,
+        realm: "凡人",
+        cultivation: 0,
+        lifetime: 100,
+        cultivationPath: path,
+        stats: stats,
+        resources: { "灵石": 100, "灵药": 0, "法器": 0, "矿石": 0 },
+        skills: [],
+        techniques: [],
+        achievements: [],
+        battlesWon: 0,
+        health: 80,
+        happiness: 80,
+        partner: null,
+        disciples: []
+    };
+    
+    gameState.isGameOver = false;
+    localStorage.setItem('cultivation_save', JSON.stringify(gameState));
+    window.location.href = 'game.html';
+    setTimeout(() => {
+        if (typeof updateAllDisplays === 'function') updateAllDisplays();
+        if (typeof showWelcomeEvent === 'function') showWelcomeEvent();
+    }, 100);
+}
+
 function startNewGame() {
-    showModal('character-create-modal');
-    initStatAllocator();
+    autoCreateCharacter();
 }
 
 function loadGame() {
