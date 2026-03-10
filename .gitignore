@@ -55,3 +55,6 @@ htmlcov/
 data/
 *.sav
 *.save
+
+# Web build output
+web_build/
