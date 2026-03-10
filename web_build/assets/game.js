@@ -268,17 +268,37 @@ function passOneYear() {
     
     const newStage = getLifeStage(p.age);
     if (newStage.name !== oldStage.name) {
-        showEvent("人生阶段变化", "你已步入" + newStage.name + "！" + newStage.description, [
-            { text: "迎接新的人生阶段", effect: function() { updateAllDisplays(); } }
+        showEvent("🌟 人生阶段变化", "你已步入" + newStage.name + "！<br>" + newStage.description, [
+            { text: "迎接新的人生阶段", effect: function() { 
+                p.stats.悟性 = (p.stats.悟性 || 0) + 1;
+                showStatus("年龄+" + p.age + "，悟性+1！");
+                updateAllDisplays(); 
+            } }
         ]);
-    } else {
-        if (Math.random() < 0.3) {
-            triggerRandomEvent();
-        } else {
-            showStatus("一年过去，你" + p.age + "岁了...");
-        }
+        checkAchievements();
+        updateAllDisplays();
+        return;
     }
     
+    // 提高事件触发概率到60%
+    if (Math.random() < 0.6) {
+        triggerRandomEvent();
+    } else {
+        const yearEvents = [
+            "你在山中采集药材，收获不错",
+            "你在洞府修炼，境界略有精进",
+            "你与同道交流修炼心得",
+            "你在藏书阁阅读典籍",
+            "你下山采购物资",
+            "你在山中偶有所悟"
+        ];
+        const randomYearEvent = yearEvents[Math.floor(Math.random() * yearEvents.length)];
+        const cultivationGain = 5 + Math.floor(p.stats.悟性 / 2);
+        p.cultivation += cultivationGain;
+        showStatus(randomYearEvent + "，修为+" + cultivationGain);
+    }
+    
+    checkAchievements();
     updateAllDisplays();
 }
 
@@ -336,20 +356,166 @@ function triggerRandomEvent() {
     const stage = getLifeStage(p.age);
     const stageEvents = GAME_DATA.stageEvents[stage.name];
     
+    // 优先触发当前人生阶段的事件
     if (stageEvents && stageEvents.length > 0) {
         const event = stageEvents[Math.floor(Math.random() * stageEvents.length)];
         showEvent(event.title, event.description, event.options);
-    } else {
-        const events = [
-            { title: "偶遇仙人", description: "你在山间遇到一位仙人，他看你资质不错。", options: [
-                { text: "虚心请教", effect: function() { p.stats.悟性 = (p.stats.悟性 || 0) + 1; showStatus("悟性+1！"); }},
-                { text: "请教修炼", effect: function() { p.cultivation += 50; showStatus("修为+50！"); }},
-                { text: "礼貌拒绝", effect: function() { showStatus("你礼貌地拒绝了"); }}
-            ]}
-        ];
-        const event = events[Math.floor(Math.random() * events.length)];
-        showEvent(event.title, event.description, event.options);
+        return;
     }
+    
+    // 通用事件池 - 按境界和概率触发
+    const commonEvents = [
+        { title: "🏔️ 山洞奇遇", description: "你在山洞中发现一处灵气浓郁之地，似乎有前辈坐化留下的传承。", options: [
+            { text: "仔细探索", effect: function() { 
+                const gain = 100 + Math.floor(Math.random() * 200);
+                p.cultivation += gain;
+                p.stats.悟性 = (p.stats.悟性 || 0) + 1;
+                showStatus("获得传承！修为+" + gain + "，悟性+1！"); 
+            }},
+            { text: "收取财物", effect: function() { 
+                p.resources.灵石 = (p.resources.灵石 || 0) + 200;
+                showStatus("获得灵石200！"); 
+            }},
+            { text: "转身离开", effect: function() { showStatus("你决定不贪图他人之物"); } }
+        ]},
+        { title: "🤝 修仙交流会", description: "附近城镇举办修仙者交流会，各派弟子齐聚一堂。", options: [
+            { text: "参加交流", effect: function() { 
+                p.stats.人脉 = (p.stats.人脉 || 0) + 2;
+                p.resources.灵石 = (p.resources.灵石 || 0) + 50;
+                showStatus("结识同道中人，人脉+2，灵石+50！"); 
+            }},
+            { text: "出售物品", effect: function() { 
+                p.resources.灵石 = (p.resources.灵石 || 0) + 100;
+                showStatus("出售物品获得灵石100！"); 
+            }},
+            { text: "离开", effect: function() { showStatus("你离开了交流会"); } }
+        ]},
+        { title: "🌿 采药遇险", description: "你在山中采药时遭遇毒蛇袭击！", options: [
+            { text: "战斗", effect: function() { 
+                if (p.stats.体质 >= 7) {
+                    p.cultivation += 30;
+                    p.resources.毒囊 = (p.resources.毒囊 || 0) + 1;
+                    showStatus("你击败了毒蛇！修为+30，获得毒囊！"); 
+                } else {
+                    p.health -= 15;
+                    showStatus("你受伤了，健康-15！"); 
+                }
+            }},
+            { text: "逃跑", effect: function() { 
+                p.health -= 5;
+                showStatus("逃跑时摔了一跤，健康-5"); 
+            }},
+            { text: "求饶", effect: function() { showStatus("毒蛇似乎听懂了你，放你离开"); } }
+        ]},
+        { title: "📜 古修遗址", description: "你发现了一处古修遗址，里面似乎有珍贵功法！", options: [
+            { text: "深入探索", effect: function() { 
+                const skills = ["御剑术", "五行遁术", "炼丹术", "炼器术", "阵法基础"];
+                const skill = skills[Math.floor(Math.random() * skills.length)];
+                if (!p.skills) p.skills = [];
+                if (!p.skills.includes(skill)) {
+                    p.skills.push(skill);
+                    showStatus("学会新技能：" + skill + "！"); 
+                } else {
+                    p.cultivation += 100;
+                    showStatus("技能已存在，修为+100！"); 
+                }
+            }},
+            { text: "浅尝辄止", effect: function() { 
+                p.resources.灵石 = (p.resources.灵石 || 0) + 100;
+                showStatus("获得灵石100！"); 
+            }},
+            { text: "安全第一，不去", effect: function() { showStatus("你选择了安全"); } }
+        ]},
+        { title: "💰 买卖交易", description: "遇到一名商人收购修仙材料。", options: [
+            { text: "出售材料", effect: function() { 
+                const price = 50 + Math.floor(Math.random() * 100);
+                p.resources.灵石 = (p.resources.灵石 || 0) + price;
+                showStatus("交易成功，获得灵石" + price + "！"); 
+            }},
+            { text: "讨价还价", effect: function() { 
+                p.stats.心智 = (p.stats.心智 || 0) + 1;
+                showStatus("心智+1！"); 
+            }},
+            { text: "离开", effect: function() { showStatus("你离开了"); } }
+        ]},
+        { title: "🌊 灵气潮汐", description: "天地灵气突然异常波动，这是突破的好时机！", options: [
+            { text: "趁机修炼", effect: function() { 
+                const gain = 50 + Math.floor(Math.random() * 100);
+                p.cultivation += gain;
+                showStatus("灵气潮汐中修炼，修为+" + gain + "！"); 
+            }},
+            { text: "稳固根基", effect: function() { 
+                p.stats.心境 = (p.stats.心境 || 0) + 1;
+                showStatus("心境+1！"); 
+            }},
+            { text: "不理不睬", effect: function() { showStatus("你选择了旁观"); } }
+        ]},
+        { title: "🍖 妖兽肉美食", description: "你猎杀了一只低阶妖兽，获得了美味的肉。", options: [
+            { text: "吃掉", effect: function() { 
+                p.health = Math.min(100, p.health + 20);
+                p.happiness = Math.min(100, p.happiness + 10);
+                showStatus("吃掉妖兽肉，健康+20，快乐+10！"); 
+            }},
+            { text: "卖掉", effect: function() { 
+                p.resources.灵石 = (p.resources.灵石 || 0) + 80;
+                showStatus("卖掉获得灵石80！"); 
+            }},
+            { text: "留着以后吃", effect: function() { 
+                p.resources.妖兽肉 = (p.resources.妖兽肉 || 0) + 1;
+                showStatus("收到背包"); 
+            }}
+        ]},
+        { title: "📚 顿悟时刻", description: "你正在打坐修炼，突然福至心灵，有所顿悟！", options: [
+            { text: "记录心得", effect: function() { 
+                p.stats.悟性 = (p.stats.悟性 || 0) + 2;
+                showStatus("悟性+2！"); 
+            }},
+            { text: "继续修炼", effect: function() { 
+                p.cultivation += 200;
+                showStatus("修为+200！"); 
+            }}
+        ]},
+        { title: "🤔 心魔入侵", description: "修炼时心魔入侵，险些走火入魔！", options: [
+            { text: "强行压制", effect: function() { 
+                if (p.stats.心境 >= 8) {
+                    p.stats.心境 = (p.stats.心境 || 0) + 2;
+                    showStatus("成功压制心魔，心境+2！"); 
+                } else {
+                    p.health -= 20;
+                    p.cultivation -= 50;
+                    showStatus("压制失败，健康-20，修为-50！"); 
+                }
+            }},
+            { text: "请求帮助", effect: function() { 
+                if (p.stats.人脉 >= 5) {
+                    p.cultivation += 100;
+                    showStatus("同道相助，修为+100！"); 
+                } else {
+                    p.health -= 10;
+                    showStatus("无人相助，健康-10"); 
+                }
+            }},
+            { text: "顺其自然", effect: function() { 
+                p.stats.福缘 = (p.stats.福缘 || 0) + 1;
+                showStatus("福缘+1"); 
+            }}
+        ]},
+        { title: "🎁 仙人馈赠", description: "一位渡劫期前辈路过，看你资质不错，送你一件小礼物。", options: [
+            { text: "感谢收下", effect: function() { 
+                const items = ["灵药", "灵石", "仙丹"];
+                const item = items[Math.floor(Math.random() * items.length)];
+                p.resources[item] = (p.resources[item] || 0) + 1;
+                showStatus("获得" + item + "x1！"); 
+            }},
+            { text: "谦虚拒绝", effect: function() { 
+                p.stats.福缘 = (p.stats.福缘 || 0) + 2;
+                showStatus("福缘+2！前辈对你印象更好"); 
+            }}
+        ]}
+    ];
+    
+    const event = commonEvents[Math.floor(Math.random() * commonEvents.length)];
+    showEvent(event.title, event.description, event.options);
 }
 
 // 探索系统
