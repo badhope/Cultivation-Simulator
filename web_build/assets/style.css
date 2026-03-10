@@ -128,16 +128,58 @@ body {
     padding: 1.5rem;
     border-radius: 12px;
     backdrop-filter: blur(10px);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .feature-card h3 {
     color: var(--primary-color);
     margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.game-guide {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.game-guide h3 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.guide-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.guide-section h4 {
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.guide-section p {
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
 .modal {
@@ -693,6 +735,22 @@ body {
     .panel { flex: 1; min-width: 150px; }
     .action-buttons { flex-wrap: wrap; }
     .btn-action { min-width: 100px; }
+    .container { padding: 1rem; }
+    .title-section h1 { font-size: 2rem; }
+    .features { grid-template-columns: 1fr; }
+    .menu-buttons { flex-direction: column; }
+    .btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .title-section h1 { font-size: 1.5rem; }
+    .subtitle { font-size: 0.9rem; }
+    .game-header { flex-direction: column; gap: 0.5rem; }
+    .player-stats { flex-wrap: wrap; justify-content: center; }
+    .action-buttons { flex-direction: column; }
+    .btn-action { width: 100%; }
+    .modal-content { padding: 1rem; margin: 0.5rem; }
+    .form-group { margin-bottom: 1rem; }
 }
 
 ::-webkit-scrollbar { width: 8px; }

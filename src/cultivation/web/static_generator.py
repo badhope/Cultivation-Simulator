@@ -62,20 +62,50 @@ class StaticWebGenerator:
             <h2>游戏特色</h2>
             <div class="features">
                 <div class="feature-card">
+                    <div class="feature-icon">🧘</div>
                     <h3>修仙体系</h3>
                     <p>从凡人到渡劫仙君，体验完整的修仙之路</p>
                 </div>
                 <div class="feature-card">
+                    <div class="feature-icon">👶</div>
                     <h3>人生阶段</h3>
                     <p>婴儿、童年、少年、青年、中年、老年，完整的人生历程</p>
                 </div>
                 <div class="feature-card">
+                    <div class="feature-icon">🎲</div>
                     <h3>随机事件</h3>
                     <p>丰富的事件系统，每一次选择都可能改变命运</p>
                 </div>
                 <div class="feature-card">
-                    <h3>AI预留</h3>
-                    <p>预留AI接口，未来可接入智能对话</p>
+                    <div class="feature-icon">⚔️</div>
+                    <h3>战斗系统</h3>
+                    <p>与妖兽对战，提升实力，获得珍稀奖励</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📜</div>
+                    <h3>功法系统</h3>
+                    <p>学习各种功法，提升修炼效率</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>成就系统</h3>
+                    <p>达成各种成就，获得丰厚奖励</p>
+                </div>
+            </div>
+            
+            <div class="game-guide">
+                <h3>游戏攻略</h3>
+                <div class="guide-section">
+                    <h4>修炼前期</h4>
+                    <p>建议优先提升悟性，可以加快修炼速度。多参加修仙者交流会，结识同道中人。</p>
+                </div>
+                <div class="guide-section">
+                    <h4>修炼中期</h4>
+                    <p>开始学习功法，功法可以提供修炼加成。挑战妖兽获取资源。</p>
+                </div>
+                <div class="guide-section">
+                    <h4>修炼后期</h4>
+                    <p>积累资源，冲击更高境界。注意保持身心健康，避免心魔入侵。</p>
                 </div>
             </div>
         </div>
@@ -522,16 +552,58 @@ body {
     padding: 1.5rem;
     border-radius: 12px;
     backdrop-filter: blur(10px);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .feature-card h3 {
     color: var(--primary-color);
     margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.game-guide {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.game-guide h3 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.guide-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.guide-section h4 {
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.guide-section p {
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
 .modal {
@@ -1087,6 +1159,22 @@ body {
     .panel { flex: 1; min-width: 150px; }
     .action-buttons { flex-wrap: wrap; }
     .btn-action { min-width: 100px; }
+    .container { padding: 1rem; }
+    .title-section h1 { font-size: 2rem; }
+    .features { grid-template-columns: 1fr; }
+    .menu-buttons { flex-direction: column; }
+    .btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .title-section h1 { font-size: 1.5rem; }
+    .subtitle { font-size: 0.9rem; }
+    .game-header { flex-direction: column; gap: 0.5rem; }
+    .player-stats { flex-wrap: wrap; justify-content: center; }
+    .action-buttons { flex-direction: column; }
+    .btn-action { width: 100%; }
+    .modal-content { padding: 1rem; margin: 0.5rem; }
+    .form-group { margin-bottom: 1rem; }
 }
 
 ::-webkit-scrollbar { width: 8px; }
@@ -1788,40 +1876,40 @@ function triggerRandomEvent() {
             { text: "仔细探索", effect: function() { 
                 const gain = 100 + Math.floor(Math.random() * 200);
                 p.cultivation += gain;
-                p.stats.悟性 = (p.stats.悟性 || 0) + 1;
+                addStat("悟性", 1);
                 showStatus("获得传承！修为+" + gain + "，悟性+1！"); 
             }},
             { text: "收取财物", effect: function() { 
-                p.resources.灵石 = (p.resources.灵石 || 0) + 200;
+                addResource("灵石", 200);
                 showStatus("获得灵石200！"); 
             }},
             { text: "转身离开", effect: function() { showStatus("你决定不贪图他人之物"); } }
         ]},
         { title: "🤝 修仙交流会", description: "附近城镇举办修仙者交流会，各派弟子齐聚一堂。", options: [
             { text: "参加交流", effect: function() { 
-                p.stats.人脉 = (p.stats.人脉 || 0) + 2;
-                p.resources.灵石 = (p.resources.灵石 || 0) + 50;
+                addStat("人脉", 2);
+                addResource("灵石", 50);
                 showStatus("结识同道中人，人脉+2，灵石+50！"); 
             }},
             { text: "出售物品", effect: function() { 
-                p.resources.灵石 = (p.resources.灵石 || 0) + 100;
+                addResource("灵石", 100);
                 showStatus("出售物品获得灵石100！"); 
             }},
             { text: "离开", effect: function() { showStatus("你离开了交流会"); } }
         ]},
         { title: "🌿 采药遇险", description: "你在山中采药时遭遇毒蛇袭击！", options: [
             { text: "战斗", effect: function() { 
-                if (p.stats.体质 >= 7) {
+                if (getStat("体质") >= 7) {
                     p.cultivation += 30;
-                    p.resources.毒囊 = (p.resources.毒囊 || 0) + 1;
+                    addResource("毒囊", 1);
                     showStatus("你击败了毒蛇！修为+30，获得毒囊！"); 
                 } else {
-                    p.health -= 15;
+                    p.health = clamp(p.health - 15, 0, 100);
                     showStatus("你受伤了，健康-15！"); 
                 }
             }},
             { text: "逃跑", effect: function() { 
-                p.health -= 5;
+                p.health = clamp(p.health - 5, 0, 100);
                 showStatus("逃跑时摔了一跤，健康-5"); 
             }},
             { text: "求饶", effect: function() { showStatus("毒蛇似乎听懂了你，放你离开"); } }
@@ -1840,7 +1928,7 @@ function triggerRandomEvent() {
                 }
             }},
             { text: "浅尝辄止", effect: function() { 
-                p.resources.灵石 = (p.resources.灵石 || 0) + 100;
+                addResource("灵石", 100);
                 showStatus("获得灵石100！"); 
             }},
             { text: "安全第一，不去", effect: function() { showStatus("你选择了安全"); } }
@@ -1848,11 +1936,11 @@ function triggerRandomEvent() {
         { title: "💰 买卖交易", description: "遇到一名商人收购修仙材料。", options: [
             { text: "出售材料", effect: function() { 
                 const price = 50 + Math.floor(Math.random() * 100);
-                p.resources.灵石 = (p.resources.灵石 || 0) + price;
+                addResource("灵石", price);
                 showStatus("交易成功，获得灵石" + price + "！"); 
             }},
             { text: "讨价还价", effect: function() { 
-                p.stats.心智 = (p.stats.心智 || 0) + 1;
+                addStat("心智", 1);
                 showStatus("心智+1！"); 
             }},
             { text: "离开", effect: function() { showStatus("你离开了"); } }
@@ -1864,29 +1952,29 @@ function triggerRandomEvent() {
                 showStatus("灵气潮汐中修炼，修为+" + gain + "！"); 
             }},
             { text: "稳固根基", effect: function() { 
-                p.stats.心境 = (p.stats.心境 || 0) + 1;
+                addStat("心境", 1);
                 showStatus("心境+1！"); 
             }},
             { text: "不理不睬", effect: function() { showStatus("你选择了旁观"); } }
         ]},
         { title: "🍖 妖兽肉美食", description: "你猎杀了一只低阶妖兽，获得了美味的肉。", options: [
             { text: "吃掉", effect: function() { 
-                p.health = Math.min(100, p.health + 20);
-                p.happiness = Math.min(100, p.happiness + 10);
+                p.health = clamp(p.health + 20, 0, 100);
+                p.happiness = clamp(p.happiness + 10, 0, 100);
                 showStatus("吃掉妖兽肉，健康+20，快乐+10！"); 
             }},
             { text: "卖掉", effect: function() { 
-                p.resources.灵石 = (p.resources.灵石 || 0) + 80;
+                addResource("灵石", 80);
                 showStatus("卖掉获得灵石80！"); 
             }},
             { text: "留着以后吃", effect: function() { 
-                p.resources.妖兽肉 = (p.resources.妖兽肉 || 0) + 1;
+                addResource("妖兽肉", 1);
                 showStatus("收到背包"); 
             }}
         ]},
         { title: "📚 顿悟时刻", description: "你正在打坐修炼，突然福至心灵，有所顿悟！", options: [
             { text: "记录心得", effect: function() { 
-                p.stats.悟性 = (p.stats.悟性 || 0) + 2;
+                addStat("悟性", 2);
                 showStatus("悟性+2！"); 
             }},
             { text: "继续修炼", effect: function() { 
@@ -1896,26 +1984,26 @@ function triggerRandomEvent() {
         ]},
         { title: "🤔 心魔入侵", description: "修炼时心魔入侵，险些走火入魔！", options: [
             { text: "强行压制", effect: function() { 
-                if (p.stats.心境 >= 8) {
-                    p.stats.心境 = (p.stats.心境 || 0) + 2;
+                if (getStat("心境") >= 8) {
+                    addStat("心境", 2);
                     showStatus("成功压制心魔，心境+2！"); 
                 } else {
-                    p.health -= 20;
-                    p.cultivation -= 50;
+                    p.health = clamp(p.health - 20, 0, 100);
+                    p.cultivation = Math.max(0, p.cultivation - 50);
                     showStatus("压制失败，健康-20，修为-50！"); 
                 }
             }},
             { text: "请求帮助", effect: function() { 
-                if (p.stats.人脉 >= 5) {
+                if (getStat("人脉") >= 5) {
                     p.cultivation += 100;
                     showStatus("同道相助，修为+100！"); 
                 } else {
-                    p.health -= 10;
+                    p.health = clamp(p.health - 10, 0, 100);
                     showStatus("无人相助，健康-10"); 
                 }
             }},
             { text: "顺其自然", effect: function() { 
-                p.stats.福缘 = (p.stats.福缘 || 0) + 1;
+                addStat("福缘", 1);
                 showStatus("福缘+1"); 
             }}
         ]},
@@ -1923,11 +2011,11 @@ function triggerRandomEvent() {
             { text: "感谢收下", effect: function() { 
                 const items = ["灵药", "灵石", "仙丹"];
                 const item = items[Math.floor(Math.random() * items.length)];
-                p.resources[item] = (p.resources[item] || 0) + 1;
+                addResource(item, 1);
                 showStatus("获得" + item + "x1！"); 
             }},
             { text: "谦虚拒绝", effect: function() { 
-                p.stats.福缘 = (p.stats.福缘 || 0) + 2;
+                addStat("福缘", 2);
                 showStatus("福缘+2！前辈对你印象更好"); 
             }}
         ]}
@@ -2164,11 +2252,11 @@ function learnTechnique(techniqueName) {
             }
             
             if (tech.cost > 0) {
-                if (p.resources.灵石 < tech.cost) {
+                if (getResource("灵石") < tech.cost) {
                     showStatus('灵石不足！');
                     return;
                 }
-                p.resources.灵石 -= tech.cost;
+                addResource("灵石", -tech.cost);
             }
             
             p.techniques.push(tech.name);
@@ -2272,12 +2360,12 @@ function startBattle(enemyName) {
         battleLog += '<br>🎉 你击败了 ' + enemy.name + '！';
         
         p.cultivation += enemy.cultivation;
-        p.resources.灵石 = (p.resources.灵石 || 0) + (enemy.rewards.灵石 || 0);
+        addResource("灵石", enemy.rewards.灵石 || 0);
         p.battlesWon = (p.battlesWon || 0) + 1;
         
         for (let item in enemy.rewards) {
             if (item !== '灵石') {
-                p.resources[item] = (p.resources[item] || 0) + enemy.rewards[item];
+                addResource(item, enemy.rewards[item]);
             }
         }
         
@@ -2288,7 +2376,8 @@ function startBattle(enemyName) {
         checkAchievements();
     } else {
         battleLog += '<br>💀 你被 ' + enemy.name + ' 击败了...';
-        p.health = Math.max(10, p.health - 30);
+        p.health = clamp(p.health - 30, 0, 100);
+        p.health = Math.max(10, p.health);
         
         showEvent('战斗失败', battleLog, [
             { text: '养伤', effect: function() { updateAllDisplays(); } }
@@ -2343,7 +2432,7 @@ function unlockAchievement(achievementId) {
         p.achievements.push(achievementId);
         
         const rewards = { "灵石": 100, "修为": 50 };
-        p.resources.灵石 = (p.resources.灵石 || 0) + rewards.灵石;
+        addResource("灵石", rewards.灵石);
         p.cultivation += rewards.修为;
         
         showStatus('成就达成！获得 ' + rewards.灵石 + ' 灵石和 ' + rewards.修为 + ' 修为！');
@@ -2365,7 +2454,7 @@ function checkAchievements() {
             p.achievements.push(achievement.id);
             newAchievement = achievement;
             
-            p.resources.灵石 = (p.resources.灵石 || 0) + 100;
+            addResource("灵石", 100);
             p.cultivation += 50;
         }
     });
