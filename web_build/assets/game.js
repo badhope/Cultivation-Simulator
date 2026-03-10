@@ -5,6 +5,42 @@ let gameState = {
     currentEvent: null
 };
 
+// ========== 工具函数 ==========
+function getStat(statName) {
+    return gameState.player.stats[statName] || 0;
+}
+
+function addStat(statName, amount) {
+    if (!gameState.player.stats[statName]) gameState.player.stats[statName] = 0;
+    gameState.player.stats[statName] += amount;
+    return gameState.player.stats[statName];
+}
+
+function getResource(resourceName) {
+    return gameState.player.resources[resourceName] || 0;
+}
+
+function addResource(resourceName, amount) {
+    if (!gameState.player.resources[resourceName]) gameState.player.resources[resourceName] = 0;
+    gameState.player.resources[resourceName] += amount;
+    return gameState.player.resources[resourceName];
+}
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+// 游戏配置常量
+const GAME_CONFIG = {
+    EVENT_PROBABILITY: 0.6,
+    YOUNG_AGE: 20,
+    MIDDLE_AGE: 40,
+    OLD_AGE: 60,
+    MIN_CULTIVATION_AGE: 18,
+    TECHNIQUE_BONUS_PERCENT: 0.15,
+    BASE_CULTIVATION_GAIN: 5
+};
+
 // 初始化
 function init() {
     loadGameFromStorage();
@@ -83,7 +119,10 @@ document.getElementById('character-form').addEventListener('submit', function(e)
         achievements: [],
         battlesWon: 0,
         health: 100,
-        happiness: 50
+        happiness: 50,
+        partner: null,
+        disciples: [],
+        sect: null
     };
     
     const bonuses = GAME_DATA.pathBonuses[path];
@@ -244,20 +283,21 @@ function passOneYear() {
     let healthChange = 0;
     let happinessChange = Math.floor(Math.random() * 7) - 3;
     
-    if (p.age < 20) {
+    if (p.age < GAME_CONFIG.YOUNG_AGE) {
         healthChange = 2;
-    } else if (p.age < 40) {
+    } else if (p.age < GAME_CONFIG.MIDDLE_AGE) {
         healthChange = 0;
-    } else if (p.age < 60) {
+    } else if (p.age < GAME_CONFIG.OLD_AGE) {
         healthChange = -1;
     } else {
         healthChange = -2;
     }
     
-    healthChange += Math.max(-1, Math.min(2, Math.floor((p.stats.体质 - 5) / 3)));
+    const constitution = getStat("体质");
+    healthChange += Math.max(-1, Math.min(2, Math.floor((constitution - 5) / 3)));
     
-    p.health = Math.max(0, Math.min(100, p.health + healthChange));
-    p.happiness = Math.max(0, Math.min(100, p.happiness + happinessChange));
+    p.health = clamp(p.health + healthChange, 0, 100);
+    p.happiness = clamp(p.happiness + happinessChange, 0, 100);
     
     if (p.health <= 0 || p.age >= p.lifetime) {
         gameOver();
@@ -270,18 +310,17 @@ function passOneYear() {
     if (newStage.name !== oldStage.name) {
         showEvent("🌟 人生阶段变化", "你已步入" + newStage.name + "！<br>" + newStage.description, [
             { text: "迎接新的人生阶段", effect: function() { 
-                p.stats.悟性 = (p.stats.悟性 || 0) + 1;
-                showStatus("年龄+" + p.age + "，悟性+1！");
+                addStat("悟性", 1);
+                showStatus("年龄" + p.age + "岁，悟性+1！");
                 updateAllDisplays(); 
-            } }
+            }}
         ]);
         checkAchievements();
         updateAllDisplays();
         return;
     }
     
-    // 提高事件触发概率到60%
-    if (Math.random() < 0.6) {
+    if (Math.random() < GAME_CONFIG.EVENT_PROBABILITY) {
         triggerRandomEvent();
     } else {
         const yearEvents = [
@@ -293,7 +332,7 @@ function passOneYear() {
             "你在山中偶有所悟"
         ];
         const randomYearEvent = yearEvents[Math.floor(Math.random() * yearEvents.length)];
-        const cultivationGain = 5 + Math.floor(p.stats.悟性 / 2);
+        const cultivationGain = GAME_CONFIG.BASE_CULTIVATION_GAIN + Math.floor(getStat("悟性") / 2);
         p.cultivation += cultivationGain;
         showStatus(randomYearEvent + "，修为+" + cultivationGain);
     }
@@ -305,25 +344,25 @@ function passOneYear() {
 function cultivate() {
     const p = gameState.player;
     
-    if (p.age < 18) {
+    if (p.age < GAME_CONFIG.MIN_CULTIVATION_AGE) {
         showStatus("年龄太小，还不能开始修炼...");
         return;
     }
     
     let efficiency = 1.0;
-    efficiency += (p.stats.悟性 || 0) * 0.1;
-    efficiency += (p.stats.根骨 || 0) * 0.1;
+    efficiency += getStat("悟性") * 0.1;
+    efficiency += getStat("根骨") * 0.1;
     
     if (p.techniques && p.techniques.length > 0) {
-        efficiency += p.techniques.length * 0.15;
+        efficiency += p.techniques.length * GAME_CONFIG.TECHNIQUE_BONUS_PERCENT;
     }
     
     const gain = Math.floor(10 * efficiency);
     p.cultivation += gain;
     
-    p.resources.道心 = (p.resources.道心 || 0) + 1;
+    addResource("道心", 1);
     
-    const techBonus = p.techniques ? p.techniques.length * 0.15 : 0;
+    const techBonus = p.techniques ? p.techniques.length * GAME_CONFIG.TECHNIQUE_BONUS_PERCENT : 0;
     const bonusText = p.techniques && p.techniques.length > 0 ? " (功法+" + Math.floor(techBonus * 100) + "%)" : "";
     showStatus("修炼了一年，修为 +" + gain + "！" + bonusText);
     
