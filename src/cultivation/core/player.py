@@ -8,6 +8,9 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from enum import Enum
+import random
+
+from cultivation.core.lifecycle_system import LifeStage, LifeStageSystem
 
 
 class Realm(Enum):
@@ -39,11 +42,18 @@ class Player:
     
     # 基本信息
     name: str
+    gender: str = "未知"
+    age: int = 0  # 新增：年龄
     realm: Realm = field(default_factory=lambda: Realm.MORTAL)
     cultivation: int = 0
-    lifetime: int = 0
+    lifetime: int = 100  # 基础寿元
     
-    # 属性
+    # 新增：人生阶段系统
+    life_stage_system: LifeStageSystem = field(default_factory=LifeStageSystem)
+    current_life_stage: LifeStage = field(default_factory=lambda: LifeStage.INFANT)
+    year: int = 1  # 游戏年份
+    
+    # 属性 - 扩展人生模拟所需的属性
     stats: Dict[str, int] = field(default_factory=lambda: {
         "悟性": 5,
         "体质": 5,
@@ -51,7 +61,11 @@ class Player:
         "福缘": 5,
         "心境": 5,
         "魅力": 5,
-        "声望": 0
+        "声望": 0,
+        "心智": 5,  # 新增：心智（影响决策）
+        "人脉": 0,  # 新增：人脉（社交能力）
+        "健康": 100,  # 新增：健康值
+        "快乐": 50   # 新增：快乐值
     })
     
     # 资源
@@ -206,6 +220,107 @@ class Player:
             sect_name: 门派名称
         """
         self.sect = sect_name
+    
+    # ========== 人生阶段相关方法 ==========
+    
+    def age_one_year(self) -> Dict:
+        """年龄增长一岁
+        
+        Returns:
+            年龄变化后的状态信息
+        """
+        self.age += 1
+        self.year += 1
+        
+        old_stage = self.current_life_stage
+        self.current_life_stage = self.life_stage_system.get_stage_by_age(self.age)
+        
+        # 更新健康和快乐（自然衰退/增长）
+        health_change = self._calculate_natural_change("健康")
+        happiness_change = self._calculate_natural_change("快乐")
+        
+        self.stats["健康"] = max(0, min(100, self.stats.get("健康", 100) + health_change))
+        self.stats["快乐"] = max(0, min(100, self.stats.get("快乐", 50) + happiness_change))
+        
+        result = {
+            "age": self.age,
+            "year": self.year,
+            "stage_changed": old_stage != self.current_life_stage,
+            "new_stage": self.current_life_stage.value if old_stage != self.current_life_stage else None,
+            "health": self.stats["健康"],
+            "happiness": self.stats["快乐"]
+        }
+        
+        # 检查是否死亡
+        if self.stats.get("健康", 0) <= 0:
+            result["death"] = True
+            result["death_age"] = self.age
+        
+        # 检查寿元
+        if self.age >= self.lifetime:
+            result["natural_death"] = True
+        
+        return result
+    
+    def _calculate_natural_change(self, stat: str) -> int:
+        """计算属性的自然变化
+        
+        Args:
+            stat: 属性名称
+            
+        Returns:
+            变化值
+        """
+        base_change = 0
+        
+        if stat == "健康":
+            # 儿童期健康上升，成年后逐渐下降
+            if self.age < 20:
+                base_change = 2
+            elif self.age < 40:
+                base_change = 0
+            elif self.age < 60:
+                base_change = -1
+            else:
+                base_change = -2
+        elif stat == "快乐":
+            # 快乐值随年龄有波动
+            base_change = random.randint(-3, 3)
+        
+        # 体质影响健康变化
+        if stat == "健康":
+            constitution = self.stats.get("体质", 5)
+            base_change += max(-1, min(2, (constitution - 5) // 3))
+        
+        return base_change
+    
+    def get_life_summary(self) -> Dict:
+        """获取人生总结
+        
+        Returns:
+            人生总结信息
+        """
+        return {
+            "name": self.name,
+            "gender": self.gender,
+            "age": self.age,
+            "year": self.year,
+            "life_stage": self.current_life_stage.value,
+            "realm": self.realm.value,
+            "lifetime": self.lifetime,
+            "stats": self.stats,
+            "skills_count": len(self.skills),
+            "achievements_count": len(self.achievements),
+            "stage_history": self.life_stage_system.stage_history
+        }
+    
+    def can_continue(self) -> bool:
+        """检查是否还可以继续人生
+        
+        Returns:
+            是否可以继续
+        """
+        return self.stats.get("健康", 0) > 0 and self.age < self.lifetime
     
     def leave_sect(self) -> None:
         """离开门派"""
