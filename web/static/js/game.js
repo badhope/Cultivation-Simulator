@@ -12,17 +12,58 @@ const GameConfig = {
     BATTLE_ENEMY_HP: 50,
     BATTLE_PLAYER_DMG: 10,
     BATTLE_ENEMY_DMG: 5,
+    MAX_HEALTH: 100,
+    DAILY_STAMINA: 50,
+};
+
+const PlayerSkills = {
+    基础拳法: { damage: 10, manaCost: 0, description: "最基本的拳法" },
+    烈焰掌: { damage: 25, manaCost: 10, description: "凝聚火焰的掌法", unlockRealm: "练气期" },
+    寒冰箭: { damage: 30, manaCost: 15, description: "冰系法术", unlockRealm: "筑基期" },
+    御剑术: { damage: 40, manaCost: 20, description: "以气御剑", unlockRealm: "金丹期" },
+    天雷决: { damage: 60, manaCost: 30, description: "引动天雷", unlockRealm: "元婴期" },
+    虚空破碎: { damage: 100, manaCost: 50, description: "破碎虚空", unlockRealm: "化神期" },
+};
+
+const EquipmentTypes = {
+    WEAPON: "武器",
+    ARMOR: "防具",
+    ACCESSORY: "饰品",
+};
+
+const EquipmentData = {
+    新手剑: { type: "WEAPON", attack: 5, level: 1, rarity: 1 },
+    精钢剑: { type: "WEAPON", attack: 15, level: 10, rarity: 2 },
+    灵器飞剑: { type: "WEAPON", attack: 30, level: 30, rarity: 3 },
+    新手布衣: { type: "ARMOR", defense: 5, level: 1, rarity: 1 },
+    精钢甲: { type: "ARMOR", defense: 15, level: 10, rarity: 2 },
+    灵器护甲: { type: "ARMOR", defense: 30, level: 30, rarity: 3 },
+    玉佩: { type: "ACCESSORY", mana: 10, level: 5, rarity: 2 },
+    灵珠: { type: "ACCESSORY", critRate: 0.05, level: 15, rarity: 3 },
+};
+
+const AchievementData = {
+    first_cultivate: { name: "初入仙途", description: "完成第一次修炼", reward: 10 },
+    first_breakthrough: { name: "突破瓶颈", description: "首次突破境界", reward: 50 },
+    first_battle: { name: "初战告捷", description: "首次战斗胜利", reward: 20 },
+    ten_battles: { name: "战斗达人", description: "战斗胜利10次", reward: 100 },
+    reach_qi: { name: "练气士", description: "达到练气期", reward: 30 },
+    reach_foundation: { name: "筑基真人", description: "达到筑基期", reward: 100 },
+    reach_golden: { name: "金丹宗师", description: "达到金丹期", reward: 200 },
+    rich: { name: "腰缠万贯", description: "拥有1000灵石", reward: 50 },
+    collector: { name: "收藏家", description: "收集5件装备", reward: 100 },
 };
 
 const RealmData = {
-   凡人: { name: "凡人", cultivationRequired: 0, nextRealm: "练气期" },
-    练气期: { name: "练气期", cultivationRequired: 100, nextRealm: "筑基期" },
-    筑基期: { name: "筑基期", cultivationRequired: 300, nextRealm: "金丹期" },
-    金丹期: { name: "金丹期", cultivationRequired: 600, nextRealm: "元婴期" },
-    元婴期: { name: "元婴期", cultivationRequired: 1000, nextRealm: "化神期" },
-    化神期: { name: "化神期", cultivationRequired: 2000, nextRealm: "炼虚期" },
-    炼虚期: { name: "炼虚期", cultivationRequired: 5000, nextRealm: "大乘期" },
-    大乘期: { name: "大乘期", cultivationRequired: 10000, nextRealm: null },
+    凡人: { name: "凡人", cultivationRequired: 0, nextRealm: "练气期", description: "尚未踏入修仙之门的凡人" },
+    练气期: { name: "练气期", cultivationRequired: 100, nextRealm: "筑基期", description: "引气入体，凝聚灵气" },
+    筑基期: { name: "筑基期", cultivationRequired: 300, nextRealm: "金丹期", description: "夯实根基，凝结道基" },
+    金丹期: { name: "金丹期", cultivationRequired: 600, nextRealm: "元婴期", description: "凝聚金丹，孕育元婴" },
+    元婴期: { name: "元婴期", cultivationRequired: 1000, nextRealm: "化神期", description: "元婴出窍，神游太虚" },
+    化神期: { name: "化神期", cultivationRequired: 2000, nextRealm: "合体期", description: "神识化形，返璞归真" },
+    合体期: { name: "合体期", cultivationRequired: 5000, nextRealm: "大乘期", description: "天人合一，感悟天道" },
+    大乘期: { name: "大乘期", cultivationRequired: 10000, nextRealm: "渡劫期", description: "功德圆满，渡劫飞升" },
+    渡劫期: { name: "渡劫期", cultivationRequired: 20000, nextRealm: null, description: "历尽天劫，成就仙位" },
 };
 
 class GameState {
@@ -32,12 +73,22 @@ class GameState {
         this.cultivation = 0;
         this.age = 18;
         this.day = 1;
+        this.health = GameConfig.MAX_HEALTH;
+        this.stamina = GameConfig.DAILY_STAMINA;
         this.resources = {
             灵石: GameConfig.INITIAL_STONE,
             灵药: GameConfig.INITIAL_HERB,
         };
         this.questLog = [];
         this.battleLog = [];
+        this.achievements = [];
+        this.equipment = {
+            weapon: null,
+            armor: null,
+            accessory: null,
+        };
+        this.unlockedSkills = ["基础拳法"];
+        this.battlesWon = 0;
     }
 
     toJSON() {
@@ -47,9 +98,15 @@ class GameState {
             cultivation: this.cultivation,
             age: this.age,
             day: this.day,
+            health: this.health,
+            stamina: this.stamina,
             resources: this.resources,
             questLog: this.questLog,
             battleLog: this.battleLog,
+            achievements: this.achievements,
+            equipment: this.equipment,
+            unlockedSkills: this.unlockedSkills,
+            battlesWon: this.battlesWon,
         };
     }
 
@@ -202,37 +259,142 @@ class GameEngine {
     }
 
     getRandomEnemy() {
-        const enemies = ["野狼", "山贼", "毒蛇", "妖狐", "筑基期修士", "盗墓贼"];
-        return enemies[Math.floor(Math.random() * enemies.length)];
+        const realm = this.state.realm;
+        let baseEnemies = ["野狼", "山贼", "毒蛇", "妖狐"];
+        
+        if (realm === "练气期" || realm === "筑基期") {
+            baseEnemies = baseEnemies.concat(["筑基期修士", "盗墓贼", "邪修"]);
+        } else if (realm === "金丹期" || realm === "元婴期") {
+            baseEnemies = ["金丹期修士", "元婴期妖王", "魔道高手", "古遗址守护者"];
+        } else if (realm === "化神期" || realm === "合体期" || realm === "大乘期") {
+            baseEnemies = ["合体期魔尊", "上古凶兽", "天道化身", "虚空异兽"];
+        }
+        
+        const enemy = baseEnemies[Math.floor(Math.random() * baseEnemies.length)];
+        const hp = 50 + this.getMaxCultivation() * 0.5;
+        
+        return { name: enemy, hp: Math.floor(hp), level: this.getMaxCultivation() };
+    }
+
+    getRandomEvent() {
+        const realm = this.state.realm;
+        const dayPhase = this.state.day % 4;
+        
+        const commonEvents = [
+            { type: "herb", message: "发现灵草！获得 10 灵药！", reward: { 灵药: 10 }, weight: 15 },
+            { type: "stone", message: "发现灵石矿脉！获得 30 灵石！", reward: { 灵石: 30 }, weight: 15 },
+            { type: "nothing", message: "漫步山林，没有发现特别的东西。", reward: {}, weight: 25 },
+            { type: "elder", message: "遇到一位神秘老人，传授你一些修炼心得。", reward: {}, special: "wisdom", weight: 5 },
+            { type: "fellow", message: "遇到志同道合的修士，相谈甚欢。", reward: {}, special: "friendship", weight: 10 },
+        ];
+        
+        const rareEvents = [
+            { type: "treasure", message: "发现前辈洞府！获得 50 灵石和随机装备！", reward: { 灵石: 50 }, weight: 5 },
+            { type: "herb_rare", message: "发现千年灵芝！获得 30 灵药！", reward: { 灵药: 30 }, weight: 5 },
+            { type: "danger", message: "遭遇危险！还好你跑得快！", reward: {}, damage: true, weight: 10 },
+            { type: "opportunity", message: "发现一处灵气浓郁之地，修炼效率提升！", reward: {}, special: "blessing", weight: 5 },
+            { type: "merchant", message: "遇到云游商人，可以用灵石购买物品。", reward: {}, special: "shop", weight: 5 },
+        ];
+        
+        const events = realm === "凡人" ? commonEvents : commonEvents.concat(rareEvents);
+        const totalWeight = events.reduce((sum, e) => sum + e.weight, 0);
+        let random = Math.random() * totalWeight;
+        
+        for (const event of events) {
+            random -= event.weight;
+            if (random <= 0) {
+                return event;
+            }
+        }
+        return events[0];
     }
 
     explore() {
-        const events = [
-            { type: "herb", message: "发现灵草！获得 10 灵药！", reward: { 灵药: 10 } },
-            { type: "stone", message: "发现灵石矿脉！获得 30 灵石！", reward: { 灵石: 30 } },
-            { type: "nothing", message: "探索完成，没有发现特别的东西。", reward: {} },
-            { type: "danger", message: "遭遇危险！仓皇逃跑！", reward: {} },
-            { type: "treasure", message: "发现前辈洞府！获得 50 灵石！", reward: { 灵石: 50 } },
-        ];
+        if (this.state.stamina < 10) {
+            this.emit("log", {
+                type: "warning",
+                message: "体力不足，无法远行！请休息后再来。",
+            });
+            return { success: false, reason: "noStamina" };
+        }
 
-        const event = events[Math.floor(Math.random() * events.length)];
+        this.state.stamina -= 10;
+        const event = this.getRandomEvent();
 
-        for (const [resource, amount] of Object.entries(event.reward)) {
-            if (this.state.resources[resource] !== undefined) {
-                this.state.resources[resource] += amount;
+        if (event.damage) {
+            const damage = 10 + Math.floor(this.getMaxCultivation() / 10);
+            this.state.health -= damage;
+            this.emit("log", {
+                type: "danger",
+                message: `遭遇危险！受到 ${damage} 点伤害！`,
+            });
+            
+            if (this.state.health <= 0) {
+                this.emit("log", {
+                    type: "danger",
+                    message: "你已重伤昏厥，被路过的好心人救醒...修为损失一半！",
+                });
+                this.state.health = GameConfig.MAX_HEALTH;
+                this.state.cultivation = Math.floor(this.state.cultivation * 0.5);
             }
+        } else if (event.special === "wisdom") {
+            const bonus = 20 + this.state.cultivation * 0.1;
+            this.state.cultivation += Math.floor(bonus);
+            this.emit("log", {
+                type: "success",
+                message: `获得修炼心得！额外获得 ${Math.floor(bonus)} 点修为！`,
+            });
+        } else if (event.special === "blessing") {
+            this.emit("log", {
+                type: "success",
+                message: "灵气入体，状态极佳！下次修炼获得双倍修为！",
+            });
+            this.state.bonusCultivation = true;
+        } else if (event.reward) {
+            for (const [resource, amount] of Object.entries(event.reward)) {
+                if (this.state.resources[resource] !== undefined) {
+                    this.state.resources[resource] += amount;
+                }
+            }
+            
+            this.emit("log", {
+                type: "success",
+                message: event.message,
+            });
+        } else {
+            this.emit("log", {
+                type: "system",
+                message: event.message,
+            });
         }
 
         this.state.day += 1;
-
-        this.emit("log", {
-            type: event.type === "nothing" || event.type === "danger" ? "system" : "success",
-            message: event.message,
-        });
-
+        this.checkAchievements();
         this.emit("update", this.getPlayerInfo());
 
         return event;
+    }
+
+    checkAchievements() {
+        const newAchievements = [];
+        
+        if (this.state.battlesWon >= 10 && !this.state.achievements.includes("ten_battles")) {
+            newAchievements.push("ten_battles");
+            this.state.achievements.push("ten_battles");
+            const reward = AchievementData.ten_battles.reward;
+            this.state.resources.灵石 += reward;
+            this.emit("log", { type: "success", message: `🏆 成就解锁：${AchievementData.ten_battles.name}！奖励 ${reward} 灵石！` });
+        }
+        
+        if (this.state.resources.灵石 >= 1000 && !this.state.achievements.includes("rich")) {
+            newAchievements.push("rich");
+            this.state.achievements.push("rich");
+            const reward = AchievementData.rich.reward;
+            this.state.resources.灵石 += reward;
+            this.emit("log", { type: "success", message: `🏆 成就解锁：${AchievementData.rich.name}！奖励 ${reward} 灵石！` });
+        }
+        
+        return newAchievements;
     }
 
     alchemy() {
