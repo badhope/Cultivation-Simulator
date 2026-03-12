@@ -51,15 +51,19 @@ class TestPlayer(unittest.TestCase):
     
     def test_remove_resource(self):
         """测试移除资源"""
+        # 先确认初始值（默认100灵石）
+        initial = self.player.resources.get("灵石", 0)
+        
+        # 添加资源
         self.player.add_resource("灵石", 100)
         
-        # 成功移除
+        # 成功移除 - 初始100 + 添加100 = 200，移除50后应该剩150
         success = self.player.remove_resource("灵石", 50)
         self.assertTrue(success)
-        self.assertEqual(self.player.resources["灵石"], 50)
+        self.assertEqual(self.player.resources["灵石"], initial + 100 - 50)
         
-        # 移除失败（数量不足）
-        success = self.player.remove_resource("灵石", 100)
+        # 移除失败（数量不足）- 只有150，试图移除200
+        success = self.player.remove_resource("灵石", 200)
         self.assertFalse(success)
     
     def test_learn_skill(self):

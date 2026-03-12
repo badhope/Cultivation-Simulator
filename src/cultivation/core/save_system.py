@@ -74,6 +74,8 @@ class SaveSystem:
             if save_path.exists():
                 # 创建备份
                 backup_path = save_path.with_suffix('.json.bak')
+                if backup_path.exists():
+                    backup_path.unlink()
                 save_path.rename(backup_path)
                 logger.info(f"已创建存档备份：{backup_path}")
             

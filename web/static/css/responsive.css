@@ -1,0 +1,446 @@
+/*!
+ * 修仙模拟器 - 响应式样式
+ * 包含各断点布局调整和触摸优化
+ */
+
+/* ==================== 平板设备 (768px - 1024px) ==================== */
+@media screen and (max-width: 1024px) {
+    :root {
+        --container-padding: 1.25rem;
+    }
+
+    /* Hero 区域 */
+    .hero__container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .hero__content {
+        max-width: 100%;
+        order: 1;
+    }
+
+    .hero__visual {
+        order: 0;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .hero__actions {
+        justify-content: center;
+    }
+
+    /* Features 网格 */
+    .features__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* World 布局 */
+    .world__content {
+        grid-template-columns: 1fr;
+    }
+
+    .world__map {
+        order: 0;
+    }
+
+    .world__description {
+        order: 1;
+    }
+
+    /* System 网格 */
+    .system__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Download 网格 */
+    .download__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Footer */
+    .footer__main {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer__brand {
+        max-width: 100%;
+    }
+
+    .footer__links {
+        justify-content: center;
+    }
+
+    .footer__bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ==================== 移动设备 (< 768px) ==================== */
+@media screen and (max-width: 768px) {
+    :root {
+        --header-height: 60px;
+        --container-padding: 1rem;
+    }
+
+    /* 排版调整 */
+    h1 { font-size: var(--font-size-3xl); }
+    h2 { font-size: var(--font-size-2xl); }
+    h3 { font-size: var(--font-size-xl); }
+
+    /* 导航 */
+    .header__toggle {
+        display: flex;
+    }
+
+    .header__nav {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 15, 35, 0.98);
+        backdrop-filter: blur(10px);
+        padding: var(--spacing-lg);
+        transform: translateX(100%);
+        transition: transform var(--transition-base);
+    }
+
+    .header__nav--open {
+        transform: translateX(0);
+    }
+
+    .header__nav-list {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+
+    .header__nav-link {
+        padding: var(--spacing-md);
+    }
+
+    .header__submenu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        background: transparent;
+        border: none;
+        padding-left: var(--spacing-lg);
+        box-shadow: none;
+    }
+
+    .header__nav-item--has-submenu {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header__nav-item--has-submenu > .header__nav-link::after {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid currentColor;
+    }
+
+    /* Hero */
+    .hero {
+        min-height: auto;
+        padding: calc(var(--header-height) + var(--spacing-2xl)) 0 var(--spacing-2xl);
+    }
+
+    .hero__container {
+        padding: var(--spacing-xl) var(--container-padding);
+    }
+
+    .hero__title-main {
+        font-size: 2rem;
+    }
+
+    .hero__title-sub {
+        font-size: var(--font-size-base);
+    }
+
+    .hero__description {
+        font-size: var(--font-size-base);
+    }
+
+    .hero__actions {
+        flex-direction: column;
+    }
+
+    .hero__actions .btn {
+        width: 100%;
+    }
+
+    .hero__scroll-indicator {
+        display: none;
+    }
+
+    /* Features */
+    .features__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        padding: var(--spacing-lg);
+    }
+
+    /* System */
+    .system__grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Download */
+    .download__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .download-card__header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        text-align: center;
+    }
+
+    .download__alternative-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Community */
+    .community__links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .community-link {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+
+    /* Contact */
+    .contact-form__group {
+        margin-bottom: var(--spacing-md);
+    }
+
+    /* Footer */
+    .footer__links {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    /* 返回顶部按钮 */
+    .back-to-top {
+        bottom: var(--spacing-lg);
+        right: var(--spacing-lg);
+        width: 44px;
+        height: 44px;
+    }
+
+    /* 按钮触摸优化 */
+    .btn {
+        min-height: 48px;
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    /* 面包屑 */
+    .breadcrumb {
+        display: none;
+    }
+}
+
+/* ==================== 超小屏幕 (< 480px) ==================== */
+@media screen and (max-width: 480px) {
+    :root {
+        --font-size-5xl: 2.25rem;
+        --font-size-4xl: 1.875rem;
+    }
+
+    /* Hero */
+    .hero__title-main {
+        font-size: 1.75rem;
+    }
+
+    /* 卡片 */
+    .feature-card,
+    .system-card {
+        padding: var(--spacing-md);
+    }
+
+    /* 下载卡片 */
+    .download-card__info p {
+        font-size: var(--font-size-xs);
+    }
+
+    /* 表单 */
+    .contact-form__input,
+    .contact-form__select,
+    .contact-form__textarea {
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Section 间距 */
+    .section-header {
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    .section-header__description {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* ==================== 触摸设备优化 ==================== */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大可点击区域 */
+    .btn,
+    .header__nav-link,
+    .feature-card,
+    .download-card,
+    .system-card,
+    .community-link {
+        min-height: 48px;
+    }
+
+    /* 移除悬停效果，使用点击反馈 */
+    .btn:hover,
+    .feature-card:hover,
+    .download-card:hover,
+    .system-card:hover,
+    .community-link:hover {
+        transform: none;
+    }
+
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    /* 禁用某些悬停依赖的功能 */
+    .header__nav-item--has-submenu:hover .header__submenu {
+        display: none;
+    }
+
+    .header__nav-item--has-submenu:focus-within .header__submenu {
+        display: block;
+    }
+}
+
+/* ==================== 高对比度模式 ==================== */
+@media (prefers-contrast: high) {
+    :root {
+        --color-border: #64748b;
+        --color-border-light: #94a3b8;
+    }
+
+    .btn,
+    .feature-card,
+    .download-card,
+    .system-card,
+    .community-link {
+        border-width: 2px;
+    }
+
+    a:focus-visible {
+        outline-width: 3px;
+    }
+}
+
+/* ==================== 减少动画 ==================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* ==================== 宽屏设备 (> 1280px) ==================== */
+@media screen and (min-width: 1280px) {
+    :root {
+        --container-max: 1280px;
+    }
+
+    .hero__container {
+        gap: var(--spacing-4xl);
+    }
+
+    .features__grid,
+    .download__grid {
+        gap: var(--spacing-2xl);
+    }
+
+    .feature-card,
+    .download-card {
+        padding: var(--spacing-2xl);
+    }
+}
+
+/* ==================== 横屏移动设备 ==================== */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        min-height: auto;
+        padding: calc(var(--header-height) + var(--spacing-lg)) 0 var(--spacing-lg);
+    }
+
+    .hero__container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--spacing-xl);
+    }
+
+    .hero__content {
+        flex: 1;
+    }
+
+    .hero__visual {
+        flex: 0 0 40%;
+    }
+
+    .hero__scroll-indicator {
+        display: none;
+    }
+}
+
+/* ==================== 安全区域适配 (iPhone X+) ==================== */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .back-to-top {
+        bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+        right: calc(var(--spacing-xl) + env(safe-area-inset-right));
+    }
+
+    .header__nav {
+        bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ==================== 浏览器兼容性 ==================== */
+/* IE11 降级样式 */
+@supports not (display: grid) {
+    .features__grid,
+    .world__content,
+    .system__grid,
+    .download__grid,
+    .footer__main,
+    .footer__links {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .feature-card,
+    .system-card,
+    .download-card,
+    .footer__column {
+        flex: 1 1 300px;
+    }
+}

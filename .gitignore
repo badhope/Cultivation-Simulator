@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -58,3 +58,7 @@ data/
 
 # Web build output
 web_build/
+
+# Web downloads (keep the directory structure but not actual downloads)
+web/downloads/*
+!web/downloads/.gitkeep

@@ -61,7 +61,10 @@ class GameEngine:
         self.running = True
         
         # 创建玩家
-        self.player = Player(name=player_name, initial_stats=initial_stats)
+        if initial_stats:
+            self.player = Player(name=player_name, stats=initial_stats)
+        else:
+            self.player = Player(name=player_name)
         
         # 创建世界
         self.world = World()
@@ -82,8 +85,7 @@ class GameEngine:
         print(f"\n欢迎 {player_name} 道友进入修仙世界！")
         print(f"当前境界：{self.player.realm.value}")
         
-        # 开始游戏主循环
-        self._game_loop()
+        # 不再自动启动循环，由 main.py 的用户输入驱动
     
     def load_game(self, save_name: str) -> bool:
         """加载游戏

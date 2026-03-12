@@ -70,7 +70,14 @@ class Config:
         """
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                self._configs[name] = yaml.safe_load(f)
+                data = yaml.safe_load(f)
+            
+            if isinstance(data, dict):
+                # 如果 YAML 有多个顶级键，把每个顶级键存为独立配置
+                for key, value in data.items():
+                    self._configs[key] = value
+            else:
+                self._configs[name] = {'value': data}
         except yaml.YAMLError as e:
             raise ConfigError(f"配置文件解析失败 {file_path}: {e}")
         except Exception as e:
