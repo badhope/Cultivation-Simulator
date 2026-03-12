@@ -661,6 +661,209 @@
         }
     };
 
+    // ==================== 游戏界面模块 ====================
+    const GameUI = {
+        init() {
+            if (!document.getElementById('gameMain')) return;
+
+            this.cacheElements();
+            this.bindEvents();
+            this.initGame();
+
+            console.log('游戏界面初始化完成');
+        },
+
+        cacheElements() {
+            this.elements = {
+                playerName: document.getElementById('playerName'),
+                playerRealm: document.getElementById('playerRealm'),
+                cultivationBar: document.getElementById('cultivationBar'),
+                cultivationValue: document.getElementById('cultivationValue'),
+                ageValue: document.getElementById('ageValue'),
+                gameDay: document.getElementById('gameDay'),
+                resourcesList: document.getElementById('resourcesList'),
+                gameLog: document.getElementById('gameLog'),
+                gamePanel: document.getElementById('gamePanel'),
+                panelTitle: document.getElementById('panelTitle'),
+                panelContent: document.getElementById('panelContent'),
+                panelClose: document.getElementById('panelClose'),
+                modalOverlay: document.getElementById('modalOverlay'),
+                modal: document.getElementById('modal'),
+                modalTitle: document.getElementById('modalTitle'),
+                modalBody: document.getElementById('modalBody'),
+                modalFooter: document.getElementById('modalFooter'),
+                modalClose: document.getElementById('modalClose'),
+                toastContainer: document.getElementById('toastContainer'),
+                backToTop: document.getElementById('backToTop'),
+            };
+        },
+
+        bindEvents() {
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.currentTarget.dataset.action;
+                    this.handleAction(action);
+                });
+            });
+
+            document.getElementById('btnSave')?.addEventListener('click', () => {
+                game.saveGame();
+            });
+
+            document.getElementById('btnLoad')?.addEventListener('click', () => {
+                const result = game.loadGame();
+                if (!result.success) {
+                    this.showToast('没有找到存档', 'warning');
+                }
+            });
+
+            this.elements.panelClose?.addEventListener('click', () => this.closePanel());
+            this.elements.modalClose?.addEventListener('click', () => this.closeModal());
+            this.elements.modalOverlay?.addEventListener('click', (e) => {
+                if (e.target === this.elements.modalOverlay) this.closeModal();
+            });
+
+            game.on('update', (data) => this.updateUI(data));
+            game.on('log', (data) => this.appendLog(data));
+            game.on('breakthrough', (data) => this.showBreakthrough(data));
+        },
+
+        initGame() {
+            const hasSave = localStorage.getItem('cultivation_save');
+            if (hasSave) {
+                game.loadGame();
+            } else {
+                game.newGame();
+            }
+        },
+
+        updateUI(data) {
+            if (this.elements.playerName) this.elements.playerName.textContent = data.name;
+            if (this.elements.playerRealm) this.elements.playerRealm.textContent = `境界: ${data.realmName}`;
+            if (this.elements.ageValue) this.elements.ageValue.textContent = `${data.age} 岁`;
+            if (this.elements.gameDay) this.elements.gameDay.textContent = `第 ${data.day} 天`;
+
+            if (this.elements.cultivationBar && this.elements.cultivationValue) {
+                const percent = Math.min(100, (data.cultivation / data.maxCultivation) * 100);
+                this.elements.cultivationBar.style.width = `${percent}%`;
+                this.elements.cultivationValue.textContent = `${data.cultivation} / ${data.maxCultivation}`;
+            }
+
+            if (this.elements.resourcesList) {
+                this.elements.resourcesList.innerHTML = '';
+                for (const [resource, amount] of Object.entries(data.resources)) {
+                    const icon = resource === '灵石' ? '💎' : resource === '灵药' ? '🌿' : '📦';
+                    const li = document.createElement('li');
+                    li.className = 'resource-item';
+                    li.innerHTML = `
+                        <span class="resource-item__icon">${icon}</span>
+                        <span class="resource-item__name">${resource}</span>
+                        <span class="resource-item__value">${amount}</span>
+                    `;
+                    this.elements.resourcesList.appendChild(li);
+                }
+            }
+        },
+
+        appendLog(data) {
+            if (!this.elements.gameLog) return;
+
+            const entry = document.createElement('div');
+            entry.className = `game-log__entry game-log__entry--${data.type}`;
+            entry.innerHTML = `
+                <span class="game-log__time">${this.getTime()}</span>
+                <p class="game-log__text">${data.message}</p>
+            `;
+            this.elements.gameLog.appendChild(entry);
+            this.elements.gameLog.scrollTop = this.elements.gameLog.scrollHeight;
+        },
+
+        getTime() {
+            const now = new Date();
+            return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        },
+
+        handleAction(action) {
+            switch (action) {
+                case 'cultivate':
+                    game.cultivate();
+                    break;
+                case 'breakthrough':
+                    game.breakthrough();
+                    break;
+                case 'battle':
+                    game.battle();
+                    break;
+                case 'explore':
+                    game.explore();
+                    break;
+                case 'alchemy':
+                    game.alchemy();
+                    break;
+                case 'quest':
+                    this.showQuestPanel();
+                    break;
+                case 'inventory':
+                    this.showInventoryPanel();
+                    break;
+            }
+        },
+
+        showQuestPanel() {
+            this.showPanel('任务', '<p>任务系统开发中...</p>');
+        },
+
+        showInventoryPanel() {
+            const resources = game.getResources();
+            let html = '<div class="inventory-grid">';
+            for (const [name, amount] of Object.entries(resources)) {
+                html += `<div class="inventory-item"><span>${name}</span><span>${amount}</span></div>`;
+            }
+            html += '</div>';
+            this.showPanel('背包', html);
+        },
+
+        showPanel(title, content) {
+            if (this.elements.panelTitle) this.elements.panelTitle.textContent = title;
+            if (this.elements.panelContent) this.elements.panelContent.innerHTML = content;
+            if (this.elements.gamePanel) this.elements.gamePanel.style.display = 'block';
+        },
+
+        closePanel() {
+            if (this.elements.gamePanel) this.elements.gamePanel.style.display = 'none';
+        },
+
+        showModal(title, body, footer = '') {
+            if (this.elements.modalTitle) this.elements.modalTitle.textContent = title;
+            if (this.elements.modalBody) this.elements.modalBody.innerHTML = body;
+            if (this.elements.modalFooter) this.elements.modalFooter.innerHTML = footer;
+            if (this.elements.modalOverlay) this.elements.modalOverlay.style.display = 'flex';
+        },
+
+        closeModal() {
+            if (this.elements.modalOverlay) this.elements.modalOverlay.style.display = 'none';
+        },
+
+        showBreakthrough(data) {
+            this.showToast(`🎉 突破成功！境界提升至：${data.newRealm}！`, 'success');
+        },
+
+        showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.innerHTML = `
+                <span class="toast__icon">${type === 'success' ? '✓' : type === 'error' ? '✗' : '⚠'}</span>
+                <span class="toast__message">${message}</span>
+            `;
+            this.elements.toastContainer?.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'toastIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    };
+
     // ==================== 初始化 ====================
     function init() {
         // 缓存 DOM 元素
@@ -675,6 +878,7 @@
         Animations.init();
         Accessibility.init();
         Performance.init();
+        GameUI.init();
 
         console.log('修仙模拟器 - 网页初始化完成');
     }
