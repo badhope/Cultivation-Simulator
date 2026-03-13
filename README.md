@@ -3,15 +3,13 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests: Passing](https://img.shields.io/badge/tests-passing-brightgreen)]()
-[![PWA](https://img.shields.io/badge/PWA-supported-brightgreen)]()
 
 一个经过**彻底重构**的修仙主题游戏，支持**网页版**和**桌面版**双模式，采用现代化事件驱动架构，代码质量大幅提升。
 
 ## ✨ 项目特色
 
 ### v3.0 新增
-- ✨ **网页版上线** - 纯前端运行，无需后端
-- ✨ **PWA 支持** - 离线可玩，可安装到桌面
+- ✨ **网页版上线** - 纯前端本地运行，无需后端
 - ✨ **事件驱动架构** - 模块化、松耦合
 - ✨ **状态管理** - 类似 Vuex 的集中式管理
 - ✨ **时间旅行** - 状态快照和恢复
@@ -40,10 +38,9 @@ python -m http.server 8080
 ```
 
 **网页版特色**:
-- ✅ 即开即玩，无需安装
-- ✅ 自动保存进度
-- ✅ PWA 支持，可离线游玩
-- ✅ 支持手机、平板、电脑
+ - ✅ 即开即玩，无需安装
+ - ✅ 自动保存进度
+ - ✅ 支持手机、平板、电脑
 
 ### 方式二：桌面版
 

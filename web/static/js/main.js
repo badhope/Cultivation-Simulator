@@ -223,19 +223,6 @@ if (document.readyState === 'loading') {
     init();
 }
 
-// 注册 Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/web/sw.js')
-            .then((registration) => {
-                console.log('[PWA] Service Worker 注册成功:', registration.scope);
-            })
-            .catch((error) => {
-                console.error('[PWA] Service Worker 注册失败:', error);
-            });
-    });
-}
-
 // 导出
 export { UIManager };
 export default {
