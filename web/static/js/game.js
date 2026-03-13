@@ -144,7 +144,12 @@ class GameEngine {
             maxCultivation: this.getMaxCultivation(),
             age: this.state.age,
             day: this.state.day,
+            health: this.state.health,
+            maxHealth: GameConfig.MAX_HEALTH,
+            stamina: this.state.stamina,
+            maxStamina: GameConfig.DAILY_STAMINA,
             resources: this.state.resources,
+            realmDescription: RealmData[this.state.realm]?.description || "",
         };
     }
 

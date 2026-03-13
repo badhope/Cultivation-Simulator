@@ -679,6 +679,10 @@
                 playerRealm: document.getElementById('playerRealm'),
                 cultivationBar: document.getElementById('cultivationBar'),
                 cultivationValue: document.getElementById('cultivationValue'),
+                healthBar: document.getElementById('healthBar'),
+                healthValue: document.getElementById('healthValue'),
+                staminaBar: document.getElementById('staminaBar'),
+                staminaValue: document.getElementById('staminaValue'),
                 ageValue: document.getElementById('ageValue'),
                 gameDay: document.getElementById('gameDay'),
                 resourcesList: document.getElementById('resourcesList'),
@@ -739,7 +743,13 @@
 
         updateUI(data) {
             if (this.elements.playerName) this.elements.playerName.textContent = data.name;
-            if (this.elements.playerRealm) this.elements.playerRealm.textContent = `境界: ${data.realmName}`;
+            if (this.elements.playerRealm) {
+                let realmText = `境界: ${data.realmName}`;
+                if (data.realmDescription) {
+                    realmText += ` - ${data.realmDescription}`;
+                }
+                this.elements.playerRealm.textContent = realmText;
+            }
             if (this.elements.ageValue) this.elements.ageValue.textContent = `${data.age} 岁`;
             if (this.elements.gameDay) this.elements.gameDay.textContent = `第 ${data.day} 天`;
 
@@ -747,6 +757,18 @@
                 const percent = Math.min(100, (data.cultivation / data.maxCultivation) * 100);
                 this.elements.cultivationBar.style.width = `${percent}%`;
                 this.elements.cultivationValue.textContent = `${data.cultivation} / ${data.maxCultivation}`;
+            }
+
+            if (this.elements.healthBar && this.elements.healthValue) {
+                const healthPercent = Math.min(100, Math.max(0, (data.health / data.maxHealth) * 100));
+                this.elements.healthBar.style.width = `${healthPercent}%`;
+                this.elements.healthValue.textContent = `${data.health} / ${data.maxHealth}`;
+            }
+
+            if (this.elements.staminaBar && this.elements.staminaValue) {
+                const staminaPercent = Math.min(100, Math.max(0, (data.stamina / data.maxStamina) * 100));
+                this.elements.staminaBar.style.width = `${staminaPercent}%`;
+                this.elements.staminaValue.textContent = `${data.stamina} / ${data.maxStamina}`;
             }
 
             if (this.elements.resourcesList) {

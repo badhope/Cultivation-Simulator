@@ -189,6 +189,14 @@
     transition: width 0.5s ease;
 }
 
+.stat-item__bar--health .stat-item__progress {
+    background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+}
+
+.stat-item__bar--stamina .stat-item__progress {
+    background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+}
+
 .stat-item__value {
     font-size: 0.875rem;
     color: var(--color-text-primary, #fff);
