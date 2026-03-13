@@ -1,8 +1,13 @@
 # 修仙模拟器 - 网页版
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Deploy to GitHub Pages](https://github.com/badhope/Cultivation-Simulator/actions/workflows/pages.yml/badge.svg)](https://github.com/badhope/Cultivation-Simulator/actions/workflows/pages.yml)
 
 一款纯前端的沉浸式文字修仙游戏，从凡人到仙人的修炼之旅。
+
+## 🌐 在线体验
+
+**GitHub Pages：** https://badhope.github.io/Cultivation-Simulator/game.html
 
 ## 🚀 快速开始
 
