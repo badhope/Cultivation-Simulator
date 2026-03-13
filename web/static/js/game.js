@@ -516,6 +516,11 @@ class GameEngine {
 
 const game = new GameEngine();
 
+// ES6 模块导出
+export { GameEngine, GameState, GameConfig, RealmData, game };
+export default game;
+
+// CommonJS 导出（保持向后兼容）
 if (typeof module !== "undefined" && module.exports) {
     module.exports = { GameEngine, GameState, GameConfig, RealmData, game };
 }
