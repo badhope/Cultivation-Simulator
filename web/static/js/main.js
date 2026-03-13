@@ -261,6 +261,15 @@ const UIManager = {
     },
 };
 
+// 暴露全局函数供 HTML 调用
+window.startGameDirect = function() {
+    UIManager.startGame();
+};
+
+window.showLoadModal = function() {
+    UIManager.showLoadModal();
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[Main] 游戏初始化');
     UIManager.init();
