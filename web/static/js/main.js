@@ -125,7 +125,10 @@ const UIManager = {
         });
 
         this.elements.backBtn?.addEventListener('click', () => {
-            this.showStartModal();
+            if (confirm('确定要重新开始吗？当前进度将会丢失。')) {
+                localStorage.removeItem('cultivation_game_save');
+                location.reload();
+            }
         });
 
         eventBus.on(GameEvents.SYSTEM_LOG, (data) => {
@@ -144,7 +147,15 @@ const UIManager = {
     checkAutoLoad() {
         const saveData = storageManager.load('game_save');
         if (saveData && saveData.state) {
-            this.showLoadModal();
+            gameEngine.init(saveData.state.player?.name || '无名修士');
+            gameEngine.start();
+            this.updateUI();
+            console.log('[Main] 已自动加载存档');
+        } else {
+            gameEngine.init('无名修士');
+            gameEngine.start();
+            this.updateUI();
+            console.log('[Main] 已自动开始新游戏');
         }
     },
 
@@ -154,7 +165,6 @@ const UIManager = {
         gameEngine.start();
         this.updateUI();
         this.closeStartModal();
-        this.elements.backBtn.style.display = 'flex';
     },
 
     updateUI() {

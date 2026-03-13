@@ -163,7 +163,7 @@
                     <div class="game-log__container" id="gameLog">
                         <div class="game-log__entry game-log__entry--system">
                             <span class="game-log__time">00:00</span>
-                            <p class="game-log__text">欢迎来到修仙模拟器！选择左侧操作开始游戏。</p>
+                            <p class="game-log__text">欢迎来到修仙模拟器！点击下方按钮开始修炼。</p>
                         </div>
                     </div>
                 </section>
@@ -195,8 +195,8 @@
         </div>
     </div>
 
-    <!-- 开始游戏模态框 -->
-    <div class="modal-overlay" id="startGameOverlay">
+    <!-- 游戏自动启动，无需命名界面 -->
+    <div class="modal-overlay" id="startGameOverlay" style="display: none;">
         <div class="modal modal--lg" role="dialog" aria-labelledby="startGameTitle" aria-modal="true">
             <div class="modal__header">
                 <h2 class="modal__title" id="startGameTitle">🎮 开始修仙之旅</h2>
@@ -216,17 +216,17 @@
                         </ul>
                     </div>
                     <div class="start-game-form">
-                            <label for="playerNameInput">请输入你的道号：</label>
-                            <input type="text" id="playerNameInput" class="start-game-input" placeholder="无名修士" maxlength="20">
-                            <div class="start-game-actions">
-                                <button class="action-btn action-btn--primary" id="btnStartGame">
-                                    <span>✨ 开始修炼</span>
-                                </button>
-                                <button class="action-btn" id="btnLoadSave" style="display: none;">
-                                    <span>📂 读取存档</span>
-                                </button>
-                            </div>
+                        <label for="playerNameInput">请输入你的道号：</label>
+                        <input type="text" id="playerNameInput" class="start-game-input" placeholder="无名修士" maxlength="20">
+                        <div class="start-game-actions">
+                            <button class="action-btn action-btn--primary" id="btnStartGame">
+                                <span>✨ 开始修炼</span>
+                            </button>
+                            <button class="action-btn" id="btnLoadSave" style="display: none;">
+                                <span>📂 读取存档</span>
+                            </button>
                         </div>
+                    </div>
                 </div>
             </div>
         </div>
