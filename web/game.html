@@ -191,6 +191,43 @@
         </div>
     </div>
 
+    <!-- 开始游戏模态框 -->
+    <div class="modal-overlay" id="startGameOverlay">
+        <div class="modal modal--lg" role="dialog" aria-labelledby="startGameTitle" aria-modal="true">
+            <div class="modal__header">
+                <h2 class="modal__title" id="startGameTitle">🎮 开始修仙之旅</h2>
+                <button class="modal__close" id="startGameClose" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="start-game-content">
+                    <div class="start-game-intro">
+                        <p>欢迎来到修仙模拟器！在这里，你将踏上从凡人到仙人的修炼之路。</p>
+                        <p>你可以：</p>
+                        <ul class="start-game-features">
+                            <li>🧘 <strong>修炼</strong> - 吸收天地灵气，提升修为</li>
+                            <li>⬆️ <strong>突破</strong> - 突破境界瓶颈，迈入新的修炼阶段</li>
+                            <li>⚔️ <strong>战斗</strong> - 与妖兽、修士切磋较量</li>
+                            <li>🗺️ <strong>探索</strong> - 游历修仙界，寻找机缘奇遇</li>
+                            <li>⚗️ <strong>炼丹</strong> - 炼制丹药，辅助修炼</li>
+                        </ul>
+                    </div>
+                    <div class="start-game-form">
+                        <label for="playerNameInput">请输入你的道号：</label>
+                        <input type="text" id="playerNameInput" class="start-game-input" placeholder="无名修士" maxlength="20">
+                        <div class="start-game-actions">
+                            <button class="action-btn action-btn--primary" id="btnStartGame">
+                                <span>✨ 开始修炼</span>
+                            </button>
+                            <button class="action-btn" id="btnLoadSave" style="display: none;">
+                                <span>📂 读取存档</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <button class="back-to-top" id="backToTop" aria-label="返回顶部" style="display: none;">

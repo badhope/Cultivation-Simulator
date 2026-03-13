@@ -699,6 +699,11 @@
                 modalClose: document.getElementById('modalClose'),
                 toastContainer: document.getElementById('toastContainer'),
                 backToTop: document.getElementById('backToTop'),
+                startGameOverlay: document.getElementById('startGameOverlay'),
+                startGameClose: document.getElementById('startGameClose'),
+                btnStartGame: document.getElementById('btnStartGame'),
+                btnLoadSave: document.getElementById('btnLoadSave'),
+                playerNameInput: document.getElementById('playerNameInput'),
             };
         },
 
@@ -727,6 +732,28 @@
                 if (e.target === this.elements.modalOverlay) this.closeModal();
             });
 
+            this.elements.startGameClose?.addEventListener('click', () => {
+                this.closeStartGameModal();
+            });
+
+            this.elements.startGameOverlay?.addEventListener('click', (e) => {
+                if (e.target === this.elements.startGameOverlay) this.closeStartGameModal();
+            });
+
+            this.elements.btnStartGame?.addEventListener('click', () => {
+                this.startGame();
+            });
+
+            this.elements.btnLoadSave?.addEventListener('click', () => {
+                this.loadSaveFromModal();
+            });
+
+            this.elements.playerNameInput?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.startGame();
+                }
+            });
+
             game.on('update', (data) => this.updateUI(data));
             game.on('log', (data) => this.appendLog(data));
             game.on('breakthrough', (data) => this.showBreakthrough(data));
@@ -734,10 +761,44 @@
 
         initGame() {
             const hasSave = localStorage.getItem('cultivation_save');
+            
             if (hasSave) {
-                game.loadGame();
+                this.elements.btnLoadSave.style.display = 'flex';
+            }
+            
+            this.showStartGameModal();
+        },
+
+        showStartGameModal() {
+            if (this.elements.startGameOverlay) {
+                this.elements.startGameOverlay.style.display = 'flex';
+                this.elements.playerNameInput?.focus();
+            }
+        },
+
+        closeStartGameModal() {
+            if (this.elements.startGameOverlay) {
+                this.elements.startGameOverlay.style.display = 'none';
+            }
+        },
+
+        startGame() {
+            const playerName = this.elements.playerNameInput?.value?.trim() || '无名修士';
+            const result = game.newGame(playerName);
+            
+            if (result.success) {
+                this.closeStartGameModal();
+                this.showToast('修仙之旅开始！', 'success');
+            }
+        },
+
+        loadSaveFromModal() {
+            const result = game.loadGame();
+            if (result.success) {
+                this.closeStartGameModal();
+                this.showToast('存档读取成功！', 'success');
             } else {
-                game.newGame();
+                this.showToast('没有找到存档', 'warning');
             }
         },
 
