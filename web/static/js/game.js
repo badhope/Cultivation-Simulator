@@ -288,6 +288,23 @@ class GameEngine {
     }
 
     explore() {
+        const health = stateManager.get('player.health');
+        if (health <= 0) {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'error',
+                message: '生命值已耗尽，无法探索！',
+            });
+            return { success: false, reason: 'no_health' };
+        }
+
+        if (health < 30) {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'warning',
+                message: '生命值过低，建议先休息恢复！',
+            });
+            return { success: false, reason: 'low_health' };
+        }
+
         const locations = [
             { name: '青云山', danger: 1, reward: { '灵石': 10, '灵药': 5 } },
             { name: '迷雾森林', danger: 3, reward: { '灵石': 20, '灵药': 10 } },
@@ -303,7 +320,17 @@ class GameEngine {
 
         if (realmIndex < location.danger) {
             const damage = 20 * location.danger;
-            stateManager.set('player.health', Math.max(0, stateManager.get('player.health') - damage));
+            const newHealth = Math.max(0, stateManager.get('player.health') - damage);
+            stateManager.set('player.health', newHealth);
+            
+            if (newHealth <= 0) {
+                eventBus.emit(GameEvents.SYSTEM_LOG, {
+                    type: 'error',
+                    message: `⚠️ 在 ${location.name} 遇到危险！受到 ${damage} 点伤害，不幸陨落！`,
+                });
+                this.handleDeath();
+                return { success: false, reason: 'dead', damage };
+            }
             
             eventBus.emit(GameEvents.SYSTEM_LOG, {
                 type: 'error',
@@ -361,6 +388,15 @@ class GameEngine {
         const newHealth = Math.max(0, playerHealth - enemyDamage);
         stateManager.set('player.health', newHealth);
 
+        if (newHealth <= 0) {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'error',
+                message: `⚔️ 与 ${enemy.name} 战斗中受到 ${enemyDamage} 点伤害，不幸陨落！`,
+            });
+            this.handleDeath();
+            return { success: false, reason: 'dead', enemy: enemy.name };
+        }
+
         const stats = stateManager.get('player.stats');
         stateManager.set('player.stats.battlesWon', stats.battlesWon + 1);
 
@@ -382,6 +418,17 @@ class GameEngine {
     }
 
     rest() {
+        const health = stateManager.get('player.health');
+        
+        if (health <= 0) {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'error',
+                message: '💀 你已陨落，无法休息！游戏结束。',
+            });
+            this.handleDeath();
+            return { success: false, reason: 'dead' };
+        }
+
         const maxHealth = stateManager.get('player.maxHealth');
         const maxStamina = stateManager.get('player.maxStamina');
         
@@ -401,6 +448,31 @@ class GameEngine {
             healthRecovered: 20,
             staminaRecovered: 10,
         };
+    }
+
+    handleDeath() {
+        eventBus.emit(GameEvents.SYSTEM_LOG, {
+            type: 'error',
+            message: '━━━━━━━━━━━━━━━━━━━━',
+        });
+        eventBus.emit(GameEvents.SYSTEM_LOG, {
+            type: 'error',
+            message: '😞 道友已陨落，修仙之路终结！',
+        });
+        eventBus.emit(GameEvents.SYSTEM_LOG, {
+            type: 'error',
+            message: `📊 最终境界：${stateManager.get('player.realm')}`,
+        });
+        eventBus.emit(GameEvents.SYSTEM_LOG, {
+            type: 'error',
+            message: `📊 存活天数：${stateManager.get('player.day')} 天`,
+        });
+        eventBus.emit(GameEvents.SYSTEM_LOG, {
+            type: 'error',
+            message: '━━━━━━━━━━━━━━━━━━━━',
+        });
+        
+        storageManager.remove(GameConfig.STORAGE_KEY);
     }
 
     saveGame() {

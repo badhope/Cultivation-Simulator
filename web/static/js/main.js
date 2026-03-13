@@ -44,6 +44,9 @@ const UIManager = {
             battleBtn: document.getElementById('btnBattle'),
             exploreBtn: document.getElementById('btnExplore'),
             restBtn: document.getElementById('btnRest'),
+            alchemyBtn: document.getElementById('btnAlchemy'),
+            questBtn: document.getElementById('btnQuest'),
+            inventoryBtn: document.getElementById('btnInventory'),
             saveBtn: document.getElementById('btnSave'),
             loadBtn: document.getElementById('btnLoad'),
             menuBtn: document.getElementById('menuBtn'),
@@ -77,6 +80,28 @@ const UIManager = {
         this.elements.restBtn?.addEventListener('click', () => {
             const result = gameEngine.rest();
             if (result.success) this.updateUI();
+        });
+
+        // 未实现功能提示
+        this.elements.alchemyBtn?.addEventListener('click', () => {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'info',
+                message: '🔮 炼丹系统开发中，敬请期待！',
+            });
+        });
+
+        this.elements.questBtn?.addEventListener('click', () => {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'info',
+                message: '📜 任务系统开发中，敬请期待！',
+            });
+        });
+
+        this.elements.inventoryBtn?.addEventListener('click', () => {
+            eventBus.emit(GameEvents.SYSTEM_LOG, {
+                type: 'info',
+                message: '🎒 背包系统开发中，敬请期待！',
+            });
         });
 
         this.elements.saveBtn?.addEventListener('click', () => {
