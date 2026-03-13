@@ -1,0 +1,109 @@
+# 事件系统配置
+# 类似 P 社游戏的事件链
+
+{
+  "events": {
+    "宗门任务": {
+      "id": "sect_mission",
+      "name": "宗门任务",
+      "type": "任务",
+      "trigger": "location:青云宗",
+      "probability": 0.3,
+      "options": [
+        {
+          "text": "接受任务",
+          "effect": {
+            "spiritual_power": "+10",
+            "reputation": "+5"
+          },
+          "next_event": "task_complete"
+        },
+        {
+          "text": "拒绝任务",
+          "effect": {
+            "reputation": "-2"
+          }
+        }
+      ]
+    },
+    
+    "遭遇妖兽": {
+      "id": "meet_beast",
+      "name": "遭遇妖兽",
+      "type": "战斗",
+      "trigger": "location:妖兽山脉",
+      "probability": 0.5,
+      "combat": true,
+      "enemy_templates": ["炼气妖兽", "妖丹期妖兽"]
+    },
+    
+    "发现遗迹": {
+      "id": "discover_ruins",
+      "name": "发现遗迹",
+      "type": "探索",
+      "trigger": "location:妖兽山脉",
+      "probability": 0.2,
+      "options": [
+        {
+          "text": "进入探索",
+          "effect": {
+            "random_reward": true
+          },
+          "risk": "可能遭遇危险"
+        },
+        {
+          "text": "离开",
+          "effect": {}
+        }
+      ]
+    },
+    
+    "天降祥瑞": {
+      "id": "heaven_blessing",
+      "name": "天降祥瑞",
+      "type": "机缘",
+      "trigger": "cultivation_level >= 3",
+      "probability": 0.1,
+      "effect": {
+        "spiritual_power": "+50",
+        "health": "+20"
+      }
+    },
+    
+    "心魔入侵": {
+      "id": "heart_demon",
+      "name": "心魔入侵",
+      "type": "危机",
+      "trigger": "breakthrough_fail",
+      "probability": 1.0,
+      "options": [
+        {
+          "text": "抵抗心魔",
+          "effect": {
+            "health": "-30"
+          },
+          "risk": "可能重伤"
+        },
+        {
+          "text": "屈服",
+          "effect": {
+            "cultivation_level": "-1"
+          },
+          "risk": "修为倒退"
+        }
+      ]
+    }
+  },
+  
+  "event_chains": {
+    "宗门崛起": {
+      "id": "sect_rise",
+      "steps": [
+        "宗门任务",
+        "宗门大比",
+        "秘境试炼",
+        "宗门战争"
+      ]
+    }
+  }
+}

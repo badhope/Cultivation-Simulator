@@ -1,157 +1,158 @@
-# 修仙模拟器 - 网页版
+# 修仙模拟器 - 策略 RPG
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Deploy to GitHub Pages](https://github.com/badhope/Cultivation-Simulator/actions/workflows/pages.yml/badge.svg)](https://github.com/badhope/Cultivation-Simulator/actions/workflows/pages.yml)
+一款基于 Python + Pygame 开发的修仙题材策略游戏，融合 P 社游戏的事件驱动和策略系统。
 
-一款纯前端的沉浸式文字修仙游戏，从凡人到仙人的修炼之旅。
+## 🎮 游戏特色
 
-## 🌐 在线体验
-
-**GitHub Pages：** https://badhope.github.io/Cultivation-Simulator/game.html
+- **开放世界探索** - 类似 P 社大地图的地区系统
+- **策略决策** - 每个选择都会影响世界走向
+- **事件链系统** - 蝴蝶效应，事件相互影响
+- **灵力修炼** - 通过积累灵力突破境界
+- **回合制战斗** - 策略性战斗系统
+- **永久死亡** - 死亡后删档，墓碑纪念
 
 ## 🚀 快速开始
 
-### 方式一：双击启动（推荐）
-
-**Windows 用户：**
-```bash
-双击 start.bat
-```
-
-**Mac/Linux 用户：**
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-### 方式二：手动启动
+### Windows 系统
 
 ```bash
-cd web
-python -m http.server 8080
+# 1. 安装依赖（首次运行）
+install.bat
+
+# 2. 运行游戏
+start.bat
+# 或
+python game.py
 ```
 
-然后在浏览器打开：**http://localhost:8080/game.html**
+### 其他平台
 
-### 方式三：使用 Live Server（VS Code）
+```bash
+# 1. 安装依赖
+pip install -r requirements.txt
 
-1. 安装 VS Code 的 Live Server 插件
-2. 右键 `web/game.html` → Open with Live Server
-
-## 🎮 游戏玩法
-
-### 境界系统
-
-```
-凡人 → 练气期 → 筑基期 → 金丹期 → 元婴期 → 化神期 → 合体期 → 大乘期 → 渡劫期 → 飞升
+# 2. 运行游戏
+python game.py
 ```
 
-### 核心操作
+## 🎯 游戏操作
 
-| 操作 | 说明 | 消耗 |
-|------|------|------|
-| 🧘 修炼 | 提升修为 | 体力 -5 |
-| ⚡ 突破 | 境界突破 | 灵石 -100 |
-| ⚔️ 战斗 | 挑战妖兽 | 生命值 |
-| 🗺️ 探索 | 寻找资源 | 时间 +1 天 |
-| 💤 休息 | 恢复状态 | 时间 +1 天 |
-| 💾 存档 | 保存进度 | - |
+### 菜单界面
+- 鼠标点击按钮 或 按数字键 1-3
 
-### 修炼提示
+### 探索界面
+- **1. 修炼** - 进入修炼状态
+- **2. 探索** - 探索当前地区
+- **3. 移动** - 前往其他地区
+- **4. 状态** - 查看详细信息
+- **5. 存档** - 保存游戏进度
 
-1. **修为满时及时突破**，避免浪费修炼时间
-2. **突破有 20% 失败率**，失败会损失修为和生命值
-3. **境界越高，探索越安全**，低境界不要探索危险地区
-4. **合理分配资源**，灵石用于突破，灵药用于炼丹（开发中）
+### 修炼界面
+- **开始修炼** - 自动积累灵力
+- **突破** - 尝试突破境界（有风险）
+- **返回** - 回到探索界面
+
+### 战斗界面
+- **1. 攻击** - 普通攻击
+- **2. 防御** - 减少伤害
+- **3. 技能** - 2 倍伤害
+- **4. 逃跑** - 50% 成功率
 
 ## 📁 项目结构
 
 ```
 Cultivation-Simulator/
-├── web/                      # 网页版
-│   ├── static/
-│   │   ├── css/             # 样式文件
-│   │   └── js/
-│   │       ├── core/        # 核心模块
-│   │       │   ├── event-bus.js
-│   │       │   ├── state-manager.js
-│   │       │   └── storage-manager.js
-│   │       ├── game.js      # 游戏主逻辑
-│   │       └── main.js      # UI 交互
-│   ├── game.html            # 游戏页面
-│   └── index.html           # 首页
-├── start.bat                 # Windows 启动脚本
-├── start.sh                  # Mac/Linux 启动脚本
-└── README.md
+├── game.py              # 主程序入口
+├── requirements.txt     # 依赖列表
+├── install.bat         # 安装脚本
+├── start.bat           # 启动脚本
+├── README.md           # 项目说明
+├── core/               # 核心系统
+│   ├── game.py        # 游戏主循环
+│   ├── state_manager.py  # 状态管理
+│   ├── event_bus.py   # 事件系统
+│   └── save_system.py # 存档系统
+├── states/            # 游戏状态
+│   ├── main_menu.py   # 主菜单
+│   ├── explore_state.py  # 探索
+│   ├── combat_state.py   # 战斗
+│   ├── cultivate_state.py # 修炼
+│   └── death_state.py    # 死亡
+└── data/              # 数据配置
+    ├── world_config.json    # 世界配置
+    └── event_config.json    # 事件配置
 ```
 
-## 🛠️ 技术栈
+## 🎮 游戏系统
 
-- **前端三件套**：HTML5, CSS3, JavaScript (ES6+)
-- **架构模式**：事件驱动 + 状态管理
-- **存储方案**：LocalStorage（自动保存）
-- **零依赖**：无需任何 npm 包，开箱即用
+### 修炼系统
+- 通过修炼积累灵力
+- 灵力达到瓶颈后可尝试突破
+- 突破有失败风险，失败会受伤
+- 境界：炼气 1-9 层 → 筑基 → 金丹...
 
-## 📋 浏览器要求
+### 战斗系统
+- 回合制策略战斗
+- 攻击、防御、技能、逃跑四种选择
+- 敌人强度随地区危险度提升
+- 战斗失败 = 死亡
 
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
+### 永久死亡
+- 生命归零或突破失败会死亡
+- 死亡后自动删除存档
+- 创建墓碑记录死亡信息
+- 无法复活，只能重新开始
 
-## 🎯 游戏特色
+## 🛠️ 开发
 
-- 🧘 **完整修炼体系** - 9 大境界，每个境界需要不同修为
-- ⚔️ **战斗系统** - 挑战妖兽，获取灵石
-- 🗺️ **探索系统** - 4 个不同危险的地点
-- 💾 **自动存档** - 每分钟自动保存，支持手动读档
-- 📱 **响应式设计** - 支持手机、平板、电脑
-- 🎨 **现代化 UI** - 流畅动画，沉浸式体验
+### 添加新地区
 
-## 🔧 开发说明
+编辑 `data/world_config.json`：
 
-### 本地开发
-
-```bash
-# 启动开发服务器
-python -m http.server 8080
-
-# 访问
-http://localhost:8080/game.html
+```json
+"新地区": {
+  "name": "地区名称",
+  "type": "类型",
+  "danger_level": 危险度 (0-5),
+  "resources": ["资源列表"],
+  "events": ["事件列表"]
+}
 ```
 
-### 代码结构
+### 添加新事件
 
-- **game.js** - 游戏核心逻辑（修炼、突破、战斗、探索）
-- **main.js** - UI 交互和事件绑定
-- **core/** - 可复用的核心模块
-  - `event-bus.js` - 事件总线
-  - `state-manager.js` - 状态管理
-  - `storage-manager.js` - 存储管理
+编辑 `data/event_config.json`：
 
-### 添加新功能
+```json
+"新事件": {
+  "name": "事件名称",
+  "type": "类型",
+  "trigger": "触发条件",
+  "probability": 触发概率，
+  "options": [
+    {
+      "text": "选项文字",
+      "effect": {"属性": "变化值"}
+    }
+  ]
+}
+```
 
-1. 在 `game.js` 中添加游戏逻辑方法
-2. 在 `main.js` 中绑定 UI 事件
-3. 使用 `eventBus.emit()` 发送事件
-4. 使用 `stateManager` 管理状态
+## 📝 待开发功能
 
-## 📝 更新日志
+- [ ] 完整的事件链系统
+- [ ] NPC 交互系统
+- [ ] 任务系统
+- [ ] 背包/装备系统
+- [ ] 技能树系统
+- [ ] 更多地区和敌人类型
 
-### v2.0 (当前版本)
-- ✅ 重构为纯 Web 版本
-- ✅ 删除所有 Python 桌面版代码
-- ✅ 优化游戏引擎架构
-- ✅ 改进 UI 交互体验
-- ✅ 添加自动存档功能
-- ✅ 新增休息恢复功能
+## 🎨 技术栈
 
-### v1.0
-- 初始版本（Python 桌面版）
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
+- **Python 3.8+**
+- **Pygame 2.5+** - 图形渲染
+- **NumPy** - 数据处理
+- **JSON** - 配置文件
 
 ## 📄 许可证
 
@@ -159,6 +160,4 @@ MIT License
 
 ---
 
-**祝各位道友早日飞升！** 🧘‍♂️✨
-
-**游戏地址：** http://localhost:8080/game.html
+**游戏仍在开发中，更多功能敬请期待！**

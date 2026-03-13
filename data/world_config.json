@@ -1,0 +1,53 @@
+# 世界配置
+# 类似 P 社游戏的省份/地区系统
+
+{
+  "regions": {
+    "青云宗": {
+      "id": "qingyun Sect",
+      "name": "青云宗",
+      "type": "宗门",
+      "danger_level": 0,
+      "resources": ["灵石", "灵草"],
+      "events": ["宗门任务", "讲道"],
+      "description": "正道第一宗门，底蕴深厚"
+    },
+    
+    "妖兽山脉": {
+      "id": "beast_mountains",
+      "name": "妖兽山脉",
+      "type": "秘境",
+      "danger_level": 3,
+      "resources": ["妖丹", "灵草", "矿石"],
+      "events": ["遭遇妖兽", "发现遗迹"],
+      "description": "妖兽聚集之地，危险与机遇并存"
+    },
+    
+    "坊市": {
+      "id": "market",
+      "name": "坊市",
+      "type": "城镇",
+      "danger_level": 0,
+      "resources": ["丹药", "法器"],
+      "events": ["交易", "打听消息"],
+      "description": "修士聚集的交易场所"
+    },
+    
+    "秘境": {
+      "id": "secret_realm",
+      "name": "上古秘境",
+      "type": "秘境",
+      "danger_level": 5,
+      "resources": ["天材地宝", "功法"],
+      "events": ["秘境试炼", "遭遇机缘"],
+      "description": "上古大能留下的传承之地"
+    }
+  },
+  
+  "region_connections": {
+    "青云宗": ["坊市", "妖兽山脉"],
+    "妖兽山脉": ["青云宗", "秘境"],
+    "坊市": ["青云宗"],
+    "秘境": ["妖兽山脉"]
+  }
+}
