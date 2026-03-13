@@ -21,509 +21,561 @@
     <link rel="stylesheet" href="static/css/main.css">
     <link rel="stylesheet" href="static/css/components.css">
     <link rel="stylesheet" href="static/css/responsive.css">
+
+    <style>
+        :root {
+            --color-primary: #6366f1;
+            --color-primary-dark: #4f46e5;
+            --color-secondary: #8b5cf6;
+            --color-accent: #ec4899;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --color-bg-dark: #0f172a;
+            --color-bg-card: #1e293b;
+            --color-text: #e2e8f0;
+            --color-text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(15, 23, 42, 0.8) 100%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero-title {
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 50%, #c4b5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 28px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            color: #cbd5e1;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 2;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 0;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .section-title {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 25px;
+        }
+
+        .feature-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .feature-text {
+            font-size: 16px;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+
+        /* Story Section */
+        .story {
+            padding: 120px 0;
+        }
+
+        .story-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .story-text h3 {
+            font-size: 36px;
+            margin-bottom: 25px;
+            color: #a5b4fc;
+        }
+
+        .story-text p {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 2;
+        }
+
+        .story-visual {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .realm-list {
+            list-style: none;
+        }
+
+        .realm-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .realm-item:nth-child(1) { border-color: #6b7280; }
+        .realm-item:nth-child(2) { border-color: #10b981; }
+        .realm-item:nth-child(3) { border-color: #3b82f6; }
+        .realm-item:nth-child(4) { border-color: #f59e0b; }
+        .realm-item:nth-child(5) { border-color: #ef4444; }
+        .realm-item:nth-child(6) { border-color: #8b5cf6; }
+        .realm-item:nth-child(7) { border-color: #ec4899; }
+
+        .realm-name {
+            font-size: 20px;
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .realm-desc {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 120px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        }
+
+        .cta h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 20px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: #64748b;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 42px;
+            }
+            .hero-subtitle {
+                font-size: 20px;
+            }
+            .hero-description {
+                font-size: 16px;
+            }
+            .section-title {
+                font-size: 32px;
+            }
+            .story-content {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <a href="#main-content" class="skip-link">跳至主要内容</a>
-
-    <header class="header" id="header">
-        <div class="header__container">
-            <div class="header__brand">
-                <a href="/" class="header__logo" aria-label="修仙模拟器首页">
-                    <svg class="header__logo-icon" viewBox="0 0 40 40" aria-hidden="true">
-                        <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <path d="M20 8 L20 32 M8 20 L32 20" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                    <span class="header__logo-text">修仙模拟器</span>
-                </a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">🧘 修仙题材文字冒险游戏</span>
+                <h1 class="hero-title">修仙模拟器</h1>
+                <p class="hero-subtitle">从凡人到仙人的修炼之旅</p>
+                <p class="hero-description">
+                    在这里，你将体验一段完整的修仙人生。从最初的凡人开始，
+                    通过不断修炼、历炼、悟道，一步步突破境界瓶颈。
+                    修炼功法、炼制丹药、创建门派、寻找机缘、渡劫飞升...
+                    书写只属于你的仙侠传奇！
+                </p>
+                <div class="hero-actions">
+                    <a href="game.html" class="btn btn-primary">
+                        <span>🚀</span> 开始游戏
+                    </a>
+                    <a href="#features" class="btn btn-secondary">了解更多</a>
+                </div>
             </div>
-
-            <button class="header__toggle" id="navToggle" aria-label="切换导航菜单" aria-expanded="false">
-                <span class="header__toggle-bar"></span>
-                <span class="header__toggle-bar"></span>
-                <span class="header__toggle-bar"></span>
-            </button>
-
-            <nav class="header__nav" id="mainNav" aria-label="主导航">
-                <ul class="header__nav-list">
-                    <li class="header__nav-item">
-                        <a href="#home" class="header__nav-link header__nav-link--active">首页</a>
-                    </li>
-                    <li class="header__nav-item header__nav-item--has-submenu">
-                        <button class="header__nav-link" aria-expanded="false" aria-haspopup="true">
-                            游戏介绍
-                            <svg class="header__nav-arrow" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M7 10 L12 15 L17 10" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </button>
-                        <ul class="header__submenu" role="menu">
-                            <li role="menuitem"><a href="#features">核心玩法</a></li>
-                            <li role="menuitem"><a href="#world">世界观</a></li>
-                            <li role="menuitem"><a href="#system">系统介绍</a></li>
-                        </ul>
-                    </li>
-                    <li class="header__nav-item">
-                        <a href="#download" class="header__nav-link">下载</a>
-                    </li>
-                    <li class="header__nav-item">
-                        <a href="#community" class="header__nav-link">社区</a>
-                    </li>
-                    <li class="header__nav-item">
-                        <a href="#contact" class="header__nav-link">联系我们</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
-    </header>
+    </section>
 
-    <nav class="breadcrumb" aria-label="面包屑导航" id="breadcrumb">
-        <div class="breadcrumb__container">
-            <ol class="breadcrumb__list">
-                <li class="breadcrumb__item"><a href="/">首页</a></li>
-                <li class="breadcrumb__item" aria-current="page">游戏介绍</li>
-            </ol>
-        </div>
-    </nav>
-
-    <main id="main-content">
-        <section class="hero" id="home">
-            <div class="hero__background"></div>
-            <div class="hero__container">
-                <div class="hero__content">
-                    <h1 class="hero__title">
-                        <span class="hero__title-main">修仙模拟器</span>
-                        <span class="hero__title-sub">从凡人到仙人的修炼之旅</span>
-                    </h1>
-                    <p class="hero__description">
-                        一款沉浸式文字修仙游戏，修炼功法、炼制丹药、创建门派、渡劫飞升...
-                        体验完整的修仙人生书写你的仙侠传奇
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">核心玩法</h2>
+            <p class="section-subtitle">丰富多样的修仙玩法，带给你沉浸式的游戏体验</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧘</div>
+                    <h3 class="feature-title">修炼体系</h3>
+                    <p class="feature-text">
+                        从凡人开始，经历练气、筑基、金丹、元婴、化神、合体、大乘、渡劫，最终飞升仙界。
+                        每个境界都有独特的名称和描述，需要积累足够的修为才能突破境界瓶颈。
+                        修炼过程需要消耗体力，可以通过休息恢复体力值。
+                        境界越高，修炼效率越高，但突破难度也越大。
                     </p>
-                    <div class="hero__actions">
-                        <a href="#download" class="btn btn--primary btn--large">
-                            <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 16 L12 4 M12 4 L6 10 M12 4 L18 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                <path d="M4 16 L20 16" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                            立即下载
-                        </a>
-                        <a href="#features" class="btn btn--secondary btn--large">了解更多</a>
-                    </div>
                 </div>
-                <div class="hero__visual">
-                    <div class="hero__image-container">
-                        <div class="hero__placeholder">
-                            <svg viewBox="0 0 400 300" aria-label="游戏截图预览">
-                                <rect x="10" y="10" width="380" height="280" rx="8" fill="#1a1a2e" stroke="#4a4a6a" stroke-width="2"/>
-                                <rect x="30" y="30" width="150" height="100" rx="4" fill="#16213e" stroke="#3a3a5a"/>
-                                <text x="105" y="85" fill="#888" font-size="12" text-anchor="middle">游戏界面预览</text>
-                                <rect x="200" y="30" width="170" height="240" rx="4" fill="#16213e" stroke="#3a3a5a"/>
-                                <text x="285" y="155" fill="#888" font-size="12" text-anchor="middle">功能面板</text>
-                            </svg>
-                        </div>
-                    </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚔️</div>
+                    <h3 class="feature-title">战斗系统</h3>
+                    <p class="feature-text">
+                        与修仙世界中的各种妖魔鬼怪进行战斗。战斗需要消耗体力，
+                        战胜后可获得灵石和修为奖励，失败则会损失生命值。
+                        随着境界提升，战斗力会越来越强，战胜高难度敌人的几率也会增加。
+                        战斗是获取修炼资源的重要途径之一。
+                    </p>
                 </div>
-            </div>
-            <div class="hero__scroll-indicator" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 5 L12 19 M12 19 L6 13 M12 19 L18 13" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-            </div>
-        </section>
 
-        <section class="features" id="features">
-            <div class="features__container">
-                <header class="section-header">
-                    <h2 class="section-header__title">核心玩法</h2>
-                    <p class="section-header__description">丰富多样的修仙玩法，带给你沉浸式的游戏体验</p>
-                </header>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">探索历练</h3>
+                    <p class="feature-text">
+                        探索修仙世界的各个角落，寻找珍贵的资源和奇遇。
+                        探索过程中可能发现灵石、灵草，也可能遇到危险损失生命值，
+                        更有可能遇到仙缘奇遇，获得大量修为提升。
+                        每次探索都是一次未知的冒险，充满了惊喜与挑战。
+                    </p>
+                </div>
 
-                <div class="features__grid">
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M24 12 L24 36 M12 24 L36 24" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">修炼体系</h3>
-                        <p class="feature-card__description">从凡人开始，经历练气、筑基、金丹、元婴、化神等境界，最终渡劫飞升仙界</p>
-                    </article>
+                <div class="feature-card">
+                    <div class="feature-icon">⚗️</div>
+                    <h3 class="feature-title">炼丹系统</h3>
+                    <p class="feature-text">
+                        收集天地灵草，炼制各种灵丹妙药。炼丹需要消耗灵草和灵石，
+                        成功炼制可获得大量修为提升，失败则损失材料。
+                        随着境界提升，炼丹成功率也会相应提高。
+                        高阶丹药能够提供巨额修为，是快速提升实力的捷径。
+                    </p>
+                </div>
 
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M24 4 L44 14 L44 34 L24 44 L4 34 L4 14 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M24 14 L34 19 L34 29 L24 34 L14 29 L14 19 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">功法系统</h3>
-                        <p class="feature-card__description">收集和修炼各种功法，法术、体术、剑术...打造属于你的修仙之路</p>
-                    </article>
+                <div class="feature-card">
+                    <div class="feature-icon">📜</div>
+                    <h3 class="feature-title">任务系统</h3>
+                    <p class="feature-text">
+                        接受各种修仙任务，完成后获得丰厚奖励。
+                        任务类型包括采集灵药、击败怪物、寻找矿石、领悟功法等。
+                        不同任务消耗的体力和获得的奖励各不相同。
+                        随着境界提升，任务成功率也会提高，奖励更加丰厚。
+                    </p>
+                </div>
 
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <rect x="8" y="16" width="32" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M16 16 L16 8 L32 8 L32 16" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <circle cx="24" cy="28" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">炼丹炼器</h3>
-                        <p class="feature-card__description">收集灵草，炼制丹药提升修为；寻找材料，炼制法宝增强实力</p>
-                    </article>
-
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <circle cx="24" cy="16" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M12 40 C12 30 18 24 24 24 C30 24 36 30 36 40" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">门派系统</h3>
-                        <p class="feature-card__description">创建自己的门派，收徒传道，争夺修仙界资源，成为一代宗师</p>
-                    </article>
-
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M8 40 L8 20 L24 8 L40 20 L40 40 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M16 28 L24 20 L32 28" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">历练探索</h3>
-                        <p class="feature-card__description">探索各大洞天福地，寻找仙缘奇遇，挑战秘境获得宝物</p>
-                    </article>
-
-                    <article class="feature-card">
-                        <div class="feature-card__icon">
-                            <svg viewBox="0 0 48 48" aria-hidden="true">
-                                <circle cx="24" cy="24" r="16" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path d="M24 14 L24 24 L32 24" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <h3 class="feature-card__title">天道轮回</h3>
-                        <p class="feature-card__description">体验完整的人生历程，从婴儿到飞升，每个阶段都有不同的挑战与机遇</p>
-                    </article>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3 class="feature-title">存档系统</h3>
+                    <p class="feature-text">
+                        游戏支持自动保存和手动保存功能。
+                        每分钟自动保存一次进度，也可以随时手动保存。
+                        下次进入游戏可以加载存档继续冒险。
+                        数据保存在浏览器本地存储中，安全可靠。
+                    </p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="world" id="world">
-            <div class="world__container">
-                <header class="section-header">
-                    <h2 class="section-header__title">世界观</h2>
-                    <p class="section-header__description">浩瀚修仙世界，等你来探索</p>
-                </header>
-
-                <div class="world__content">
-                    <div class="world__map">
-                        <div class="world__map-container">
-                            <svg viewBox="0 0 600 400" aria-label="修仙世界地图">
-                                <rect x="0" y="0" width="600" height="400" fill="#0d1117"/>
-                                <path d="M50 200 Q150 100 300 150 T550 200" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.5"/>
-                                <circle cx="100" cy="150" r="30" fill="none" stroke="#10b981" stroke-width="2"/>
-                                <text x="100" y="155" fill="#10b981" font-size="10" text-anchor="middle">新手村</text>
-                                <circle cx="250" cy="100" r="35" fill="none" stroke="#f59e0b" stroke-width="2"/>
-                                <text x="250" y="105" fill="#f59e0b" font-size="10" text-anchor="middle">青云门</text>
-                                <circle cx="450" cy="180" r="40" fill="none" stroke="#ef4444" stroke-width="2"/>
-                                <text x="450" y="185" fill="#ef4444" font-size="10" text-anchor="middle">万魔渊</text>
-                                <circle cx="350" cy="300" r="35" fill="none" stroke="#8b5cf6" stroke-width="2"/>
-                                <text x="350" y="305" fill="#8b5cf6" font-size="10" text-anchor="middle">灵药园</text>
-                                <circle cx="520" cy="320" r="30" fill="none" stroke="#ec4899" stroke-width="2"/>
-                                <text x="520" y="325" fill="#ec4899" font-size="10" text-anchor="middle">交易坊</text>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="world__description">
-                        <h3 class="world__subtitle">修炼境界</h3>
-                        <ul class="realm-list">
-                            <li><span class="realm realm--mortal">凡人</span> - 未经修炼的普通人</li>
-                            <li><span class="realm realm--qi">练气</span> - 引气入体，初步修炼</li>
-                            <li><span class="realm realm--foundation">筑基</span> - 奠定道基，法力初成</li>
-                            <li><span class="realm realm--golden">金丹</span> - 结成金丹，寿元大增</li>
-                            <li><span class="realm realm--nascent">元婴</span> - 元婴出窍，神通广大</li>
-                            <li><span class="realm realm--transcendent">化神</span> - 化神返虚，领悟天道</li>
-                            <li><span class="realm realm--ascended">飞升</span> - 渡劫成功，升入仙界</li>
-                        </ul>
-                    </div>
+    <!-- Story Section -->
+    <section class="story" id="story">
+        <div class="container">
+            <h2 class="section-title">修炼境界</h2>
+            <p class="section-subtitle">每一个境界都是一次蜕变，每一步都需要艰辛的努力</p>
+            
+            <div class="story-content">
+                <div class="story-text">
+                    <h3>修仙之路，漫漫其修远</h3>
+                    <p>
+                        修仙之路，始于凡尘。自古以来，无数修士追求长生不老之道，
+                        期望有朝一日能够超脱凡尘，飞升仙界。然而修仙之路充满荆棘，
+                        需要经历无数磨难与考验。
+                    </p>
+                    <p>
+                        从最初的引气入体，到最后的渡劫飞升，每一个境界都需要付出巨大的努力。
+                        资质、悟性、资源、机缘，缺一不可。有的人一生止步于练气，
+                        有的人却能短短数十年便成就金丹。修仙之路，因人而异，
+                        全凭各自的造化和选择。
+                    </p>
+                    <p>
+                        在这款游戏中，你将体验从凡人到仙人的完整修炼过程。
+                        通过不断修炼、战斗、探索、炼丹，一步步提升自己的境界，
+                        最终能否渡劫飞升，就看你的造化了。
+                    </p>
                 </div>
-            </div>
-        </section>
-
-        <section class="system" id="system">
-            <div class="system__container">
-                <header class="section-header">
-                    <h2 class="section-header__title">系统介绍</h2>
-                    <p class="section-header__description">完善的游戏系统，带来深度游戏体验</p>
-                </header>
-
-                <div class="system__grid">
-                    <div class="system-card">
-                        <h3 class="system-card__title">战斗系统</h3>
-                        <p class="system-card__text">回合制战斗玩法，结合五行相克、功法克制等策略元素</p>
-                    </div>
-                    <div class="system-card">
-                        <h3 class="system-card__title">经济系统</h3>
-                        <p class="system-card__text">完整的灵石经济体系，交易、拍卖、任务奖励多种获取途径</p>
-                    </div>
-                    <div class="system-card">
-                        <h3 class="system-card__title">任务系统</h3>
-                        <p class="system-card__text">主线任务、支线任务、日常任务，探索修仙世界的每个角落</p>
-                    </div>
-                    <div class="system-card">
-                        <h3 class="system-card__title">成就系统</h3>
-                        <p class="system-card__text">丰富的成就等待解锁，记录你的修仙历程</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="download" id="download">
-            <div class="download__container">
-                <header class="section-header section-header--light">
-                    <h2 class="section-header__title">立即下载</h2>
-                    <p class="section-header__description">选择适合你的版本开始修仙之旅</p>
-                </header>
-
-                <div class="download__grid">
-                    <div class="download-card">
-                        <div class="download-card__header">
-                            <h3 class="download-card__title">Windows 版</h3>
-                            <span class="download-card__badge">推荐</span>
-                        </div>
-                        <div class="download-card__info">
-                            <p><strong>版本：</strong>v2.0.0</p>
-                            <p><strong>大小：</strong>约 15 MB</p>
-                            <p><strong>更新：</strong>2024-03-13</p>
-                        </div>
-                        <div class="download-card__actions">
-                            <button
-                                class="btn btn--primary download-btn"
-                                data-file="cultivation-simulator-v2.0.0-win.exe"
-                                data-mode="direct"
-                                aria-label="下载 Windows 版本">
-                                <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 16 L12 4 M12 4 L6 10 M12 4 L18 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                    <path d="M4 16 L20 16" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                                <span>直接下载</span>
-                            </button>
-                            <button
-                                class="btn btn--secondary download-btn"
-                                data-file="cultivation-simulator-v2.0.0-win.exe"
-                                data-mode="new-window"
-                                aria-label="新窗口下载 Windows 版本">
-                                <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M18 13 L18 6 L11 6 M7 6 L7 13 L14 6" stroke="currentColor" stroke-width="2" fill="none"/>
-                                    <path d="M3 18 L21 18" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                                <span>新窗口下载</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="download-card">
-                        <div class="download-card__header">
-                            <h3 class="download-card__title">macOS 版</h3>
-                        </div>
-                        <div class="download-card__info">
-                            <p><strong>版本：</strong>v2.0.0</p>
-                            <p><strong>大小：</strong>约 18 MB</p>
-                            <p><strong>更新：</strong>2024-03-13</p>
-                        </div>
-                        <div class="download-card__actions">
-                            <button
-                                class="btn btn--primary download-btn"
-                                data-file="cultivation-simulator-v2.0.0-mac.dmg"
-                                data-mode="direct"
-                                aria-label="下载 macOS 版本">
-                                <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 16 L12 4 M12 4 L6 10 M12 4 L18 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                    <path d="M4 16 L20 16" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                                <span>直接下载</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="download-card">
-                        <div class="download-card__header">
-                            <h3 class="download-card__title">Linux 版</h3>
-                        </div>
-                        <div class="download-card__info">
-                            <p><strong>版本：</strong>v2.0.0</p>
-                            <p><strong>大小：</strong>约 12 MB</p>
-                            <p><strong>更新：</strong>2024-03-13</p>
-                        </div>
-                        <div class="download-card__actions">
-                            <button
-                                class="btn btn--primary download-btn"
-                                data-file="cultivation-simulator-v2.0.0-linux.tar.gz"
-                                data-mode="direct"
-                                aria-label="下载 Linux 版本">
-                                <svg class="btn__icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 16 L12 4 M12 4 L6 10 M12 4 L18 10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                    <path d="M4 16 L20 16" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                                <span>直接下载</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="download__alternative">
-                    <h3 class="download__alternative-title">其他下载方式</h3>
-                    <ul class="download__alternative-list">
-                        <li>
-                            <a href="https://github.com/example/cultivation-simulator/releases" target="_blank" rel="noopener noreferrer">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 2 L2 7 L12 12 L22 7 Z M2 17 L12 22 L22 17" stroke="currentColor" stroke-width="2" fill="none"/>
-                                </svg>
-                                GitHub Releases
-                            </a>
+                
+                <div class="story-visual">
+                    <ul class="realm-list">
+                        <li class="realm-item">
+                            <span class="realm-name">凡人</span>
+                            <span class="realm-desc">尚未踏入修仙之门，寿命有限</span>
                         </li>
-                        <li>
-                            <a href="#" target="_blank" rel="noopener noreferrer">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                    <path d="M8 12 L16 12 M12 8 L12 16" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                                百度网盘
-                            </a>
+                        <li class="realm-item">
+                            <span class="realm-name">练气期</span>
+                            <span class="realm-desc">引气入体，凝聚灵气</span>
+                        </li>
+                        <li class="realm-item">
+                            <span class="realm-name">筑基期</span>
+                            <span class="realm-desc">夯实根基，凝结道基</span>
+                        </li>
+                        <li class="realm-item">
+                            <span class="realm-name">金丹期</span>
+                            <span class="realm-desc">凝聚金丹，孕育元婴</span>
+                        </li>
+                        <li class="realm-item">
+                            <span class="realm-name">元婴期</span>
+                            <span class="realm-desc">元婴出窍，神游太虚</span>
+                        </li>
+                        <li class="realm-item">
+                            <span class="realm-name">化神期</span>
+                            <span class="realm-desc">神识化形，返璞归真</span>
+                        </li>
+                        <li class="realm-item">
+                            <span class="realm-name">大乘期</span>
+                            <span class="realm-desc">功德圆满，渡劫飞升</span>
                         </li>
                     </ul>
                 </div>
-
-                <div class="download__progress" id="downloadProgress" role="status" aria-live="polite" hidden>
-                    <div class="download__progress-bar">
-                        <div class="download__progress-fill" id="progressFill"></div>
-                    </div>
-                    <p class="download__progress-text" id="progressText">准备下载...</p>
-                </div>
-
-                <div class="download__message" id="downloadMessage" role="alert" hidden></div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="community" id="community">
-            <div class="community__container">
-                <header class="section-header">
-                    <h2 class="section-header__title">社区</h2>
-                    <p class="section-header__description">加入社区与其他玩家交流</p>
-                </header>
-
-                <div class="community__links">
-                    <a href="#" class="community-link community-link--discord">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M18.942 5.556a16.3 16.3 0 0 0-4.126-1.3 12.04 12.04 0 0 0-.529 1.1 15.175 15.175 0 0 0-4.573 0 11.58 11.58 0 0 0-.535-1.1 16.29 16.29 0 0 0-4.129 1.3A17.315 17.315 0 0 0 .693 17.7a16.413 16.413 0 0 0 5.16 2.192 12.172 12.172 0 0 0 1.417-2.052 11.488 11.488 0 0 1-1.788-.615c-.138.231-.298.531-.46.796a12.22 12.22 0 0 0 1.02-.249 11.679 11.679 0 0 1-1.87-1.33 12.008 12.008 0 0 0 4.938.376c5.893 0 9.112-4.876 9.112-9.112a9.105 9.105 0 0 0-9.112-9.112" fill="currentColor"/>
-                        </svg>
-                        Discord
-                    </a>
-                    <a href="#" class="community-link community-link--qq">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2" fill="currentColor"/>
-                            <path d="M8.5 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3m7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3m-7 7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v1h-14v-1z" fill="#fff"/>
-                        </svg>
-                        QQ群
-                    </a>
-                    <a href="#" class="community-link community-link--weibo">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M19.585 11.036c-.276-2.053-2.564-3.559-5.127-3.353-3.458.276-5.926 3.152-5.65 6.206.276 3.053 3.354 5.175 6.411 4.825 3.056-.351 5.254-2.889 4.978-5.941l-.612-.737zm-1.817 2.444c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1zm4.53-4.245c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1z" fill="currentColor"/>
-                            <path d="M10.049 16.926c-2.053.926-4.475.165-5.737-1.801-1.262-1.967-1.036-4.476.726-5.737.101-.131.266-.213.439-.213h1.194c.277 0 .509.189.586.463.402 1.425 1.453 2.589 2.853 3.175.277.116.449.398.449.692v1.457c0 .276-.224.5-.5.5-.03 0-.058-.003-.087-.008-.351.526-.826.965-1.423 1.293v1.18z" fill="currentColor"/>
-                        </svg>
-                        微博
-                    </a>
-                </div>
+    <!-- CTA Section -->
+    <section class="cta" id="download">
+        <div class="container">
+            <h2>现在开始你的修仙之旅</h2>
+            <p>
+                无需下载，无需安装，直接在浏览器中体验完整的修仙世界。
+                输入你的道号，即可开始修炼。仙路漫长，期待与你同行！
+            </p>
+            <div class="hero-actions">
+                <a href="game.html" class="btn btn-primary">
+                    <span>🎮</span> 立即开始
+                </a>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="contact" id="contact">
-            <div class="contact__container">
-                <header class="section-header">
-                    <h2 class="section-header__title">联系我们</h2>
-                    <p class="section-header__description">有任何问题？联系我们</p>
-                </header>
-
-                <form class="contact-form" id="contactForm" action="/api/contact" method="POST">
-                    <div class="contact-form__group">
-                        <label for="name" class="contact-form__label">姓名</label>
-                        <input type="text" id="name" name="name" class="contact-form__input" required autocomplete="name">
-                    </div>
-                    <div class="contact-form__group">
-                        <label for="email" class="contact-form__label">邮箱</label>
-                        <input type="email" id="email" name="email" class="contact-form__input" required autocomplete="email">
-                    </div>
-                    <div class="contact-form__group">
-                        <label for="subject" class="contact-form__label">主题</label>
-                        <select id="subject" name="subject" class="contact-form__select" required>
-                            <option value="">请选择主题</option>
-                            <option value="bug">报告Bug</option>
-                            <option value="feature">功能建议</option>
-                            <option value="feedback">游戏反馈</option>
-                            <option value="other">其他</option>
-                        </select>
-                    </div>
-                    <div class="contact-form__group">
-                        <label for="message" class="contact-form__label">留言内容</label>
-                        <textarea id="message" name="message" class="contact-form__textarea" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn--primary btn--large">提交</button>
-                </form>
-            </div>
-        </section>
-    </main>
-
-    <button class="back-to-top" id="backToTop" aria-label="返回顶部" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 19 L12 5 M12 5 L5 12 M12 5 L19 12" stroke="currentColor" stroke-width="2" fill="none"/>
-        </svg>
-    </button>
-
+    <!-- Footer -->
     <footer class="footer">
-        <div class="footer__container">
-            <div class="footer__main">
-                <div class="footer__brand">
-                    <h3 class="footer__title">修仙模拟器</h3>
-                    <p class="footer__tagline">从凡人到仙人的修炼之旅</p>
-                </div>
-                <div class="footer__links">
-                    <div class="footer__column">
-                        <h4 class="footer__column-title">导航</h4>
-                        <ul class="footer__list">
-                            <li><a href="#home">首页</a></li>
-                            <li><a href="#features">核心玩法</a></li>
-                            <li><a href="#download">下载</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer__column">
-                        <h4 class="footer__column-title">资源</h4>
-                        <ul class="footer__list">
-                            <li><a href="#">游戏Wiki</a></li>
-                            <li><a href="#">攻略指南</a></li>
-                            <li><a href="#">常见问题</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer__column">
-                        <h4 class="footer__column-title">法律</h4>
-                        <ul class="footer__list">
-                            <li><a href="#">隐私政策</a></li>
-                            <li><a href="#">服务条款</a></li>
-                            <li><a href="#">版权声明</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer__bottom">
-                <p class="footer__copyright">
-                    &copy; 2024 修仙模拟器. 保留所有权利.
-                </p>
-                <p class="footer__version">
-                    当前版本: v2.0.0 | 最后更新: 2024-03-13
-                </p>
-            </div>
+        <div class="container">
+            <p>© 2024 修仙模拟器 - 祝各位道友早日飞升！</p>
         </div>
     </footer>
 
-    <script src="static/js/main.js" type="module"></script>
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>

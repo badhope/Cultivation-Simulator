@@ -32,6 +32,12 @@ const UIManager = {
             loadBtn: document.getElementById('btnLoad'),
             logContainer: document.getElementById('gameLog'),
         };
+        
+        console.log('[UIManager] Elements cached:', {
+            startModal: !!this.elements.startModal,
+            startGameBtn: !!this.elements.startGameBtn,
+            playerNameInput: !!this.elements.playerNameInput,
+        });
     },
 
     bindEvents() {
@@ -59,6 +65,13 @@ const UIManager = {
         // 保存
         this.elements.saveBtn?.addEventListener('click', () => {
             game.saveGame();
+        });
+
+        // 回车开始游戏
+        this.elements.playerNameInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.startGame();
+            }
         });
 
         // 加载
@@ -109,13 +122,22 @@ const UIManager = {
     },
 
     startGame() {
-        const playerName = this.elements.playerNameInput?.value?.trim() || '无名修士';
-        game.init(playerName);
-        game.start();
-        this.closeStartModal();
-        this.updateUI();
+        console.log('[UIManager] startGame called');
         
-        this.showToast('修仙之旅开始！', 'success');
+        const playerName = this.elements.playerNameInput?.value?.trim() || '无名修士';
+        console.log('[UIManager] Player name:', playerName);
+        
+        try {
+            game.init(playerName);
+            game.start();
+            this.closeStartModal();
+            this.updateUI();
+            
+            this.showToast('修仙之旅开始！', 'success');
+            console.log('[UIManager] Game started successfully');
+        } catch (error) {
+            console.error('[UIManager] Error starting game:', error);
+        }
     },
 
     closeStartModal() {
