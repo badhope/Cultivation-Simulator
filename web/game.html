@@ -213,9 +213,9 @@
                     </div>
                     <div class="start-game-form">
                         <label for="playerNameInput">请输入你的道号：</label>
-                        <input type="text" id="playerNameInput" class="start-game-input" placeholder="无名修士" maxlength="20">
+                        <input type="text" id="playerNameInput" class="start-game-input" placeholder="无名修士" maxlength="20" onkeypress="if(event.key==='Enter')startGameDirect()">
                         <div class="start-game-actions">
-                            <button class="action-btn action-btn--primary" id="btnStartGame">
+                            <button class="action-btn action-btn--primary" id="btnStartGame" onclick="startGameDirect()">
                                 <span>✨ 开始修炼</span>
                             </button>
                             <button class="action-btn" id="btnLoadSave" style="display: none;">

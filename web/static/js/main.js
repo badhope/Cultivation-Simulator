@@ -270,6 +270,16 @@ if (document.readyState === 'loading') {
     init();
 }
 
+// 暴露全局函数供 HTML 调用
+window.startGameDirect = function() {
+    console.log('[Debug] startGameDirect called');
+    if (typeof UIManager !== 'undefined') {
+        UIManager.startGame();
+    } else {
+        console.error('[Debug] UIManager not found');
+    }
+};
+
 // 导出
 export { UIManager };
 export default {
