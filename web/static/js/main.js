@@ -22,16 +22,15 @@ const UIManager = {
 
     cacheElements() {
         this.elements = {
-            startModal: document.getElementById('startModal'),
-            startGameBtn: document.getElementById('startGameBtn'),
+            startModal: document.getElementById('startGameOverlay'),
+            startGameBtn: document.getElementById('btnStartGame'),
             playerNameInput: document.getElementById('playerNameInput'),
             gameMain: document.getElementById('gameMain'),
-            playerInfo: document.getElementById('playerInfo'),
-            cultivationBtn: document.getElementById('cultivateBtn'),
-            breakthroughBtn: document.getElementById('breakthroughBtn'),
-            saveBtn: document.getElementById('saveBtn'),
-            loadBtn: document.getElementById('loadBtn'),
-            logContainer: document.getElementById('logContainer'),
+            cultivationBtn: document.getElementById('btnCultivate'),
+            breakthroughBtn: document.getElementById('btnBreakthrough'),
+            saveBtn: document.getElementById('btnSave'),
+            loadBtn: document.getElementById('btnLoad'),
+            logContainer: document.getElementById('gameLog'),
         };
     },
 
@@ -71,6 +70,38 @@ const UIManager = {
             }
         });
 
+        // 战斗
+        document.getElementById('btnBattle')?.addEventListener('click', () => {
+            const result = game.battle();
+            if (result.success) {
+                this.updateUI();
+            }
+        });
+
+        // 探索
+        document.getElementById('btnExplore')?.addEventListener('click', () => {
+            const result = game.explore();
+            if (result.success) {
+                this.updateUI();
+            }
+        });
+
+        // 炼丹
+        document.getElementById('btnAlchemy')?.addEventListener('click', () => {
+            const result = game.alchemy();
+            if (result.success) {
+                this.updateUI();
+            }
+        });
+
+        // 任务
+        document.getElementById('btnQuest')?.addEventListener('click', () => {
+            const result = game.quest();
+            if (result.success) {
+                this.updateUI();
+            }
+        });
+
         // 监听游戏日志
         eventBus.on(GameEvents.SYSTEM_LOG, (log) => {
             this.addLog(log.message, log.type);
@@ -95,68 +126,62 @@ const UIManager = {
         const playerInfo = game.getPlayerInfo();
         const resources = game.getResources();
 
-        // 更新玩家信息
-        if (this.elements.playerInfo) {
-            this.elements.playerInfo.innerHTML = `
-                <div class="player-card">
-                    <h3 class="player-card__name">${playerInfo.name}</h3>
-                    <p class="player-card__realm">${playerInfo.realmName} - ${playerInfo.realmDescription}</p>
-                    <div class="player-card__stats">
-                        <div class="stat">
-                            <span class="stat__label">年龄:</span>
-                            <span class="stat__value">${playerInfo.age}岁</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat__label">天数:</span>
-                            <span class="stat__value">第${playerInfo.day}天</span>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-container">
-                        <div class="progress-label">
-                            <span>修为</span>
-                            <span>${playerInfo.cultivation}/${playerInfo.maxCultivation}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-bar__fill" style="width: ${(playerInfo.cultivation / playerInfo.maxCultivation) * 100}%"></div>
-                        </div>
-                    </div>
+        // 获取实际存在的元素并更新
+        const playerNameEl = document.getElementById('playerName');
+        const playerRealmEl = document.getElementById('playerRealm');
+        const cultivationBarEl = document.getElementById('cultivationBar');
+        const cultivationValueEl = document.getElementById('cultivationValue');
+        const healthBarEl = document.getElementById('healthBar');
+        const healthValueEl = document.getElementById('healthValue');
+        const staminaBarEl = document.getElementById('staminaBar');
+        const staminaValueEl = document.getElementById('staminaValue');
+        const ageValueEl = document.getElementById('ageValue');
+        const resourceStoneEl = document.getElementById('resourceStone');
+        const resourceHerbEl = document.getElementById('resourceHerb');
+        const gameDayEl = document.getElementById('gameDay');
 
-                    <div class="progress-container">
-                        <div class="progress-label">
-                            <span>生命值</span>
-                            <span>${playerInfo.health}/${playerInfo.maxHealth}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-bar__fill progress-bar__fill--health" style="width: ${(playerInfo.health / playerInfo.maxHealth) * 100}%"></div>
-                        </div>
-                    </div>
+        // 更新玩家名称
+        if (playerNameEl) playerNameEl.textContent = playerInfo.name;
+        
+        // 更新境界
+        if (playerRealmEl) playerRealmEl.textContent = `境界: ${playerInfo.realmName}`;
 
-                    <div class="progress-container">
-                        <div class="progress-label">
-                            <span>体力</span>
-                            <span>${playerInfo.stamina}/${playerInfo.maxStamina}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-bar__fill progress-bar__fill--stamina" style="width: ${(playerInfo.stamina / playerInfo.maxStamina) * 100}%"></div>
-                        </div>
-                    </div>
+        // 更新天数
+        if (gameDayEl) gameDayEl.textContent = `第 ${playerInfo.day} 天`;
 
-                    <div class="player-card__resources">
-                        <div class="resource">
-                            <span class="resource__icon">💎</span>
-                            <span class="resource__name">灵石:</span>
-                            <span class="resource__value">${resources.灵石}</span>
-                        </div>
-                        <div class="resource">
-                            <span class="resource__icon">🌿</span>
-                            <span class="resource__name">灵药:</span>
-                            <span class="resource__value">${resources.灵药}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+        // 更新年龄
+        if (ageValueEl) ageValueEl.textContent = `${playerInfo.age} 岁`;
+
+        // 更新修为进度条
+        if (cultivationBarEl) {
+            const cultivationPercent = Math.min((playerInfo.cultivation / playerInfo.maxCultivation) * 100, 100);
+            cultivationBarEl.style.width = `${cultivationPercent}%`;
         }
+        if (cultivationValueEl) {
+            cultivationValueEl.textContent = `${playerInfo.cultivation} / ${playerInfo.maxCultivation}`;
+        }
+
+        // 更新生命值进度条
+        if (healthBarEl) {
+            const healthPercent = Math.min((playerInfo.health / playerInfo.maxHealth) * 100, 100);
+            healthBarEl.style.width = `${healthPercent}%`;
+        }
+        if (healthValueEl) {
+            healthValueEl.textContent = `${playerInfo.health} / ${playerInfo.maxHealth}`;
+        }
+
+        // 更新体力进度条
+        if (staminaBarEl) {
+            const staminaPercent = Math.min((playerInfo.stamina / playerInfo.maxStamina) * 100, 100);
+            staminaBarEl.style.width = `${staminaPercent}%`;
+        }
+        if (staminaValueEl) {
+            staminaValueEl.textContent = `${playerInfo.stamina} / ${playerInfo.maxStamina}`;
+        }
+
+        // 更新资源
+        if (resourceStoneEl) resourceStoneEl.textContent = resources.灵石;
+        if (resourceHerbEl) resourceHerbEl.textContent = resources.灵药;
     },
 
     addLog(message, type = 'info') {

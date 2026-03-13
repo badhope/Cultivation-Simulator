@@ -1,188 +1,100 @@
-# 修仙模拟器 v3.0
+# 修仙模拟器
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests: Passing](https://img.shields.io/badge/tests-passing-brightgreen)]()
 
-一个经过**彻底重构**的修仙主题游戏，支持**网页版**和**桌面版**双模式，采用现代化事件驱动架构，代码质量大幅提升。
+一款沉浸式文字修仙游戏，从凡人到仙人的修炼之旅。
 
 ## ✨ 项目特色
 
-### v3.0 新增
-- ✨ **网页版上线** - 纯前端本地运行，无需后端
-- ✨ **事件驱动架构** - 模块化、松耦合
-- ✨ **状态管理** - 类似 Vuex 的集中式管理
-- ✨ **时间旅行** - 状态快照和恢复
-
-### 经典特色
-- 🎮 **完整游戏系统** - 战斗、技能、任务、门派、炼丹、经济、成就
-- 📦 **配置系统** - YAML 配置，支持热重载
-- 🧪 **单元测试** - 80%+ 覆盖率
-- 📝 **完善文档** - API 文档、教程、迁移指南
+- 🧘 **修炼体系** - 从凡人开始，经历练气、筑基、金丹、元婴、化神、合体、大乘、渡劫，最终飞升仙界
+- ⚔️ **战斗系统** - 与妖魔鬼怪战斗，提升实力
+- 🏯 **门派系统** - 加入或创建门派，争夺修仙界资源
+- ⚗️ **炼丹系统** - 收集灵草，炼制丹药提升修为
+- 📜 **任务系统** - 完成各种任务，获得奖励
+- 💰 **经济系统** - 自由交易，买卖物品
 
 ## 🚀 快速开始
 
-### 方式一：网页版（推荐）
-
-无需安装任何依赖，直接在浏览器中运行！
+### 网页版（推荐）
 
 ```bash
-# 1. 进入 web 目录
 cd web
-
-# 2. 启动 HTTP 服务器
 python -m http.server 8080
-
-# 3. 访问游戏
-# 浏览器打开：http://localhost:8080/game.html
 ```
 
-**网页版特色**:
- - ✅ 即开即玩，无需安装
- - ✅ 自动保存进度
- - ✅ 支持手机、平板、电脑
+然后在浏览器打开：http://localhost:8080/game.html
 
-### 方式二：桌面版
-
-#### 安装依赖
+### 桌面版
 
 ```bash
 pip install -r requirements.txt
-```
-
-#### 启动游戏
-
-```bash
-# 方法 1：使用模块启动（推荐）
 python -m cultivation
-
-# 方法 2：使用启动脚本（Windows）
-start.bat
-
-# 方法 3：使用启动脚本（Linux/Mac）
-./start.sh
 ```
 
-### 运行测试
+## 🎮 游戏玩法
 
-```bash
-# 网页版测试
-# 访问：http://localhost:8080/test.html
+### 境界划分
 
-# 桌面版测试
-python test_all_systems.py
-python -m pytest tests/
 ```
+凡人 → 练气 → 筑基 → 金丹 → 元婴 → 化神 → 合体 → 大乘 → 渡劫 → 飞升
+```
+
+### 核心操作
+
+1. **修炼**：消耗体力获得修为
+2. **突破**：修为满后消耗灵石突破境界
+3. **战斗**：挑战怪物获得奖励
+4. **探索**：寻找资源和奇遇
+5. **炼丹**：炼制丹药提升实力
+6. **任务**：完成各种任务获取奖励
 
 ## 📁 项目结构
 
 ```
 Cultivation-Simulator/
-├── src/cultivation/          # 主包
-│   ├── core/                # 核心模块
-│   │   ├── player.py        # 玩家类
-│   │   ├── world.py         # 世界类
-│   │   ├── game_engine.py   # 游戏引擎
-│   │   ├── event_system.py  # 事件系统
-│   │   └── save_system.py   # 存档系统
-│   ├── system/              # 游戏系统
-│   │   ├── battle_system.py    # 战斗系统
-│   │   ├── skill_system.py     # 技能系统
-│   │   ├── quest_system.py     # 任务系统
-│   │   ├── sect_system.py      # 门派系统
-│   │   ├── alchemy_system.py   # 炼丹系统
-│   │   ├── economy_system.py   # 经济系统
-│   │   └── achievement_system.py # 成就系统
-│   └── utils/               # 工具模块
-│       ├── config.py        # 配置管理
-│       ├── logger.py        # 日志系统
-│       ├── game_balancer.py # 游戏平衡器
-│       └── performance_optimizer.py # 性能优化器
+├── web/                      # 网页版
+│   ├── static/
+│   │   ├── css/             # 样式文件
+│   │   └── js/
+│   │       └── core/        # 核心模块
+│   │           ├── event-bus.js
+│   │           ├── game-engine.js
+│   │           ├── state-manager.js
+│   │           └── storage-manager.js
+│   ├── game.html            # 游戏页面
+│   └── index.html           # 首页
+├── src/                     # 桌面版源码
 ├── tests/                   # 测试代码
-├── config/                  # 配置文件
-│   ├── game.yaml           # 游戏配置
-│   └── gui.yaml            # GUI 配置
-├── data/saves/             # 存档目录
-├── requirements.txt        # 依赖列表
-└── README.md              # 说明文档
+└── README.md
 ```
 
-## � 游戏系统
+## 🛠️ 技术栈
 
-### 核心系统
+- **网页版**：HTML5, CSS3, JavaScript (ES6+)
+- **桌面版**：Python 3.8+, CustomTkinter
+- **架构**：事件驱动、模块化设计
 
-- **玩家系统** - 境界、属性、修炼路径
-- **世界系统** - 时间、季节、天气、地点
-- **战斗系统** - 回合制战斗、技能、暴击
-- **任务系统** - 主线、支线、日常任务
-- **门派系统** - 加入门派、贡献、晋升
-- **炼丹系统** - 丹方学习、丹药炼制
-- **经济系统** - 交易、价格浮动
-- **成就系统** - 成就解锁、奖励
+## 📋 依赖
 
-### 境界系统
+### Python 依赖
 
-凡人 → 练气 → 筑基 → 金丹 → 元婴 → 化神 → 合体 → 大乘 → 渡劫
-
-### 修炼路径
-
-正道、魔道、妖道、鬼道、佛道、儒道
-
-### 四大门派
-
-- **青云门** - 剑修门派
-- **药王谷** - 丹修门派
-- **天机阁** - 法修门派
-- **霸刀门** - 体修门派
-
-## 🛠️ 开发指南
-
-### 添加新功能
-
-```python
-# 1. 在对应模块创建文件
-# src/cultivation/system/new_system.py
-
-from cultivation.core.event_system import EventSystem
-
-class NewSystem:
-    def __init__(self, event_system: EventSystem):
-        self.event_system = event_system
+```
+customtkinter>=5.0.0
+pyyaml>=6.0
 ```
 
-### 代码规范
+### 浏览器要求
 
-- 使用英文命名
-- 所有函数有类型注解
-- 所有公开 API 有 docstring
-- 所有新功能有测试
-
-## 📊 测试覆盖率
-
-```bash
-# 运行测试
-python test_all_systems.py
-
-# 查看覆盖率
-pytest --cov=src/cultivation --cov-report=html
-```
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
 ## 📄 许可证
 
 MIT License
 
-## 🎉 致谢
-
-感谢所有为这个项目做出贡献的开发者！
-
 ---
 
-**版本**: v2.0.0  
-**最后更新**: 2026 年 3 月 8 日  
-**代码质量**: ⭐⭐⭐⭐⭐
-
-*愿道友修仙顺利，早日飞升！* 🚀
+**祝各位道友早日飞升！** 🧘‍♂️✨
