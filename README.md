@@ -1,14 +1,22 @@
-# 修仙模拟器 v2.0
+# 修仙模拟器 v3.0
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests: Passing](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![PWA](https://img.shields.io/badge/PWA-supported-brightgreen)]()
 
-一个经过**彻底重构**的修仙主题桌面游戏，采用现代化架构设计，代码质量大幅提升。
+一个经过**彻底重构**的修仙主题游戏，支持**网页版**和**桌面版**双模式，采用现代化事件驱动架构，代码质量大幅提升。
 
-## � 项目特色
+## ✨ 项目特色
 
-- ✨ **现代化架构** - 事件驱动、数据类、类型注解
+### v3.0 新增
+- ✨ **网页版上线** - 纯前端运行，无需后端
+- ✨ **PWA 支持** - 离线可玩，可安装到桌面
+- ✨ **事件驱动架构** - 模块化、松耦合
+- ✨ **状态管理** - 类似 Vuex 的集中式管理
+- ✨ **时间旅行** - 状态快照和恢复
+
+### 经典特色
 - 🎮 **完整游戏系统** - 战斗、技能、任务、门派、炼丹、经济、成就
 - 📦 **配置系统** - YAML 配置，支持热重载
 - 🧪 **单元测试** - 80%+ 覆盖率
@@ -16,13 +24,36 @@
 
 ## 🚀 快速开始
 
-### 安装依赖
+### 方式一：网页版（推荐）
+
+无需安装任何依赖，直接在浏览器中运行！
+
+```bash
+# 1. 进入 web 目录
+cd web
+
+# 2. 启动 HTTP 服务器
+python -m http.server 8080
+
+# 3. 访问游戏
+# 浏览器打开：http://localhost:8080/game.html
+```
+
+**网页版特色**:
+- ✅ 即开即玩，无需安装
+- ✅ 自动保存进度
+- ✅ PWA 支持，可离线游玩
+- ✅ 支持手机、平板、电脑
+
+### 方式二：桌面版
+
+#### 安装依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 启动游戏
+#### 启动游戏
 
 ```bash
 # 方法 1：使用模块启动（推荐）
@@ -38,10 +69,11 @@ start.bat
 ### 运行测试
 
 ```bash
-# 运行完整测试
-python test_all_systems.py
+# 网页版测试
+# 访问：http://localhost:8080/test.html
 
-# 运行单元测试
+# 桌面版测试
+python test_all_systems.py
 python -m pytest tests/
 ```
 
