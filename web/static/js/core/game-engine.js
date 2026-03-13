@@ -3,9 +3,9 @@
  * 整合事件总线、状态管理、存储管理
  */
 
-import { eventBus, GameEvents } from './core/event-bus.js';
-import { stateManager } from './core/state-manager.js';
-import { storageManager } from './core/storage-manager.js';
+import { eventBus, GameEvents } from './event-bus.js';
+import { stateManager } from './state-manager.js';
+import { storageManager } from './storage-manager.js';
 
 // 游戏配置
 const GameConfig = {
