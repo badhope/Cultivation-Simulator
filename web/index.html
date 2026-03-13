@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="修仙模拟器 - 策略 RPG 游戏">
+    <meta name="theme-color" content="#0f141f">
+    <title>修仙模拟器 - 策略 RPG</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- 游戏主容器 -->
+    <div id="game-container">
+        <!-- 主菜单界面 -->
+        <div id="main-menu" class="game-state">
+            <div class="menu-background"></div>
+            <div class="menu-content">
+                <h1 class="game-title">修仙模拟器</h1>
+                <p class="game-subtitle">策略 RPG</p>
+                <div class="menu-buttons">
+                    <button class="btn btn-primary" onclick="game.newGame()">新游戏</button>
+                    <button class="btn btn-secondary" onclick="game.loadGame()">继续</button>
+                    <button class="btn btn-danger" onclick="game.exit()">退出</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 探索界面 -->
+        <div id="explore-state" class="game-state" style="display: none;">
+            <div class="state-header">
+                <div class="location-info">
+                    <h2 id="location-name">青云宗</h2>
+                    <span id="location-type" class="badge">宗门</span>
+                    <span id="location-danger" class="badge badge-danger">危险度：无</span>
+                </div>
+                <div class="player-stats-mini">
+                    <span id="explore-cultivation">炼气 1 层</span>
+                    <span id="explore-spiritual">灵力：50/100</span>
+                    <span id="explore-health">生命：100/100</span>
+                </div>
+            </div>
+
+            <div class="state-content">
+                <div class="explore-description" id="explore-desc">
+                    青云宗是你的宗门，安全祥和。
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="game.exploreState.cultivate()">1. 修炼</button>
+                    <button class="btn btn-success" onclick="game.exploreState.explore()">2. 探索</button>
+                    <button class="btn btn-info" onclick="game.exploreState.travel()">3. 移动</button>
+                    <button class="btn btn-warning" onclick="game.exploreState.showStatus()">4. 状态</button>
+                    <button class="btn btn-secondary" onclick="game.exploreState.save()">5. 存档</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 修炼界面 -->
+        <div id="cultivate-state" class="game-state" style="display: none;">
+            <div class="state-header">
+                <h2>修炼</h2>
+            </div>
+
+            <div class="state-content">
+                <div class="cultivate-panel">
+                    <div class="spiritual-bar">
+                        <div class="bar-label">灵力</div>
+                        <div class="bar-container">
+                            <div id="cultivate-spiritual-bar" class="bar-fill"></div>
+                        </div>
+                        <div class="bar-value" id="cultivate-spiritual-text">50/100</div>
+                    </div>
+
+                    <div class="breakthrough-info">
+                        <p>当前境界：<strong id="cultivate-level">炼气 1 层</strong></p>
+                        <p>突破需求：灵力达到 <strong id="cultivate-requirement">100</strong></p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="game.cultivateState.startCultivate()">开始修炼</button>
+                        <button class="btn btn-success" onclick="game.cultivateState.breakthrough()" id="btn-breakthrough" disabled>突破</button>
+                        <button class="btn btn-secondary" onclick="game.cultivateState.back()">返回</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 战斗界面 -->
+        <div id="combat-state" class="game-state" style="display: none;">
+            <div class="state-header">
+                <h2>战斗</h2>
+                <span id="combat-turn" class="badge">第 1 回合</span>
+            </div>
+
+            <div class="state-content">
+                <div class="combat-arena">
+                    <div class="combatant player">
+                        <div class="combatant-name" id="player-name">无名修士</div>
+                        <div class="health-bar">
+                            <div id="player-health-bar" class="health-fill"></div>
+                        </div>
+                        <div class="health-text" id="player-health-text">100/100</div>
+                    </div>
+
+                    <div class="vs-divider">VS</div>
+
+                    <div class="combatant enemy">
+                        <div class="combatant-name" id="enemy-name">炼气妖兽</div>
+                        <div class="health-bar">
+                            <div id="enemy-health-bar" class="health-fill"></div>
+                        </div>
+                        <div class="health-text" id="enemy-health-text">80/80</div>
+                    </div>
+                </div>
+
+                <div class="combat-log" id="combat-log">
+                    <div class="log-entry">战斗开始！</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-danger" onclick="game.combatState.attack()">1. 攻击</button>
+                    <button class="btn btn-info" onclick="game.combatState.defend()">2. 防御</button>
+                    <button class="btn btn-warning" onclick="game.combatState.skill()">3. 技能</button>
+                    <button class="btn btn-secondary" onclick="game.combatState.flee()">4. 逃跑</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 移动界面 -->
+        <div id="travel-state" class="game-state" style="display: none;">
+            <div class="state-header">
+                <h2>移动</h2>
+            </div>
+
+            <div class="state-content">
+                <div class="location-grid" id="location-grid">
+                    <!-- 动态生成地区列表 -->
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="game.travelState.back()">返回</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态界面 -->
+        <div id="status-state" class="game-state" style="display: none;">
+            <div class="state-header">
+                <h2>角色状态</h2>
+            </div>
+
+            <div class="state-content">
+                <div class="status-panel">
+                    <div class="status-row">
+                        <span class="status-label">道号：</span>
+                        <span class="status-value" id="status-name">无名修士</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">境界：</span>
+                        <span class="status-value" id="status-cultivation">炼气 1 层</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">灵力：</span>
+                        <span class="status-value" id="status-spiritual">50/100</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">生命：</span>
+                        <span class="status-value" id="status-health">100/100</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">攻击：</span>
+                        <span class="status-value" id="status-attack">15</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">防御：</span>
+                        <span class="status-value" id="status-defense">5</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">位置：</span>
+                        <span class="status-value" id="status-location">青云宗</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="game.statusState.back()">返回</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 死亡界面 -->
+        <div id="death-state" class="game-state" style="display: none;">
+            <div class="death-content">
+                <h1 class="death-title">道友请留步</h1>
+                <p class="death-reason" id="death-reason">你已陨落</p>
+                <div class="death-stats">
+                    <p>存活时间：<span id="death-time">0</span> 天</p>
+                    <p>最终境界：<span id="death-level">炼气 1 层</span></p>
+                    <p>死亡地点：<span id="death-location">未知</span></p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="game.deathState.newGame()">重新开始</button>
+                    <button class="btn btn-secondary" onclick="game.deathState.mainMenu()">主菜单</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息提示 -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/core/event-bus.js"></script>
+    <script src="js/core/storage-manager.js"></script>
+    <script src="js/core/state-manager.js"></script>
+    <script src="js/core/game-engine.js"></script>
+    <script src="js/states/main-menu.js"></script>
+    <script src="js/states/explore-state.js"></script>
+    <script src="js/states/cultivate-state.js"></script>
+    <script src="js/states/combat-state.js"></script>
+    <script src="js/states/travel-state.js"></script>
+    <script src="js/states/status-state.js"></script>
+    <script src="js/states/death-state.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
