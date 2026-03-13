@@ -1,12 +1,12 @@
 /**
- * 修仙模拟器 - 主入口文件 v3.0
- * 整合所有核心模块
+ * 修仙模拟器 - 主入口文件 v2.0
+ * 纯本地 Web 版本
  */
 
 import { eventBus, GameEvents } from './core/event-bus.js';
 import { stateManager } from './core/state-manager.js';
 import { storageManager } from './core/storage-manager.js';
-import { game } from './core/game-engine.js';
+import { gameEngine, RealmData } from './game.js';
 
 /**
  * UI 管理器
@@ -17,7 +17,7 @@ const UIManager = {
     init() {
         this.cacheElements();
         this.bindEvents();
-        console.log('[UIManager] 初始化完成');
+        this.checkAutoLoad();
     },
 
     cacheElements() {
@@ -26,266 +26,248 @@ const UIManager = {
             startGameBtn: document.getElementById('btnStartGame'),
             playerNameInput: document.getElementById('playerNameInput'),
             gameMain: document.getElementById('gameMain'),
-            cultivationBtn: document.getElementById('btnCultivate'),
+            playerName: document.getElementById('playerName'),
+            playerRealm: document.getElementById('playerRealm'),
+            cultivationBar: document.getElementById('cultivationBar'),
+            cultivationValue: document.getElementById('cultivationValue'),
+            healthBar: document.getElementById('healthBar'),
+            healthValue: document.getElementById('healthValue'),
+            staminaBar: document.getElementById('staminaBar'),
+            staminaValue: document.getElementById('staminaValue'),
+            ageValue: document.getElementById('ageValue'),
+            dayValue: document.getElementById('gameDay'),
+            stoneValue: document.getElementById('stoneValue'),
+            herbValue: document.getElementById('herbValue'),
+            logContainer: document.getElementById('gameLog'),
+            cultivateBtn: document.getElementById('btnCultivate'),
             breakthroughBtn: document.getElementById('btnBreakthrough'),
+            battleBtn: document.getElementById('btnBattle'),
+            exploreBtn: document.getElementById('btnExplore'),
+            restBtn: document.getElementById('btnRest'),
             saveBtn: document.getElementById('btnSave'),
             loadBtn: document.getElementById('btnLoad'),
-            logContainer: document.getElementById('gameLog'),
+            menuBtn: document.getElementById('menuBtn'),
+            backBtn: document.getElementById('backBtn'),
         };
-        
-        console.log('[UIManager] Elements cached:', {
-            startModal: !!this.elements.startModal,
-            startGameBtn: !!this.elements.startGameBtn,
-            playerNameInput: !!this.elements.playerNameInput,
-        });
     },
 
     bindEvents() {
-        // 开始游戏
-        this.elements.startGameBtn?.addEventListener('click', () => {
-            this.startGame();
+        this.elements.startGameBtn?.addEventListener('click', () => this.startGame());
+        
+        this.elements.cultivateBtn?.addEventListener('click', () => {
+            const result = gameEngine.cultivate();
+            if (result.success) this.updateUI();
         });
 
-        // 修炼
-        this.elements.cultivationBtn?.addEventListener('click', () => {
-            const result = game.cultivate();
-            if (result.success) {
-                this.updateUI();
-            }
-        });
-
-        // 突破
         this.elements.breakthroughBtn?.addEventListener('click', () => {
-            const result = game.breakthrough();
-            if (result.success) {
-                this.updateUI();
-            }
+            const result = gameEngine.breakthrough();
+            if (result.success) this.updateUI();
         });
 
-        // 保存
+        this.elements.battleBtn?.addEventListener('click', () => {
+            const result = gameEngine.battle();
+            if (result.success) this.updateUI();
+        });
+
+        this.elements.exploreBtn?.addEventListener('click', () => {
+            const result = gameEngine.explore();
+            if (result.success) this.updateUI();
+        });
+
+        this.elements.restBtn?.addEventListener('click', () => {
+            const result = gameEngine.rest();
+            if (result.success) this.updateUI();
+        });
+
         this.elements.saveBtn?.addEventListener('click', () => {
-            game.saveGame();
+            gameEngine.saveGame();
         });
 
-        // 回车开始游戏
-        this.elements.playerNameInput?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.startGame();
-            }
-        });
-
-        // 加载
         this.elements.loadBtn?.addEventListener('click', () => {
-            const result = game.loadGame();
-            if (result.success) {
+            const result = gameEngine.loadGame();
+            if (result) {
                 this.updateUI();
                 this.closeStartModal();
             }
         });
 
-        // 战斗
-        document.getElementById('btnBattle')?.addEventListener('click', () => {
-            const result = game.battle();
-            if (result.success) {
-                this.updateUI();
-            }
+        this.elements.playerNameInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.startGame();
         });
 
-        // 探索
-        document.getElementById('btnExplore')?.addEventListener('click', () => {
-            const result = game.explore();
-            if (result.success) {
-                this.updateUI();
-            }
+        this.elements.menuBtn?.addEventListener('click', () => {
+            this.toggleMenu();
         });
 
-        // 炼丹
-        document.getElementById('btnAlchemy')?.addEventListener('click', () => {
-            const result = game.alchemy();
-            if (result.success) {
-                this.updateUI();
-            }
+        this.elements.backBtn?.addEventListener('click', () => {
+            this.showStartModal();
         });
 
-        // 任务
-        document.getElementById('btnQuest')?.addEventListener('click', () => {
-            const result = game.quest();
-            if (result.success) {
-                this.updateUI();
-            }
+        eventBus.on(GameEvents.SYSTEM_LOG, (data) => {
+            this.addLog(data.message, data.type);
         });
 
-        // 监听游戏日志
-        eventBus.on(GameEvents.SYSTEM_LOG, (log) => {
-            this.addLog(log.message, log.type);
+        eventBus.on(GameEvents.PLAYER_UPDATE, () => {
+            this.updateUI();
+        });
+
+        eventBus.on(GameEvents.PLAYER_LEVEL_UP, (data) => {
+            this.showLevelUpAnimation(data.oldRealm, data.newRealm);
         });
     },
 
+    checkAutoLoad() {
+        const saveData = storageManager.load('game_save');
+        if (saveData && saveData.state) {
+            this.showLoadModal();
+        }
+    },
+
     startGame() {
-        console.log('[UIManager] startGame called');
+        const playerName = this.elements.playerNameInput?.value.trim() || '无名修士';
+        gameEngine.init(playerName);
+        gameEngine.start();
+        this.updateUI();
+        this.closeStartModal();
+        this.elements.backBtn.style.display = 'flex';
+    },
+
+    updateUI() {
+        const status = gameEngine.getPlayerStatus();
         
-        const playerName = this.elements.playerNameInput?.value?.trim() || '无名修士';
-        console.log('[UIManager] Player name:', playerName);
+        if (this.elements.playerName) {
+            this.elements.playerName.textContent = status.name;
+        }
         
-        try {
-            game.init(playerName);
-            game.start();
-            this.closeStartModal();
-            this.updateUI();
-            
-            this.showToast('修仙之旅开始！', 'success');
-            console.log('[UIManager] Game started successfully');
-        } catch (error) {
-            console.error('[UIManager] Error starting game:', error);
+        if (this.elements.playerRealm) {
+            this.elements.playerRealm.textContent = `境界：${status.realm}`;
+        }
+
+        const cultivationPercent = (status.cultivation / status.maxCultivation) * 100;
+        if (this.elements.cultivationBar) {
+            this.elements.cultivationBar.style.width = `${cultivationPercent}%`;
+        }
+        if (this.elements.cultivationValue) {
+            this.elements.cultivationValue.textContent = `${status.cultivation} / ${status.maxCultivation}`;
+        }
+
+        const healthPercent = (status.health / status.maxHealth) * 100;
+        if (this.elements.healthBar) {
+            this.elements.healthBar.style.width = `${healthPercent}%`;
+        }
+        if (this.elements.healthValue) {
+            this.elements.healthValue.textContent = `${status.health} / ${status.maxHealth}`;
+        }
+
+        const staminaPercent = (status.stamina / status.maxStamina) * 100;
+        if (this.elements.staminaBar) {
+            this.elements.staminaBar.style.width = `${staminaPercent}%`;
+        }
+        if (this.elements.staminaValue) {
+            this.elements.staminaValue.textContent = `${status.stamina} / ${status.maxStamina}`;
+        }
+
+        if (this.elements.ageValue) {
+            this.elements.ageValue.textContent = `${status.age} 岁`;
+        }
+
+        if (this.elements.dayValue) {
+            this.elements.dayValue.textContent = `第 ${status.day} 天`;
+        }
+
+        if (this.elements.stoneValue) {
+            this.elements.stoneValue.textContent = status.resources['灵石'] || 0;
+        }
+
+        if (this.elements.herbValue) {
+            this.elements.herbValue.textContent = status.resources['灵药'] || 0;
+        }
+    },
+
+    addLog(message, type = 'info') {
+        if (!this.elements.logContainer) return;
+
+        const logEntry = document.createElement('div');
+        logEntry.className = `game-log__entry game-log__entry--${type}`;
+        
+        const timestamp = new Date().toLocaleTimeString('zh-CN');
+        logEntry.innerHTML = `
+            <span class="game-log__time">${timestamp}</span>
+            <span class="game-log__message">${message}</span>
+        `;
+
+        this.elements.logContainer.insertBefore(logEntry, this.elements.logContainer.firstChild);
+
+        const maxLogs = 50;
+        while (this.elements.logContainer.children.length > maxLogs) {
+            this.elements.logContainer.removeChild(this.elements.logContainer.lastChild);
+        }
+    },
+
+    showLevelUpAnimation(oldRealm, newRealm) {
+        this.addLog(`🎉 突破成功！从 ${oldRealm} 突破到 ${newRealm}`, 'success');
+        
+        const flash = document.createElement('div');
+        flash.className = 'level-up-flash';
+        document.body.appendChild(flash);
+
+        setTimeout(() => {
+            flash.remove();
+        }, 1000);
+    },
+
+    toggleMenu() {
+        const menu = document.getElementById('gameMenu');
+        if (menu) {
+            menu.classList.toggle('game-menu--active');
+        }
+    },
+
+    showStartModal() {
+        if (this.elements.startModal) {
+            this.elements.startModal.classList.add('start-modal--active');
         }
     },
 
     closeStartModal() {
-        this.elements.startModal?.classList.remove('modal--active');
+        if (this.elements.startModal) {
+            this.elements.startModal.classList.remove('start-modal--active');
+        }
     },
 
-    updateUI() {
-        const playerInfo = game.getPlayerInfo();
-        const resources = game.getResources();
+    showLoadModal() {
+        const loadModal = document.getElementById('loadGameOverlay');
+        if (loadModal) {
+            loadModal.classList.add('start-modal--active');
+            
+            const newGameBtn = document.getElementById('btnNewGame');
+            if (newGameBtn) {
+                newGameBtn.addEventListener('click', () => {
+                    loadModal.classList.remove('start-modal--active');
+                    this.showStartModal();
+                });
+            }
 
-        // 获取实际存在的元素并更新
-        const playerNameEl = document.getElementById('playerName');
-        const playerRealmEl = document.getElementById('playerRealm');
-        const cultivationBarEl = document.getElementById('cultivationBar');
-        const cultivationValueEl = document.getElementById('cultivationValue');
-        const healthBarEl = document.getElementById('healthBar');
-        const healthValueEl = document.getElementById('healthValue');
-        const staminaBarEl = document.getElementById('staminaBar');
-        const staminaValueEl = document.getElementById('staminaValue');
-        const ageValueEl = document.getElementById('ageValue');
-        const resourceStoneEl = document.getElementById('resourceStone');
-        const resourceHerbEl = document.getElementById('resourceHerb');
-        const gameDayEl = document.getElementById('gameDay');
-
-        // 更新玩家名称
-        if (playerNameEl) playerNameEl.textContent = playerInfo.name;
-        
-        // 更新境界
-        if (playerRealmEl) playerRealmEl.textContent = `境界: ${playerInfo.realmName}`;
-
-        // 更新天数
-        if (gameDayEl) gameDayEl.textContent = `第 ${playerInfo.day} 天`;
-
-        // 更新年龄
-        if (ageValueEl) ageValueEl.textContent = `${playerInfo.age} 岁`;
-
-        // 更新修为进度条
-        if (cultivationBarEl) {
-            const cultivationPercent = Math.min((playerInfo.cultivation / playerInfo.maxCultivation) * 100, 100);
-            cultivationBarEl.style.width = `${cultivationPercent}%`;
+            const loadSaveBtn = document.getElementById('btnLoadSave');
+            if (loadSaveBtn) {
+                loadSaveBtn.addEventListener('click', () => {
+                    gameEngine.loadGame();
+                    this.updateUI();
+                    loadModal.classList.remove('start-modal--active');
+                    this.elements.backBtn.style.display = 'flex';
+                });
+            }
         }
-        if (cultivationValueEl) {
-            cultivationValueEl.textContent = `${playerInfo.cultivation} / ${playerInfo.maxCultivation}`;
-        }
-
-        // 更新生命值进度条
-        if (healthBarEl) {
-            const healthPercent = Math.min((playerInfo.health / playerInfo.maxHealth) * 100, 100);
-            healthBarEl.style.width = `${healthPercent}%`;
-        }
-        if (healthValueEl) {
-            healthValueEl.textContent = `${playerInfo.health} / ${playerInfo.maxHealth}`;
-        }
-
-        // 更新体力进度条
-        if (staminaBarEl) {
-            const staminaPercent = Math.min((playerInfo.stamina / playerInfo.maxStamina) * 100, 100);
-            staminaBarEl.style.width = `${staminaPercent}%`;
-        }
-        if (staminaValueEl) {
-            staminaValueEl.textContent = `${playerInfo.stamina} / ${playerInfo.maxStamina}`;
-        }
-
-        // 更新资源
-        if (resourceStoneEl) resourceStoneEl.textContent = resources.灵石;
-        if (resourceHerbEl) resourceHerbEl.textContent = resources.灵药;
-    },
-
-    addLog(message, type = 'info') {
-        const logContainer = this.elements.logContainer;
-        if (!logContainer) return;
-
-        const logEntry = document.createElement('div');
-        logEntry.className = `log-entry log-entry--${type}`;
-        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-        
-        logContainer.appendChild(logEntry);
-        logContainer.scrollTop = logContainer.scrollHeight;
-    },
-
-    showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast--${type}`;
-        toast.textContent = message;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('toast--show');
-        }, 10);
-        
-        setTimeout(() => {
-            toast.classList.remove('toast--show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
     },
 };
 
-/**
- * 初始化所有模块
- */
-function init() {
-    console.log('%c[修仙模拟器 v3.0] 初始化开始', 'color: #6366f1; font-weight: bold; font-size: 16px;');
-    
-    try {
-        // 初始化 UI
-        UIManager.init();
-        
-        // 检查是否有存档
-        const saveData = storageManager.load('game_save');
-        if (saveData) {
-            console.log('%c[修仙模拟器] 发现存档', 'color: #10b981;');
-            UIManager.showToast('发现存档，点击"加载存档"继续游戏', 'info');
-        } else {
-            // 显示开始界面
-            UIManager.elements.startModal?.classList.add('modal--active');
-        }
-        
-        console.log('%c[修仙模拟器] 初始化完成 ✓', 'color: #10b981; font-weight: bold; font-size: 16px;');
-    } catch (error) {
-        console.error('%c[修仙模拟器] 初始化失败:', 'color: #ef4444; font-weight: bold; font-size: 16px;', error);
-        eventBus.emit(GameEvents.SYSTEM_ERROR, { error });
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[Main] 游戏初始化');
+    UIManager.init();
+});
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+        console.log('[Main] Service Worker 注册失败（可选功能）');
+    });
 }
-
-// DOM 加载完成后初始化
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
-
-// 暴露全局函数供 HTML 调用
-window.startGameDirect = function() {
-    console.log('[Debug] startGameDirect called');
-    if (typeof UIManager !== 'undefined') {
-        UIManager.startGame();
-    } else {
-        console.error('[Debug] UIManager not found');
-    }
-};
-
-// 导出
-export { UIManager };
-export default {
-    game,
-    eventBus,
-    stateManager,
-    storageManager,
-    UIManager,
-};

@@ -1,29 +1,6 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-env/
-ENV/
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
 .vscode/
@@ -36,10 +13,6 @@ ENV/
 logs/
 *.log
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Test coverage
 htmlcov/
 .coverage
@@ -48,17 +21,6 @@ htmlcov/
 
 # Temporary files
 *.tmp
-*.bak
-*.cache
 
-# Game saves
-data/
-*.sav
-*.save
-
-# Web build output
-web_build/
-
-# Web downloads (keep the directory structure but not actual downloads)
-web/downloads/*
-!web/downloads/.gitkeep
+# Node modules (if using npm in future)
+node_modules/
